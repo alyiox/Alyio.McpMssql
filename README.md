@@ -16,10 +16,16 @@ Read-only Model Context Protocol (MCP) server for Microsoft SQL Server. Exposes 
 
 ## Quick Start
 
+The `@modelcontextprotocol/inspector` is a CLI tool facilitating the inspection, interaction, and streamlined testing of Model Context Protocol servers.
+
+Note: The `--prerelease` flag is used to include pre-release versions of the tool.
+
 Run directly using `dotnet dnx` (no installation required):
 
 ```bash
-dotnet dnx Alyio.McpMssql --connection-string "Server=...;Database=...;Integrated Security=true"
+npx -y @modelcontextprotocol/inspector \
+  -e MCP_MSSQL_CONNECTION_STRING="Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;" \
+  dotnet dnx Alyio.McpMssql --prerelease
 ```
 
 ### Alternative: Global Install
@@ -27,7 +33,9 @@ dotnet dnx Alyio.McpMssql --connection-string "Server=...;Database=...;Integrate
 ```bash
 dotnet pack -c Release -o ./nupkg
 dotnet tool install --global Alyio.McpMssql --add-source ./nupkg
-mcp-mssql
+npx -y @modelcontextprotocol/inspector \
+  -e MCP_MSSQL_CONNECTION_STRING="Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;" \
+  mcp-mssql
 ```
 
 ## Configuration
@@ -74,9 +82,9 @@ Example `mcp.json`:
   "mcpServers": {
     "mcp-mssql": {
       "command": "dotnet",
-      "args": ["dnx", "Alyio.McpMssql"],
+      "args": ["dnx", "Alyio.McpMssql", "--prerelease"],
       "env": {
-        "MCP_MSSQL_CONNECTION_STRING": "Server=...;Database=...;Integrated Security=true"
+        "MCP_MSSQL_CONNECTION_STRING": "Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;"
       }
     }
   }
