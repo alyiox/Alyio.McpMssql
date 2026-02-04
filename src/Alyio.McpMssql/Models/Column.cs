@@ -11,18 +11,18 @@ public class Column
     /// The column name.
     /// </summary>
     public required string Name { get; init; }
-    
+
     /// <summary>
     /// The zero-based ordinal position.
     /// </summary>
     public required int Ordinal { get; init; }
-    
+
     /// <summary>
     /// The data type name (e.g., "int", "varchar", "datetime").
     /// Optional - only included when relevant.
     /// </summary>
     public string? DataTypeName { get; init; }
-    
+
     /// <summary>
     /// Whether the column allows NULL values.
     /// Optional - only included when relevant.
