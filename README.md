@@ -31,8 +31,7 @@ npx -y @modelcontextprotocol/inspector \
 ### Alternative: Global Install
 
 ```bash
-dotnet pack -c Release -o ./nupkg
-dotnet tool install --global Alyio.McpMssql --add-source ./nupkg
+dotnet tool install --global Alyio.McpMssql --prerelease
 npx -y @modelcontextprotocol/inspector \
   -e MCP_MSSQL_CONNECTION_STRING="Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;" \
   mcp-mssql
