@@ -24,7 +24,7 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
-  build-test-publish:
+  build:
     runs-on: ubuntu-latest
 
     services:
