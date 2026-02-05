@@ -72,16 +72,54 @@ For integration tests, the SQL Server connection string (`MCP_MSSQL_CONNECTION_S
 dotnet user-secrets set "MCP_MSSQL_CONNECTION_STRING" "Server=...;Database=..." --project test/Alyio.McpMssql.Tests
 ```
 
-## MCP Client Configuration
+## MCP Agents Configuration
 
-Example `mcp.json`:
+Below are common configurations for different agents.
+
+### OpenCode AI
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "mssql": {
+      "type": "local",
+      "enabled": true,
+      "command": ["dotnet", "dnx", "Alyio.McpMssql", "--prerelease", "--yes"],
+      "environment": {
+        "MCP_MSSQL_CONNECTION_STRING": "Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;"
+      }
+    }
+  }
+}
+```
+
+### Cursor Agent and Gemini CLI
 
 ```json
 {
   "mcpServers": {
-    "mcp-mssql": {
+    "mssql": {
       "command": "dotnet",
-      "args": ["dnx", "Alyio.McpMssql", "--prerelease"],
+      "args": ["dnx", "Alyio.McpMssql", "--prerelease", "--yes"],
+      "env": {
+        "MCP_MSSQL_CONNECTION_STRING": "Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;"
+      }
+    }
+  }
+}
+```
+
+### GitHub Copilot
+
+```json
+{
+  "inputs": [],
+  "servers": {
+    "mssql-us": {
+      "type": "stdio",
+      "command": "dotnet",
+      "args": [ "dnx", "Alyio.McpMssql", "--prerelease", "--yes"],
       "env": {
         "MCP_MSSQL_CONNECTION_STRING": "Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;"
       }

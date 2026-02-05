@@ -2,7 +2,6 @@
 
 using System.IO.Pipelines;
 using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
@@ -44,7 +43,7 @@ public sealed class McpHarness : IAsyncDisposable
             b.SetMinimumLevel(LogLevel.Warning);
         });
 
-        var serviceProvider = BuildServices();
+        var serviceProvider = ServiceScopeFactory.Create().ServiceProvider;
 
         var serverTransport = new StreamServerTransport(serverInput, serverOutput, "mcp-mssql-test-server", loggerFactory);
         var serverOptions = CreateServerOptions(serviceProvider);
@@ -88,16 +87,6 @@ public sealed class McpHarness : IAsyncDisposable
         {
             // Ignore: server may already be stopped.
         }
-    }
-
-    private static ServiceProvider BuildServices()
-    {
-        var configuration = ConfigurationLoader.Load();
-
-        var services = new ServiceCollection();
-        services.AddMcpMssqlOptions(configuration);
-
-        return services.BuildServiceProvider();
     }
 
     private static McpServerOptions CreateServerOptions(IServiceProvider serviceProvider)

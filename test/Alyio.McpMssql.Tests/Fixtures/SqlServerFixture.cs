@@ -1,6 +1,8 @@
 // MIT License
 
 using Alyio.McpMssql.Tests.Helpers;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Alyio.McpMssql.Tests.Fixtures;
 
@@ -16,17 +18,13 @@ public sealed class SqlServerFixture : IAsyncLifetime
     /// </summary>
     public async Task InitializeAsync()
     {
-        var baseConnectionString = GetConnectionString();
+        var connectionString = ServiceScopeFactory.Create().ServiceProvider.GetRequiredService<IOptions<McpMssqlOptions>>().Value.ConnectionString;
 
         // Execute schema.sql (creates database, tables, views, procedures, functions)
-        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(
-            baseConnectionString,
-            "Alyio.McpMssql.Tests.Scripts.schema.sql");
+        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(connectionString, "Alyio.McpMssql.Tests.Scripts.schema.sql");
 
         // Execute seed.sql (inserts test data)
-        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(
-            baseConnectionString,
-            "Alyio.McpMssql.Tests.Scripts.seed.sql");
+        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(connectionString, "Alyio.McpMssql.Tests.Scripts.seed.sql");
     }
 
     /// <summary>
@@ -37,23 +35,5 @@ public sealed class SqlServerFixture : IAsyncLifetime
     {
         // No-op: cleanup is handled by schema.sql which drops and recreates the database
         return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Loads the connection string from configuration.
-    /// </summary>
-    /// <returns>The connection string, or null if missing.</returns>
-    private static string GetConnectionString()
-    {
-        var config = ConfigurationLoader.Load();
-        var connectionString = config[ConfigurationLoader.ConnectionStringKey];
-
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new InvalidOperationException(
-                $"Missing connection string configuration. Set '{ConfigurationLoader.ConnectionStringKey}' in user secrets or environment variables.");
-        }
-
-        return connectionString;
     }
 }

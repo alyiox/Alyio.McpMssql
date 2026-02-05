@@ -1,5 +1,6 @@
 // MIT License
 
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,6 +30,7 @@ public static class ServiceCollectionExtensions
                 options.HardMaxRows = Math.Clamp(options.HardMaxRows, 1, McpMssqlOptions.AbsoluteMaxRowsCeiling);
                 options.CommandTimeoutSeconds = Math.Clamp(options.CommandTimeoutSeconds, 1, McpMssqlOptions.AbsoluteCommandTimeoutSecondsCeiling);
                 options.DefaultMaxRows = Math.Clamp(options.DefaultMaxRows, 1, options.HardMaxRows);
+                options.ConnectionString = new SqlConnectionStringBuilder(options.ConnectionString) { CommandTimeout = options.CommandTimeoutSeconds }.ConnectionString;
             })
             .ValidateDataAnnotations()
             .ValidateOnStart();

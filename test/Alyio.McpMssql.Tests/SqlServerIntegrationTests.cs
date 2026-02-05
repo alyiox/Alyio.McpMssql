@@ -1,6 +1,7 @@
 // MIT License
 
 using Alyio.McpMssql.Tests.Fixtures;
+using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 
 namespace Alyio.McpMssql.Tests;
@@ -10,26 +11,16 @@ namespace Alyio.McpMssql.Tests;
 /// Requires SQL Server connection (configured via user secrets or environment variables).
 /// Uses both SqlServerFixture (database) and McpServerFixture (MCP server).
 /// </summary>
-public sealed class SqlServerIntegrationTests :
-    IClassFixture<SqlServerFixture>,
-    IClassFixture<McpServerFixture>
+public sealed class SqlServerIntegrationTests(McpServerFixture fixture) : IClassFixture<SqlServerFixture>, IClassFixture<McpServerFixture>
 {
     private const string TestDatabaseName = "McpMssqlTest";
 
-    private readonly McpServerFixture _mcpFixture;
-
-    public SqlServerIntegrationTests(
-        SqlServerFixture dbFixture,
-        McpServerFixture mcpFixture)
-    {
-        _ = dbFixture;
-        _mcpFixture = mcpFixture;
-    }
+    private readonly McpClient _client = fixture.Harness.Client;
 
     [Fact]
     public async Task ListTables_ReturnsUsersAndOrdersTables()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "list_tables",
             new Dictionary<string, object?>
             {
@@ -46,7 +37,7 @@ public sealed class SqlServerIntegrationTests :
     [Fact]
     public async Task ListViews_ReturnsActiveUsersAndOrderSummaryViews()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "list_views",
             new Dictionary<string, object?>
             {
@@ -63,7 +54,7 @@ public sealed class SqlServerIntegrationTests :
     [Fact]
     public async Task ListProcedures_ReturnsGetUserCountAndGetUserById()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "list_procedures",
             new Dictionary<string, object?>
             {
@@ -80,7 +71,7 @@ public sealed class SqlServerIntegrationTests :
     [Fact]
     public async Task ListFunctions_ReturnsGetUserEmailAndGetTotalOrderAmount()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "list_functions",
             new Dictionary<string, object?>
             {
@@ -97,7 +88,7 @@ public sealed class SqlServerIntegrationTests :
     [Fact]
     public async Task DescribeTable_UsersTable_ReturnsCorrectColumns()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "describe_table",
             new Dictionary<string, object?>
             {
@@ -123,7 +114,7 @@ public sealed class SqlServerIntegrationTests :
     [Fact]
     public async Task Query_SelectAllUsers_ReturnsSeededData()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "select",
             new Dictionary<string, object?>
             {
@@ -149,7 +140,7 @@ public sealed class SqlServerIntegrationTests :
     [Fact]
     public async Task Query_WithParameterFilter_ReturnsFilteredUser()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "select",
             new Dictionary<string, object?>
             {
@@ -171,7 +162,7 @@ public sealed class SqlServerIntegrationTests :
     [Fact]
     public async Task Query_SelectFromView_ReturnsActiveUsers()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "select",
             new Dictionary<string, object?>
             {
@@ -192,7 +183,7 @@ public sealed class SqlServerIntegrationTests :
     [Fact]
     public async Task Query_JoinTablesWithAggregation_ReturnsCorrectResults()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "select",
             new Dictionary<string, object?>
             {
@@ -229,7 +220,7 @@ public sealed class SqlServerIntegrationTests :
     [Fact]
     public async Task Query_WithMaxRows_TruncatesResults()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "select",
             new Dictionary<string, object?>
             {
@@ -253,7 +244,7 @@ public sealed class SqlServerIntegrationTests :
     [Fact]
     public async Task Query_DataTypes_HandlesVariousTypes()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "select",
             new Dictionary<string, object?>
             {
@@ -274,7 +265,7 @@ public sealed class SqlServerIntegrationTests :
     [Fact]
     public async Task ListSchemas_McpMssqlTest_ReturnsDboSchema()
     {
-        var result = await _mcpFixture.Harness.Client.CallToolAsync(
+        var result = await _client.CallToolAsync(
             "list_schemas",
             new Dictionary<string, object?>
             {

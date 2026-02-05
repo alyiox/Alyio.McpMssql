@@ -10,7 +10,7 @@ using ModelContextProtocol.Server;
 namespace Alyio.McpMssql.Tools;
 
 /// <summary>
-/// MVP MCP tools for SQL Server connectivity and querying.
+/// MCP tools for SQL Server connectivity and querying.
 /// </summary>
 [McpServerToolType]
 public static class MssqlTools
@@ -25,9 +25,8 @@ public static class MssqlTools
     {
         return await ToolExecutor.ExecuteAsync(async () =>
         {
-            var connectionString = ApplyConnectionOptions(options.Value.ConnectionString);
             const string sql = "SELECT @@VERSION AS version";
-            return await RunMetadataQueryAsync(connectionString, sql, cancellationToken);
+            return await RunMetadataQueryAsync(options.Value, sql, cancellationToken);
         });
     }
 
@@ -41,9 +40,8 @@ public static class MssqlTools
     {
         return await ToolExecutor.ExecuteAsync(async () =>
         {
-            var connectionString = ApplyConnectionOptions(options.Value.ConnectionString);
             const string sql = "SELECT name, database_id, create_date FROM sys.databases ORDER BY name";
-            return await RunMetadataQueryAsync(connectionString, sql, cancellationToken);
+            return await RunMetadataQueryAsync(options.Value, sql, cancellationToken);
         });
     }
 
@@ -58,9 +56,8 @@ public static class MssqlTools
     {
         return await ToolExecutor.ExecuteAsync(async () =>
         {
-            var connectionString = ApplyConnectionOptions(options.Value.ConnectionString, database);
             var sql = "SELECT CATALOG_NAME, SCHEMA_NAME, SCHEMA_OWNER FROM INFORMATION_SCHEMA.SCHEMATA;";
-            return await RunMetadataQueryAsync(connectionString, sql, cancellationToken);
+            return await RunMetadataQueryAsync(options.Value, sql, database, cancellationToken);
         });
     }
 
@@ -91,8 +88,7 @@ public static class MssqlTools
             var where = string.Join(" AND ", conditions);
             var sql = $"SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE {where} ORDER BY TABLE_SCHEMA, TABLE_NAME";
 
-            var connectionString = ApplyConnectionOptions(options.Value.ConnectionString, database);
-            return await RunMetadataQueryAsync(connectionString, sql, cancellationToken);
+            return await RunMetadataQueryAsync(options.Value, sql, database, cancellationToken);
         });
     }
 
@@ -123,8 +119,7 @@ public static class MssqlTools
             var where = string.Join(" AND ", conditions);
             var sql = $"SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE {where} ORDER BY TABLE_SCHEMA, TABLE_NAME";
 
-            var connectionString = ApplyConnectionOptions(options.Value.ConnectionString, database);
-            return await RunMetadataQueryAsync(connectionString, sql, cancellationToken);
+            return await RunMetadataQueryAsync(options.Value, sql, database, cancellationToken);
         });
     }
 
@@ -155,8 +150,7 @@ public static class MssqlTools
             var where = string.Join(" AND ", conditions);
             var sql = $"SELECT ROUTINE_CATALOG, ROUTINE_SCHEMA, ROUTINE_NAME, CREATED, LAST_ALTERED FROM INFORMATION_SCHEMA.ROUTINES WHERE {where} ORDER BY ROUTINE_SCHEMA, ROUTINE_NAME";
 
-            var connectionString = ApplyConnectionOptions(options.Value.ConnectionString, database);
-            return await RunMetadataQueryAsync(connectionString, sql, cancellationToken);
+            return await RunMetadataQueryAsync(options.Value, sql, database, cancellationToken);
         });
     }
 
@@ -198,8 +192,7 @@ FROM INFORMATION_SCHEMA.ROUTINES
 WHERE {where} 
 ORDER BY ROUTINE_SCHEMA, ROUTINE_NAME";
 
-            var connectionString = ApplyConnectionOptions(options.Value.ConnectionString, database);
-            return await RunMetadataQueryAsync(connectionString, sql, cancellationToken);
+            return await RunMetadataQueryAsync(options.Value, sql, database, cancellationToken);
         });
     }
 
@@ -228,36 +221,13 @@ WHERE c.TABLE_NAME = @tbl AND (@schema IS NULL OR c.TABLE_SCHEMA = @schema)
 ORDER BY c.ORDINAL_POSITION";
             sql = sql.Trim();
 
-            var connectionString = ApplyConnectionOptions(options.Value.ConnectionString, database);
-            await using var conn = new SqlConnection(connectionString);
-            await conn.OpenAsync(cancellationToken);
-            await using var cmd = conn.CreateCommand();
-            cmd.CommandText = sql;
-            cmd.Parameters.AddWithValue("@schema", (object?)schema ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@tbl", table);
-
-            await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
-            var columns = reader.GetColumnSchema()
-                .Select(c => new Column
-                {
-                    Name = c.ColumnName ?? string.Empty,
-                    Ordinal = c.ColumnOrdinal ?? 0,
-                    DataTypeName = c.DataTypeName
-                })
-                .ToArray();
-
-            var rows = new List<object?[]>();
-            while (await reader.ReadAsync(cancellationToken))
+            var parameters = new Dictionary<string, object?>()
             {
-                var row = new object?[reader.FieldCount];
-                for (var i = 0; i < reader.FieldCount; i++)
-                {
-                    row[i] = await reader.IsDBNullAsync(i, cancellationToken) ? null : reader.GetValue(i);
-                }
-                rows.Add(row);
-            }
+                { "@schema", schema },
+                { "@tbl", table   }
+            };
 
-            return ToolResponse.Create(columns, [.. rows]).ToJson();
+            return await RunMetadataQueryAsync(options.Value, sql, parameters, database, cancellationToken);
         });
     }
 
@@ -282,7 +252,7 @@ ORDER BY c.ORDINAL_POSITION";
             var requested = maxRows ?? effectiveOptions.DefaultMaxRows;
             var capped = Math.Clamp(requested, 1, effectiveHardMaxRows);
 
-            var connectionString = ApplyConnectionOptions(effectiveOptions.ConnectionString, database, effectiveOptions.CommandTimeoutSeconds);
+            var connectionString = UseDatabase(effectiveOptions.ConnectionString, database);
             await using var conn = new SqlConnection(connectionString);
             await conn.OpenAsync(cancellationToken);
 
@@ -348,16 +318,31 @@ ORDER BY c.ORDINAL_POSITION";
                 MaxRows = capped
             };
 
-            return ToolResponse.Create(columns, [.. rows], meta).ToJson();
+            return ToolResponse.Create(columns, [.. rows], meta);
         });
     }
 
-    private static async Task<string> RunMetadataQueryAsync(string connectionString, string sql, CancellationToken cancellationToken = default)
+    private static Task<ToolResponse> RunMetadataQueryAsync(McpMssqlOptions options, string sql, CancellationToken cancellationToken = default)
+        => RunMetadataQueryAsync(options, sql, null, null, cancellationToken);
+
+    private static Task<ToolResponse> RunMetadataQueryAsync(McpMssqlOptions options, string sql, string? database = null, CancellationToken cancellationToken = default)
+        => RunMetadataQueryAsync(options, sql, null, database, cancellationToken);
+
+    private static async Task<ToolResponse> RunMetadataQueryAsync(McpMssqlOptions options, string sql, IDictionary<string, object?>? parameters, string? database, CancellationToken cancellationToken = default)
     {
-        await using var conn = new SqlConnection(connectionString);
+        var connectionStr = UseDatabase(options.ConnectionString, database);
+        await using var conn = new SqlConnection(connectionStr);
         await conn.OpenAsync(cancellationToken);
         await using var cmd = conn.CreateCommand();
         cmd.CommandText = sql;
+        if (parameters != null)
+        {
+            foreach (var kvp in parameters)
+            {
+                cmd.Parameters.AddWithValue(kvp.Key, kvp.Value ?? DBNull.Value);
+            }
+        }
+
         await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
 
         var columns = reader.GetColumnSchema()
@@ -379,13 +364,10 @@ ORDER BY c.ORDINAL_POSITION";
             rows.Add(row);
         }
 
-        return ToolResponse.Create(columns, [.. rows]).ToJson();
+        return ToolResponse.Create(columns, [.. rows]);
     }
 
-    /// <summary>
-    /// Applies optional database and timeout overrides to a connection string.
-    /// </summary>
-    private static string ApplyConnectionOptions(string connectionString, string? database = null, int commandTimeout = 30)
+    private static string UseDatabase(string connectionString, string? database = null)
     {
         var builder = new SqlConnectionStringBuilder(connectionString);
 
@@ -393,8 +375,6 @@ ORDER BY c.ORDINAL_POSITION";
         {
             builder.InitialCatalog = database.Trim();
         }
-
-        builder.CommandTimeout = commandTimeout;
 
         return builder.ConnectionString;
     }
