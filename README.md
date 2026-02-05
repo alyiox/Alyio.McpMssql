@@ -1,5 +1,8 @@
 # MCP SQL Server Tool
 
+[![Build Status](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml)
+[![NuGet Version](https://img.shields.io/nuget/v/Alyio.McpMssql.svg)](https://www.nuget.org/packages/Alyio.McpMssql)
+
 Read-only Model Context Protocol (MCP) server for Microsoft SQL Server. Exposes safe metadata discovery and parameterized `SELECT` queries over stdio.
 
 ## Features
