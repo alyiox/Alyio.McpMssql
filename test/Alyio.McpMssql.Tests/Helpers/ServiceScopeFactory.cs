@@ -7,32 +7,24 @@ using Microsoft.Extensions.Hosting;
 namespace Alyio.McpMssql.Tests.Helpers;
 
 /// <summary>
-/// Factory for creating service scopes in tests.
+/// Provides a centralized way to build and configure the service collection 
+/// for the MCP MSSQL server using standard host defaults.
 /// </summary>
-internal static class ServiceScopeFactory
+internal static class ServiceBuilder
 {
-    private static readonly IServiceScopeFactory s_factory;
-
-    static ServiceScopeFactory()
+    /// <summary>
+    /// Creates an <see cref="IServiceCollection"/> initialized with default configuration, 
+    /// logging, user secrets, and MSSQL-specific options.
+    /// </summary>
+    /// <returns>A configured service collection ready for provider building.</returns>
+    public static IServiceCollection Build()
     {
         var builder = Host.CreateApplicationBuilder();
 
-        builder.Configuration.AddUserSecrets(typeof(ServiceScopeFactory).Assembly);
+        builder.Configuration.AddUserSecrets(typeof(ServiceBuilder).Assembly);
 
         builder.Services.AddMcpMssqlOptions(builder.Configuration);
 
-        var host = builder.Build();
-
-        s_factory = host.Services.GetRequiredService<IServiceScopeFactory>();
-    }
-
-    /// <summary>
-    /// Creates a new service scope.
-    /// </summary>
-    /// <returns>A new <see cref="IServiceScope"/>.</returns>
-    public static IServiceScope Create()
-    {
-        return s_factory.CreateScope();
+        return builder.Services;
     }
 }
-

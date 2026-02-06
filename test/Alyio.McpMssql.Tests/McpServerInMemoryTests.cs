@@ -14,7 +14,7 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     [Fact]
     public async Task ListTools_IncludesExpectedTools()
     {
-        var tools = await fixture.Harness.Client.ListToolsAsync();
+        var tools = await fixture.Client.ListToolsAsync();
         var toolNames = tools.Select(t => t.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         Assert.Contains("ping", toolNames);
@@ -31,7 +31,7 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     [Fact]
     public async Task Ping_ReturnsVersionInfo()
     {
-        var result = await fixture.Harness.Client.CallToolAsync("ping", new Dictionary<string, object?>(), cancellationToken: CancellationToken.None);
+        var result = await fixture.Client.CallToolAsync("ping", new Dictionary<string, object?>(), cancellationToken: CancellationToken.None);
         var text = result.Content.OfType<TextContentBlock>().First().Text;
 
         // Should return JSON with version column and SQL Server version info
@@ -43,7 +43,7 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     [Fact]
     public async Task Query_NonSelect_IsRejected()
     {
-        var result = await fixture.Harness.Client.CallToolAsync(
+        var result = await fixture.Client.CallToolAsync(
             "select",
             new Dictionary<string, object?>
             {
@@ -58,7 +58,7 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     [Fact]
     public async Task Query_InsertKeyword_IsRejected()
     {
-        var result = await fixture.Harness.Client.CallToolAsync(
+        var result = await fixture.Client.CallToolAsync(
             "select",
             new Dictionary<string, object?>
             {
@@ -73,7 +73,7 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     [Fact]
     public async Task Query_MultipleStatements_IsRejected()
     {
-        var result = await fixture.Harness.Client.CallToolAsync(
+        var result = await fixture.Client.CallToolAsync(
             "select",
             new Dictionary<string, object?>
             {
@@ -88,7 +88,7 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     [Fact]
     public async Task ListViews_ReturnsJsonFormat()
     {
-        var result = await fixture.Harness.Client.CallToolAsync("list_views", new Dictionary<string, object?>(), cancellationToken: CancellationToken.None);
+        var result = await fixture.Client.CallToolAsync("list_views", new Dictionary<string, object?>(), cancellationToken: CancellationToken.None);
         var text = result.Content.OfType<TextContentBlock>().First().Text;
 
         // Should return JSON with columns and rows
@@ -99,7 +99,7 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     [Fact]
     public async Task ListProcedures_ReturnsJsonFormat()
     {
-        var result = await fixture.Harness.Client.CallToolAsync("list_procedures", new Dictionary<string, object?>(), cancellationToken: CancellationToken.None);
+        var result = await fixture.Client.CallToolAsync("list_procedures", new Dictionary<string, object?>(), cancellationToken: CancellationToken.None);
         var text = result.Content.OfType<TextContentBlock>().First().Text;
 
         // Should return JSON with columns and rows
@@ -110,7 +110,7 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     [Fact]
     public async Task ListFunctions_ReturnsJsonFormat()
     {
-        var result = await fixture.Harness.Client.CallToolAsync("list_functions", new Dictionary<string, object?>(), cancellationToken: CancellationToken.None);
+        var result = await fixture.Client.CallToolAsync("list_functions", new Dictionary<string, object?>(), cancellationToken: CancellationToken.None);
         var text = result.Content.OfType<TextContentBlock>().First().Text;
 
         // Should return JSON with columns and rows
@@ -121,7 +121,7 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     [Fact]
     public async Task DescribeTable_MissingTableParameter_ReturnsError()
     {
-        var result = await fixture.Harness.Client.CallToolAsync(
+        var result = await fixture.Client.CallToolAsync(
             "describe_table",
             new Dictionary<string, object?>
             {

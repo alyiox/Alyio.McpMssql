@@ -1,38 +1,97 @@
 // MIT License
-
+using System.IO.Pipelines;
 using Alyio.McpMssql.Tests.Helpers;
+using Alyio.McpMssql.Tools;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using ModelContextProtocol.Client;
+using ModelContextProtocol.Protocol;
+using ModelContextProtocol.Server;
 
 namespace Alyio.McpMssql.Tests.Fixtures;
 
 /// <summary>
-/// xUnit class fixture for sharing a single MCP server instance across multiple test methods.
-/// This improves test performance by avoiding repeated server setup/teardown.
+/// A shared xUnit fixture that manages the lifecycle of an MCP Server and Client connected via in-memory pipes.
 /// </summary>
-public sealed class McpServerFixture : IAsyncLifetime
+public sealed class McpServerFixture : IAsyncLifetime, IAsyncDisposable
 {
-    /// <summary>
-    /// The shared MCP harness (client + server) used by all tests in the class.
-    /// </summary>
-    public McpHarness Harness { get; private set; } = null!;
+    private readonly CancellationTokenSource _cts = new();
+    private Task? _serverRunTask;
+    private ServiceProvider? _serviceProvider;
+    private ITransport? _clientTransport;
+    private ITransport? _serverTransport;
 
     /// <summary>
-    /// Called once before any test in the class runs.
-    /// Initializes the MCP server and client.
+    /// Gets the initialized MCP Client instance.
+    /// </summary>
+    public McpClient Client { get; private set; } = null!;
+
+    /// <summary>
+    /// Gets the initialized MCP Server instance.
+    /// </summary>
+    public McpServer Server { get; private set; } = null!;
+
+    /// <summary>
+    /// Initializes the in-memory pipes, server task, and client connection.
     /// </summary>
     public async Task InitializeAsync()
     {
-        Harness = await McpHarness.StartAsync();
+        // 1. Setup bidirectional in-memory pipes
+        var clientToServer = new Pipe();
+        var serverToClient = new Pipe();
+
+        var serverInput = clientToServer.Reader.AsStream();
+        var serverOutput = serverToClient.Writer.AsStream();
+        var clientInput = serverToClient.Reader.AsStream();
+        var clientOutput = clientToServer.Writer.AsStream();
+
+        // 2. Configure Services
+        var services = ServiceBuilder.Build();
+        services.AddLogging(b => b.SetMinimumLevel(LogLevel.Warning));
+
+        services.AddMcpServer()
+            .WithStreamServerTransport(serverInput, serverOutput)
+            .WithToolsFromAssembly(typeof(MssqlTools).Assembly);
+
+        _serviceProvider = services.BuildServiceProvider();
+
+        // 3. Start Server
+        Server = _serviceProvider.GetRequiredService<McpServer>();
+        _serverTransport = _serviceProvider.GetRequiredService<ITransport>();
+        _serverRunTask = Server.RunAsync(_cts.Token);
+
+        // 4. Start Client
+        var loggerFactory = _serviceProvider.GetRequiredService<ILoggerFactory>();
+        var clientTransportWrapper = new InMemoryClientTransport(clientInput, clientOutput, loggerFactory);
+        _clientTransport = clientTransportWrapper.Transport;
+
+        Client = await McpClient.CreateAsync(clientTransportWrapper, loggerFactory: loggerFactory);
     }
 
     /// <summary>
-    /// Called once after all tests in the class have completed.
-    /// Disposes the MCP server and client.
+    /// Gracefully shuts down the server task and disposes of all transports and service providers.
     /// </summary>
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        if (Harness != null)
+        // Signal shutdown
+        await _cts.CancelAsync();
+
+        // Dispose in order: Client -> Server -> Transports
+        if (Client != null) await Client.DisposeAsync();
+        if (Server != null) await Server.DisposeAsync();
+        if (_clientTransport != null) await _clientTransport.DisposeAsync();
+        if (_serverTransport != null) await _serverTransport.DisposeAsync();
+
+        if (_serverRunTask != null)
         {
-            await Harness.DisposeAsync();
+            try { await _serverRunTask.WaitAsync(TimeSpan.FromSeconds(2)); }
+            catch (OperationCanceledException) { }
         }
+
+        if (_serviceProvider != null) await _serviceProvider.DisposeAsync();
+        _cts.Dispose();
     }
+
+    /// <inheritdoc />
+    async Task IAsyncLifetime.DisposeAsync() => await DisposeAsync();
 }

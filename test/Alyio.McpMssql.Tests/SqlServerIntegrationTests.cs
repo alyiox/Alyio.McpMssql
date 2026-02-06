@@ -15,7 +15,7 @@ public sealed class SqlServerIntegrationTests(McpServerFixture fixture) : IClass
 {
     private const string TestDatabaseName = "McpMssqlTest";
 
-    private readonly McpClient _client = fixture.Harness.Client;
+    private readonly McpClient _client = fixture.Client;
 
     [Fact]
     public async Task ListTables_ReturnsUsersAndOrdersTables()

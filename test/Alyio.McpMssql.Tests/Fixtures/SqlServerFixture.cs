@@ -18,7 +18,7 @@ public sealed class SqlServerFixture : IAsyncLifetime
     /// </summary>
     public async Task InitializeAsync()
     {
-        var connectionString = ServiceScopeFactory.Create().ServiceProvider.GetRequiredService<IOptions<McpMssqlOptions>>().Value.ConnectionString;
+        var connectionString = ServiceBuilder.Build().BuildServiceProvider().GetRequiredService<IOptions<McpMssqlOptions>>().Value.ConnectionString;
 
         // Execute schema.sql (creates database, tables, views, procedures, functions)
         await DatabaseInitializer.ExecuteEmbeddedScriptAsync(connectionString, "Alyio.McpMssql.Tests.Scripts.schema.sql");
