@@ -16,10 +16,10 @@ namespace Alyio.McpMssql.Tools;
 public static class MssqlTools
 {
     /// <summary>
-    /// Database connectivity health check.
+    /// Gets the SQL Server version.
     /// </summary>
-    [McpServerTool, Description("Database connectivity check. Returns SQL Server version information.")]
-    public static async Task<string> Ping(
+    [McpServerTool, Description("Gets the SQL Server version.")]
+    public static async Task<string> Version(
         IOptions<McpMssqlOptions> options,
         CancellationToken cancellationToken = default)
     {
