@@ -17,7 +17,7 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
         var tools = await fixture.Client.ListToolsAsync();
         var toolNames = tools.Select(t => t.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        Assert.Contains("version", toolNames);
+        Assert.Contains("get_server_version", toolNames);
         Assert.Contains("select", toolNames);
         Assert.Contains("list_databases", toolNames);
         Assert.Contains("list_schemas", toolNames);
@@ -29,9 +29,9 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     }
 
     [Fact]
-    public async Task Version_ReturnsVersionInfo()
+    public async Task GetServerVersion_ReturnsVersionInfo()
     {
-        var result = await fixture.Client.CallToolAsync("version", new Dictionary<string, object?>(), cancellationToken: CancellationToken.None);
+        var result = await fixture.Client.CallToolAsync("get_server_version", new Dictionary<string, object?>(), cancellationToken: CancellationToken.None);
         var text = result.Content.OfType<TextContentBlock>().First().Text;
 
         // Should return JSON with version column and SQL Server version info

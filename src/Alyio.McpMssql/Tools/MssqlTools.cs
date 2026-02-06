@@ -19,7 +19,7 @@ public static class MssqlTools
     /// Gets the SQL Server version.
     /// </summary>
     [McpServerTool, Description("Gets the SQL Server version.")]
-    public static async Task<string> Version(
+    public static async Task<string> GetServerVersion(
         IOptions<McpMssqlOptions> options,
         CancellationToken cancellationToken = default)
     {

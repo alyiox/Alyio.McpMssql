@@ -147,7 +147,7 @@ Execute parameterized `SELECT` statements.
 
 ### Metadata Tools
 
-- `version` - Gets the SQL Server version.
+- `get_server_version` - Gets the SQL Server version.
 - `list_databases` - List all databases
 - `list_schemas` - List schemas in a database
 - `list_tables` - List tables in a schema
