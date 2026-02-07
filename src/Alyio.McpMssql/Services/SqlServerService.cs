@@ -2,8 +2,8 @@
 
 using System.Text.Json;
 using Alyio.McpMssql.Models;
-using Alyio.McpMssql.Options;
-using Alyio.McpMssql.Tools;
+using Alyio.McpMssql.DependencyInjection;
+using Alyio.McpMssql.Internal;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 

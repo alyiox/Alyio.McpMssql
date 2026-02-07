@@ -1,11 +1,11 @@
 // MIT License
 
-using Alyio.McpMssql.Options;
-using Alyio.McpMssql.Tests.Helpers;
+using Alyio.McpMssql.DependencyInjection;
+using Alyio.McpMssql.Tests.Infrastructure.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Alyio.McpMssql.Tests.Fixtures;
+namespace Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 
 /// <summary>
 /// xUnit class fixture for managing SQL Server test database lifecycle.
@@ -22,10 +22,10 @@ public sealed class SqlServerFixture : IAsyncLifetime
         var connectionString = ServiceBuilder.Build().BuildServiceProvider().GetRequiredService<IOptions<McpMssqlOptions>>().Value.ConnectionString;
 
         // Execute schema.sql (creates database, tables, views, procedures, functions)
-        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(connectionString, "Alyio.McpMssql.Tests.Scripts.schema.sql");
+        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(connectionString, "Alyio.McpMssql.Tests.Infrastructure.Database.Scripts.schema.sql");
 
         // Execute seed.sql (inserts test data)
-        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(connectionString, "Alyio.McpMssql.Tests.Scripts.seed.sql");
+        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(connectionString, "Alyio.McpMssql.Tests.Infrastructure.Database.Scripts.seed.sql");
     }
 
     /// <summary>

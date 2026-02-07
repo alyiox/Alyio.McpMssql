@@ -3,7 +3,7 @@ using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
-namespace Alyio.McpMssql.Tests.Helpers;
+namespace Alyio.McpMssql.Tests.Infrastructure.Transports;
 
 internal sealed class InMemoryClientTransport : IClientTransport
 {

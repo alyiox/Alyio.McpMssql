@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 
-namespace Alyio.McpMssql.Tests.Helpers;
+namespace Alyio.McpMssql.Tests.Infrastructure.Database;
 
 /// <summary>
 /// Helper class for initializing test databases by executing SQL scripts.

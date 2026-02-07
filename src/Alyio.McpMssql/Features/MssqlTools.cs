@@ -3,7 +3,7 @@
 using System.ComponentModel;
 using ModelContextProtocol.Server;
 
-namespace Alyio.McpMssql.Tools;
+namespace Alyio.McpMssql.Features;
 
 /// <summary>
 /// MCP tools for SQL Server connectivity and querying.

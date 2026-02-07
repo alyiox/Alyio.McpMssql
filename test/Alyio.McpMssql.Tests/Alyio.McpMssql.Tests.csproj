@@ -22,8 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Scripts\schema.sql" />
-    <EmbeddedResource Include="Scripts\seed.sql" />
+    <EmbeddedResource Include="Infrastructure\Database\Scripts\schema.sql" />
+    <EmbeddedResource Include="Infrastructure\Database\Scripts\seed.sql" />
   </ItemGroup>
 
   <ItemGroup>

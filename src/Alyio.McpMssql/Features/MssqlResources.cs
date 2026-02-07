@@ -3,7 +3,7 @@
 using System.ComponentModel;
 using ModelContextProtocol.Server;
 
-namespace Alyio.McpMssql.Resources;
+namespace Alyio.McpMssql.Features;
 
 /// <summary>
 /// 

@@ -5,10 +5,10 @@ using System.Text.Json.Serialization;
 using Alyio.McpMssql.Models;
 using ModelContextProtocol;
 
-namespace Alyio.McpMssql.Tools;
+namespace Alyio.McpMssql.Internal;
 
 /// <summary>
-/// Executes MCP tools with standardized error handling.
+/// Executes tools with standardized error handling.
 /// </summary>
 internal static class ToolExecutor
 {

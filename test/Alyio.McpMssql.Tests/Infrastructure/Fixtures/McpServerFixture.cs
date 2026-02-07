@@ -1,15 +1,15 @@
 // MIT License
 using System.IO.Pipelines;
-using Alyio.McpMssql.Resources;
-using Alyio.McpMssql.Tests.Helpers;
-using Alyio.McpMssql.Tools;
+using Alyio.McpMssql.Features;
+using Alyio.McpMssql.Tests.Infrastructure.Database;
+using Alyio.McpMssql.Tests.Infrastructure.Transports;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
-namespace Alyio.McpMssql.Tests.Fixtures;
+namespace Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 
 /// <summary>
 /// A shared xUnit fixture that manages the lifecycle of an MCP Server and Client connected via in-memory pipes.

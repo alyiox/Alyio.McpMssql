@@ -2,11 +2,11 @@
 
 using System.Text.Json;
 using Alyio.McpMssql.Models;
-using Alyio.McpMssql.Tests.Fixtures;
+using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 
-namespace Alyio.McpMssql.Tests;
+namespace Alyio.McpMssql.Integration.Tests;
 
 /// <summary>
 /// Tests for MCP server using shared fixture for performance.

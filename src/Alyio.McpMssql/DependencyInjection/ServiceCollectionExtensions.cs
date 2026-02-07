@@ -1,7 +1,7 @@
 // MIT License
 
 using Alyio.McpMssql;
-using Alyio.McpMssql.Options;
+using Alyio.McpMssql.DependencyInjection;
 using Alyio.McpMssql.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
