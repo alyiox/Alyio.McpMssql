@@ -2,6 +2,7 @@
 
 using Alyio.McpMssql.DependencyInjection;
 using Alyio.McpMssql.Tests.Infrastructure.Database;
+using Alyio.McpMssql.Tests.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 

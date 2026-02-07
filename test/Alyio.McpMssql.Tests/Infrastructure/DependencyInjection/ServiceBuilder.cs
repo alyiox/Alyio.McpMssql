@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Alyio.McpMssql.Tests.Infrastructure;
+namespace Alyio.McpMssql.Tests.Infrastructure.DependencyInjection;
 
 /// <summary>
 /// Provides a centralized way to build and configure the service collection 
