@@ -1,5 +1,7 @@
 // MIT License
 
+using Alyio.McpMssql.Models;
+
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Alyio.McpMssql;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
@@ -10,9 +12,11 @@ namespace Alyio.McpMssql;
 public interface ISqlServerService
 {
     /// <summary>
-    /// Gets the SQL Server version.
+    /// Retrieves the active database name, user identity, and SQL Server version for execution context and feature compatibility.
     /// </summary>
-    Task<string> GetServerVersionAsync(CancellationToken cancellationToken = default);
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>SQL Server connectivity and environment metadata.</returns>
+    Task<SqlConnectionContext> GetConnectionContextAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Lists databases visible to the current connection.

@@ -24,7 +24,6 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
         var tools = await _client.ListToolsAsync();
         var toolNames = tools.Select(t => t.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        Assert.Contains("get_server_version", toolNames);
         Assert.Contains("select", toolNames);
         Assert.Contains("list_databases", toolNames);
         Assert.Contains("list_schemas", toolNames);
@@ -41,7 +40,6 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
         var resources = await _client.ListResourcesAsync();
         var resourceUris = resources.Select(r => r.Uri).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        Assert.Contains("mssql://version", resourceUris);
         Assert.Contains("mssql://databases", resourceUris);
     }
 
@@ -60,16 +58,6 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     }
 
     // ---------- Tools ----------
-    [Fact]
-    public async Task GetServerVersion_ReturnsVersionInfo()
-    {
-        var result = await _client.CallToolAsync("get_server_version", new Dictionary<string, object?>(), null);
-        var versionString = result.Content.OfType<TextContentBlock>().First().Text;
-
-        Assert.False(string.IsNullOrEmpty(versionString));
-        Assert.Contains("Microsoft SQL Server", versionString);
-    }
-
     [Fact]
     public async Task ListDatabases_ReturnsExpectedTestDatabase()
     {
@@ -466,24 +454,6 @@ public sealed class McpServerInMemoryTests(McpServerFixture fixture) : IClassFix
     }
 
     // ---------- Resources ----------
-    [Fact]
-    public async Task Resource_Version_ReturnsValidContent()
-    {
-        var result = await _client.ReadResourceAsync(new Uri("mssql://version"));
-
-        Assert.NotNull(result);
-        Assert.NotEmpty(result.Contents);
-
-        if (result.Contents[0] is TextResourceContents textContent)
-        {
-            Assert.Contains("Microsoft SQL Server", textContent.Text);
-        }
-        else
-        {
-            Assert.Fail("Resource did not return text content.");
-        }
-    }
-
     [Fact]
     public async Task Resource_Databases_ReturnsValidContent()
     {

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Alyio.McpMssql": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

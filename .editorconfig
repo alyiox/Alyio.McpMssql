@@ -187,3 +187,7 @@ indent_size = 2
 end_of_line = lf
 [*.{cmd,bat}]
 end_of_line = crlf
+
+# Global spelling exclusions
+[*]
+spelling_exclusion_path = .\exclusion.dic

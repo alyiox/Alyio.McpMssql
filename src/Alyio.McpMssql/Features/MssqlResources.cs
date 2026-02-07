@@ -12,17 +12,6 @@ namespace Alyio.McpMssql.Features;
 public class MssqlResources
 {
     /// <summary>
-    /// A simple, static passive resource
-    /// </summary>
-    /// <returns></returns>
-    [McpServerResource(UriTemplate = "mssql://version", Name = "System Status")]
-    [Description("Returns the current operational status of the server.")]
-    public static Task<string> GetSqlServerVersionAsync(ISqlServerService server, CancellationToken cancellationToken = default)
-    {
-        return server.GetServerVersionAsync(cancellationToken);
-    }
-
-    /// <summary>
     /// Lists all databases on the server.
     /// </summary>
     /// <param name="server">The SQL Server service.</param>

@@ -1,9 +1,9 @@
 // MIT License
 
 using System.Text.Json;
-using Alyio.McpMssql.Models;
 using Alyio.McpMssql.DependencyInjection;
 using Alyio.McpMssql.Internal;
+using Alyio.McpMssql.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
@@ -11,18 +11,35 @@ namespace Alyio.McpMssql.Services;
 
 internal sealed class SqlServerService(IOptions<McpMssqlOptions> options) : ISqlServerService
 {
-    public async Task<string> GetServerVersionAsync(CancellationToken cancellationToken = default)
+    public async Task<SqlConnectionContext> GetConnectionContextAsync(CancellationToken cancellationToken = default)
     {
-        return await ToolExecutor.ExecuteAsync(async () =>
+        var connectionString = options.Value.ConnectionString;
+        var builder = new SqlConnectionStringBuilder(connectionString);
+        var dataSourceParts = builder.DataSource.Split(',');
+
+        using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync(cancellationToken);
+
+        using var cmd = new SqlCommand("SELECT SUSER_SNAME(), @@VERSION", connection);
+        using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+
+        await reader.ReadAsync(cancellationToken);
+
+        var result = new SqlConnectionContext
         {
-            const string sql = "SELECT @@VERSION AS version";
-            return await RunMetadataQueryAsync(options.Value, sql, cancellationToken);
-        });
+            Server = dataSourceParts[0].Trim(),
+            Port = dataSourceParts.Length > 1 ? dataSourceParts[1].Trim() : "1433",
+            Database = connection.Database,
+            User = reader.GetString(0),
+            Version = reader.GetString(1)
+        };
+
+        return result;
     }
 
     public async Task<string> ListDatabasesAsync(CancellationToken cancellationToken = default)
     {
-        return await ToolExecutor.ExecuteAsync(async () =>
+        return await MssqlExecutor.ExecuteAsync(async () =>
         {
             const string sql = "SELECT name, database_id, create_date FROM sys.databases ORDER BY name";
             return await RunMetadataQueryAsync(options.Value, sql, cancellationToken);
@@ -31,7 +48,7 @@ internal sealed class SqlServerService(IOptions<McpMssqlOptions> options) : ISql
 
     public async Task<string> ListSchemasAsync(string? database = null, CancellationToken cancellationToken = default)
     {
-        return await ToolExecutor.ExecuteAsync(async () =>
+        return await MssqlExecutor.ExecuteAsync(async () =>
         {
             var sql = "SELECT CATALOG_NAME, SCHEMA_NAME, SCHEMA_OWNER FROM INFORMATION_SCHEMA.SCHEMATA;";
             return await RunMetadataQueryAsync(options.Value, sql, database, cancellationToken);
@@ -40,7 +57,7 @@ internal sealed class SqlServerService(IOptions<McpMssqlOptions> options) : ISql
 
     public async Task<string> ListTablesAsync(string? database = null, string? schema = null, CancellationToken cancellationToken = default)
     {
-        return await ToolExecutor.ExecuteAsync(async () =>
+        return await MssqlExecutor.ExecuteAsync(async () =>
         {
             var conditions = new List<string> { "TABLE_TYPE = 'BASE TABLE'" };
             if (!string.IsNullOrWhiteSpace(schema))
@@ -63,7 +80,7 @@ internal sealed class SqlServerService(IOptions<McpMssqlOptions> options) : ISql
 
     public async Task<string> ListViewsAsync(string? database = null, string? schema = null, CancellationToken cancellationToken = default)
     {
-        return await ToolExecutor.ExecuteAsync(async () =>
+        return await MssqlExecutor.ExecuteAsync(async () =>
         {
             var conditions = new List<string> { "TABLE_TYPE = 'VIEW'" };
             if (!string.IsNullOrWhiteSpace(schema))
@@ -86,7 +103,7 @@ internal sealed class SqlServerService(IOptions<McpMssqlOptions> options) : ISql
 
     public async Task<string> ListProceduresAsync(string? database = null, string? schema = null, CancellationToken cancellationToken = default)
     {
-        return await ToolExecutor.ExecuteAsync(async () =>
+        return await MssqlExecutor.ExecuteAsync(async () =>
         {
             var conditions = new List<string> { "ROUTINE_TYPE = 'PROCEDURE'" };
             if (!string.IsNullOrWhiteSpace(schema))
@@ -109,7 +126,7 @@ internal sealed class SqlServerService(IOptions<McpMssqlOptions> options) : ISql
 
     public async Task<string> ListFunctionsAsync(string? database = null, string? schema = null, CancellationToken cancellationToken = default)
     {
-        return await ToolExecutor.ExecuteAsync(async () =>
+        return await MssqlExecutor.ExecuteAsync(async () =>
         {
             var conditions = new List<string> { "ROUTINE_TYPE = 'FUNCTION'" };
             if (!string.IsNullOrWhiteSpace(schema))
@@ -143,7 +160,7 @@ ORDER BY ROUTINE_SCHEMA, ROUTINE_NAME";
 
     public async Task<string> DescribeTableAsync(string table, string? database = null, string? schema = null, CancellationToken cancellationToken = default)
     {
-        return await ToolExecutor.ExecuteAsync(async () =>
+        return await MssqlExecutor.ExecuteAsync(async () =>
         {
             if (string.IsNullOrWhiteSpace(table))
             {
@@ -174,7 +191,7 @@ ORDER BY c.ORDINAL_POSITION";
         int? maxRows = null,
         CancellationToken cancellationToken = default)
     {
-        return await ToolExecutor.ExecuteAsync(async () =>
+        return await MssqlExecutor.ExecuteAsync(async () =>
         {
             SqlValidation.ValidateReadOnly(sql);
             var effectiveOptions = options.Value;

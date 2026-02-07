@@ -12,17 +12,6 @@ namespace Alyio.McpMssql.Features;
 public static class MssqlTools
 {
     /// <summary>
-    /// Gets the SQL Server version.
-    /// </summary>
-    [McpServerTool, Description("Gets the SQL Server version.")]
-    public static Task<string> GetServerVersionAsync(
-        ISqlServerService server,
-        CancellationToken cancellationToken = default)
-    {
-        return server.GetServerVersionAsync(cancellationToken);
-    }
-
-    /// <summary>
     /// Lists databases visible to the current connection.
     /// </summary>
     [McpServerTool, Description("Lists all databases on the server.")]
