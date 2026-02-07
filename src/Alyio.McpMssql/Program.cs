@@ -1,6 +1,5 @@
 // MIT License
 
-using Alyio.McpMssql;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,10 +14,11 @@ builder.Logging.AddConsole(consoleLogOptions =>
 });
 
 builder.Services
-    .AddMcpMssqlOptions(builder.Configuration)
+    .AddMcpMssql(builder.Configuration)
     .AddMcpServer()
     .WithStdioServerTransport()
-    .WithToolsFromAssembly();
+    .WithToolsFromAssembly()
+    .WithResourcesFromAssembly();
 
 await builder.Build().RunAsync();
 

@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Alyio.McpMssql;
+namespace Alyio.McpMssql.Services;
 
 /// <summary>
 /// Read-only SQL validation: only a single SELECT statement is allowed.

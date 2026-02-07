@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Alyio.McpMssql;
+namespace Alyio.McpMssql.Options;
 
 /// <summary>
 /// Configuration for the MCP SQL Server tool.
