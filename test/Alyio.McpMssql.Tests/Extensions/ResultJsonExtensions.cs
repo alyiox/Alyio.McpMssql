@@ -49,18 +49,5 @@ internal static class ResultJsonExtensions
             root.GetProperty("rowLimit").GetInt32()
         );
     }
-
-    public static void AssertHasColumns(this JsonElement columns, params string[] expectedColumns)
-    {
-        var actual = columns
-            .EnumerateArray()
-            .Select(c => c.GetString())
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var column in expectedColumns)
-        {
-            Assert.Contains(column, actual);
-        }
-    }
 }
 

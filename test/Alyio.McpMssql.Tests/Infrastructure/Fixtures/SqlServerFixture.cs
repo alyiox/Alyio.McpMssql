@@ -9,33 +9,43 @@ using Microsoft.Extensions.Options;
 namespace Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 
 /// <summary>
-/// xUnit class fixture for managing SQL Server test database lifecycle.
-/// Creates test database with schema and seed data before tests run.
+/// xUnit class fixture that manages the lifecycle of a shared SQL Server
+/// test database and exposes the application's DI container for functional tests.
 /// </summary>
 public sealed class SqlServerFixture : IAsyncLifetime
 {
     /// <summary>
-    /// Called once before any test in the class runs.
-    /// Creates test database and executes schema/seed scripts.
+    /// Root service provider for resolving application services
+    /// against the initialized test database.
     /// </summary>
-    public async Task InitializeAsync()
+    public IServiceProvider Services { get; }
+
+    public SqlServerFixture()
     {
-        var connectionString = ServiceBuilder.Build().BuildServiceProvider().GetRequiredService<IOptions<McpMssqlOptions>>().Value.ConnectionString;
-
-        // Execute schema.sql (creates database, tables, views, procedures, functions)
-        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(connectionString, "Alyio.McpMssql.Tests.Infrastructure.Database.Scripts.schema.sql");
-
-        // Execute seed.sql (inserts test data)
-        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(connectionString, "Alyio.McpMssql.Tests.Infrastructure.Database.Scripts.seed.sql");
+        Services = ServiceBuilder.Build().BuildServiceProvider();
     }
 
     /// <summary>
-    /// Called once after all tests in the class have completed.
-    /// Cleanup is handled by schema.sql on next test run.
+    /// Creates and initializes the test database by executing
+    /// schema and seed scripts.
     /// </summary>
-    public Task DisposeAsync()
+    public async Task InitializeAsync()
     {
-        // No-op: cleanup is handled by schema.sql which drops and recreates the database
-        return Task.CompletedTask;
+        var connectionString =
+            Services
+                .GetRequiredService<IOptions<McpMssqlOptions>>()
+                .Value
+                .ConnectionString;
+
+        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(
+            connectionString,
+            "Alyio.McpMssql.Tests.Infrastructure.Database.Scripts.schema.sql");
+
+        await DatabaseInitializer.ExecuteEmbeddedScriptAsync(
+            connectionString,
+            "Alyio.McpMssql.Tests.Infrastructure.Database.Scripts.seed.sql");
     }
+
+    public Task DisposeAsync() => Task.CompletedTask;
 }
+

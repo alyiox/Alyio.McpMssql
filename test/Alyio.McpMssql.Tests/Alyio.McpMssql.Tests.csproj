@@ -30,8 +30,4 @@
     <ProjectReference Include="..\..\src\Alyio.McpMssql\Alyio.McpMssql.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Functional\" />
-  </ItemGroup>
-
 </Project>
