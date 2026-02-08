@@ -6,70 +6,103 @@ using Alyio.McpMssql.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
-#pragma warning disable IDE0130 // Namespace does not match folder structure
+#pragma warning disable IDE0130 // Intentional: extension methods for IServiceCollection
 namespace Microsoft.Extensions.DependencyInjection;
-#pragma warning restore IDE0130 // Namespace does not match folder structure
+#pragma warning restore IDE0130
 
 /// <summary>
-/// DI registration helpers for the MCP SQL Server tool.
+/// Dependency injection helpers for the MCP SQL Server integration.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds SQL Server services to the specified <see cref="IServiceCollection" />.
+    /// Registers all MCP SQL Server services and configuration.
     /// </summary>
-    /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-    /// <param name="configuration">The <see cref="IConfiguration" /> containing the connection string and other options.</param>
-    /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
-    public static IServiceCollection AddMcpMssql(this IServiceCollection services, IConfiguration configuration)
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">Application configuration source.</param>
+    /// <returns>The same service collection for chaining.</returns>
+    public static IServiceCollection AddMcpMssql(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddMcpMssqlOptions(configuration);
-        services.AddSingleton<ISqlServerService, SqlServerService>();
+
+        services.AddSingleton<IServerContextService, ServerContextService>();
+        services.AddSingleton<ICatalogService, CatalogService>();
+        services.AddSingleton<IQueryService, QueryService>();
+
         return services;
     }
 
     /// <summary>
-    /// Registers <see cref="McpMssqlOptions"/> and binds it from environment-driven configuration.
+    /// Registers and validates <see cref="McpMssqlOptions"/>.
+    /// Values are sourced from environment-driven configuration
+    /// and clamped to safe limits.
     /// </summary>
-    public static IServiceCollection AddMcpMssqlOptions(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddMcpMssqlOptions(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services
             .AddOptions<McpMssqlOptions>()
             .Configure(options =>
             {
-                options.ConnectionString = GetString(configuration, McpMssqlOptions.ConnectionStringKey) ?? options.ConnectionString;
-                options.DefaultMaxRows = GetInt(configuration, McpMssqlOptions.DefaultMaxRowsKey) ?? options.DefaultMaxRows;
-                options.HardMaxRows = GetInt(configuration, McpMssqlOptions.HardMaxRowsKey) ?? options.HardMaxRows;
-                options.CommandTimeoutSeconds = GetInt(configuration, McpMssqlOptions.CommandTimeoutSecondsKey) ?? options.CommandTimeoutSeconds;
+                options.ConnectionString =
+                    GetString(configuration, McpMssqlOptions.ConnectionStringKey)
+                    ?? options.ConnectionString;
+
+                options.RowLimit =
+                    GetInt(configuration, McpMssqlOptions.RowLimitKey)
+                    ?? options.RowLimit;
+
+                options.CommandTimeoutSeconds =
+                    GetInt(configuration, McpMssqlOptions.CommandTimeoutSecondsKey)
+                    ?? options.CommandTimeoutSeconds;
             })
-            .PostConfigure(options =>
-            {
-                options.HardMaxRows = Math.Clamp(options.HardMaxRows, 1, McpMssqlOptions.AbsoluteMaxRowsCeiling);
-                options.CommandTimeoutSeconds = Math.Clamp(options.CommandTimeoutSeconds, 1, McpMssqlOptions.AbsoluteCommandTimeoutSecondsCeiling);
-                options.DefaultMaxRows = Math.Clamp(options.DefaultMaxRows, 1, options.HardMaxRows);
-                options.ConnectionString = new SqlConnectionStringBuilder(options.ConnectionString) { CommandTimeout = options.CommandTimeoutSeconds }.ConnectionString;
-            })
+            .PostConfigure(ClampAndNormalize)
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
         return services;
     }
 
+    private static void ClampAndNormalize(McpMssqlOptions options)
+    {
+        options.RowLimit = Math.Clamp(
+            options.RowLimit,
+            min: 1,
+            max: McpMssqlOptions.HardRowLimit);
+
+        options.CommandTimeoutSeconds = Math.Clamp(
+            options.CommandTimeoutSeconds,
+            min: 1,
+            max: McpMssqlOptions.HardCommandTimeout);
+
+        // Normalize command timeout into the connection string
+        var builder = new SqlConnectionStringBuilder(options.ConnectionString)
+        {
+            CommandTimeout = options.CommandTimeoutSeconds
+        };
+
+        options.ConnectionString = builder.ConnectionString;
+    }
+
     private static string? GetString(IConfiguration configuration, string key)
     {
-        var raw = configuration[key];
-        return string.IsNullOrWhiteSpace(raw) ? null : raw.Trim();
+        var value = configuration[key];
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 
     private static int? GetInt(IConfiguration configuration, string key)
     {
-        var raw = configuration[key];
-        if (string.IsNullOrWhiteSpace(raw))
+        var value = configuration[key];
+        if (string.IsNullOrWhiteSpace(value))
         {
             return null;
         }
 
-        return int.TryParse(raw.Trim(), out var value) ? value : null;
+        return int.TryParse(value.Trim(), out var parsed)
+            ? parsed
+            : null;
     }
 }
-

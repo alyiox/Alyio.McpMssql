@@ -3,7 +3,6 @@
 using System.ComponentModel;
 using Alyio.McpMssql.Internal;
 using ModelContextProtocol.Server;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Alyio.McpMssql.Features;
 
@@ -17,27 +16,15 @@ public static class ServerContext
     /// Represents the current SQL Server connection context, including server identity,
     /// effective user, current database, and engine version.
     /// </summary>
-    /// <param name="server">
-    /// The SQL Server service bound to the active connection.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// A token used to cancel the operation.
-    /// </param>
-    /// <returns>
-    /// A JSON representation of the current SQL Server connection context.
-    /// </returns>
     [McpServerResource(
         UriTemplate = "mssql://connection/context",
-        Name = "Connection Context",
-        MimeType = Application.Json)]
+        MimeType = "application/json")]
     [Description(
-        "Represents the current SQL Server connection context, including server identity, " +
-        "effective user, current database, and engine version. " +
-        "Use this resource as stable context for reasoning about permissions and SQL feature compatibility.")]
-    public static Task<string> GetSqlConnectionContextAsync(ISqlServerService server, CancellationToken cancellationToken = default)
+        "Current SQL Server connection context: server identity, effective user, database, and engine version. " +
+        "Use for reasoning about permissions and SQL feature compatibility.")]
+    public static Task<string> ContextAsync(IServerContextService server, CancellationToken cancellationToken = default)
     {
-        return MssqlExecutor.ExecuteAsync(
-            async () => await server.GetConnectionContextAsync(cancellationToken));
+        return MssqlExecutor.RunAsTextAsync(server.GetConnectionContextAsync, cancellationToken);
     }
 }
 

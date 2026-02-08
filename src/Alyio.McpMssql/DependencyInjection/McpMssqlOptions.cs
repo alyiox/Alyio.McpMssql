@@ -5,60 +5,71 @@ using System.ComponentModel.DataAnnotations;
 namespace Alyio.McpMssql.DependencyInjection;
 
 /// <summary>
-/// Configuration for the MCP SQL Server tool.
-/// Values are bound from environment variables (via IConfiguration) and then clamped for safety.
+/// Configuration options for the MCP SQL Server integration.
+/// Values are bound from configuration and clamped for safety.
 /// </summary>
 public sealed class McpMssqlOptions
 {
     /// <summary>
-    /// Connection string used by the tool.
+    /// SQL Server connection string.
     /// </summary>
     [Required]
     public required string ConnectionString { get; set; }
 
     /// <summary>
-    /// Default maximum number of rows returned when a query call doesn't specify maxRows.
+    /// Default number of rows returned when a query does not
+    /// explicitly specify a row limit.
     /// </summary>
-    public int DefaultMaxRows { get; set; } = 200;
+    public int DefaultMaxRows { get; init; } = 10;
 
     /// <summary>
-    /// Maximum number of rows the server will return for a single query call.
+    /// Maximum number of rows that may be returned for a single query.
+    /// This value is clamped to <see cref="HardRowLimit"/>.
     /// </summary>
-    public int HardMaxRows { get; set; } = 5000;
+    public int RowLimit { get; set; } = 5_000;
 
     /// <summary>
-    /// SqlCommand timeout in seconds. 0 means infinite in SqlClient, but we never allow 0 here.
+    /// Maximum execution time for a SQL command, in seconds.
+    /// This value is clamped to <see cref="HardCommandTimeout"/>.
     /// </summary>
     public int CommandTimeoutSeconds { get; set; } = 30;
 
-    /// <summary>
-    /// Non-configurable absolute safety ceiling for rows.
-    /// </summary>
-    public const int AbsoluteMaxRowsCeiling = 50_000;
+    // -------------------------
+    // Configuration keys
+    // -------------------------
 
     /// <summary>
-    /// Non-configurable absolute safety ceiling for command timeout in seconds.
-    /// </summary>
-    public const int AbsoluteCommandTimeoutSecondsCeiling = 300;
-
-    /// <summary>
-    /// Configuration key for the connection string.
+    /// Configuration key for the SQL Server connection string.
     /// </summary>
     public const string ConnectionStringKey = "MCP_MSSQL_CONNECTION_STRING";
 
     /// <summary>
-    /// Configuration key for default max rows.
+    /// Configuration key for the default maximum number of rows.
     /// </summary>
     public const string DefaultMaxRowsKey = "MCP_MSSQL_DEFAULT_MAX_ROWS";
 
     /// <summary>
-    /// Configuration key for hard max rows.
+    /// Configuration key for the maximum number of rows.
     /// </summary>
-    public const string HardMaxRowsKey = "MCP_MSSQL_HARD_MAX_ROWS";
+    public const string RowLimitKey = "MCP_MSSQL_ROW_LIMIT";
 
     /// <summary>
-    /// Configuration key for command timeout seconds.
+    /// Configuration key for the SQL command timeout.
     /// </summary>
     public const string CommandTimeoutSecondsKey = "MCP_MSSQL_COMMAND_TIMEOUT_SECONDS";
+
+    // -------------------------
+    // Hard safety invariants
+    // -------------------------
+
+    /// <summary>
+    /// Absolute, non-configurable hard limit for query row counts.
+    /// </summary>
+    internal const int HardRowLimit = 50_000;
+
+    /// <summary>
+    /// Absolute, non-configurable hard limit for command execution time, in seconds.
+    /// </summary>
+    internal const int HardCommandTimeout = 300;
 }
 
