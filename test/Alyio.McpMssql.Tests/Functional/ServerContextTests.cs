@@ -1,5 +1,6 @@
 // MIT License
 
+using System.Text.Json;
 using Alyio.McpMssql.Models;
 using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 using ModelContextProtocol.Client;
@@ -13,6 +14,11 @@ namespace Alyio.McpMssql.Tests.Functional;
 /// </summary>
 public class ServerContextTests(McpServerFixture fixture) : IClassFixture<McpServerFixture>
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+    };
+
     private readonly McpClient _client = fixture.Client;
 
     [Fact]
@@ -30,17 +36,16 @@ public class ServerContextTests(McpServerFixture fixture) : IClassFixture<McpSer
         var uri = new Uri("mssql://connection/context");
         var result = await _client.ReadResourceAsync(uri);
 
-        Assert.NotNull(result);
-        Assert.NotEmpty(result.Contents);
+        var text = result.ReadAsText();
 
-        var context = result.ReadAsJson<SqlConnectionContext>();
+        var context = JsonSerializer.Deserialize<ServerConnectionContext>(text, s_jsonOptions);
 
         Assert.NotNull(context);
 
         ValidateConnectionContext(context);
     }
 
-    private static void ValidateConnectionContext(SqlConnectionContext context)
+    private static void ValidateConnectionContext(ServerConnectionContext context)
     {
         Assert.False(
             string.IsNullOrWhiteSpace(context.Server),

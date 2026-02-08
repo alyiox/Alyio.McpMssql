@@ -5,7 +5,7 @@ namespace Alyio.McpMssql.Models;
 /// <summary>
 /// Represents connectivity and environment metadata for the SQL Server connection.
 /// </summary>
-public class SqlConnectionContext
+public class ServerConnectionContext
 {
     /// <summary>The hostname or IP address of the database server.</summary>
     public string Server { get; set; } = string.Empty;

@@ -9,7 +9,7 @@ namespace Alyio.McpMssql.Services;
 
 internal sealed class ServerContextService(IOptions<McpMssqlOptions> options) : IServerContextService
 {
-    public async Task<SqlConnectionContext> GetConnectionContextAsync(CancellationToken cancellationToken = default)
+    public async Task<ServerConnectionContext> GetConnectionContextAsync(CancellationToken cancellationToken = default)
     {
         var connectionString = options.Value.ConnectionString;
         var builder = new SqlConnectionStringBuilder(connectionString);
@@ -23,7 +23,7 @@ internal sealed class ServerContextService(IOptions<McpMssqlOptions> options) : 
 
         await reader.ReadAsync(cancellationToken);
 
-        var result = new SqlConnectionContext
+        var result = new ServerConnectionContext
         {
             Server = dataSourceParts[0].Trim(),
             Port = dataSourceParts.Length > 1 ? dataSourceParts[1].Trim() : "1433",

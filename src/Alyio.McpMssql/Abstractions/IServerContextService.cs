@@ -16,6 +16,6 @@ public interface IServerContextService
     /// <summary>
     /// Retrieves metadata describing the active SQL Server connection.
     /// </summary>
-    Task<SqlConnectionContext> GetConnectionContextAsync(CancellationToken cancellationToken = default);
+    Task<ServerConnectionContext> GetConnectionContextAsync(CancellationToken cancellationToken = default);
 }
 
