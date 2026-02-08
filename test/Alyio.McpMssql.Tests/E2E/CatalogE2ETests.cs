@@ -3,9 +3,9 @@
 using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 using ModelContextProtocol.Client;
 
-namespace Alyio.McpMssql.Tests.Functional;
+namespace Alyio.McpMssql.Tests.E2E;
 
-public sealed class CatalogTests(McpServerFixture fixture) : IClassFixture<McpServerFixture>
+public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<McpServerFixture>
 {
     private readonly McpClient _client = fixture.Client;
 
