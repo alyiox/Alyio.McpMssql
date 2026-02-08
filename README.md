@@ -7,10 +7,12 @@ Read-only Model Context Protocol (MCP) server for Microsoft SQL Server. Exposes 
 
 ## Features
 
-- Read-only SQL validation (blocks DML/DDL and multi-statement batches)
-- Parameterized queries with `@name` syntax
-- Metadata discovery: databases, schemas, tables, views, functions, procedures
-- Built with official `ModelContextProtocol` C# SDK
+- Read-only SQL query execution with robust validation (blocks DML/DDL and multi-statement batches).
+- Parameterized queries using `@paramName` syntax.
+- Granular metadata discovery through dedicated services:
+    - **Catalog Browsing:** Discover databases, schemas, tabular relations (tables/views), and routines (procedures/functions).
+    - **Server Context:** Access connection-level information like server identity, user, and version.
+- Built with the official `ModelContextProtocol` C# SDK
 
 ## Requirements
 
@@ -47,9 +49,9 @@ npx -y @modelcontextprotocol/inspector \
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `MCP_MSSQL_CONNECTION_STRING` | (required) | SQL Server connection string |
-| `MCP_MSSQL_DEFAULT_MAX_ROWS` | 200 | Default row limit for queries |
-| `MCP_MSSQL_HARD_MAX_ROWS` | 5000 | Maximum row limit (enforced) |
-| `MCP_MSSQL_COMMAND_TIMEOUT_SECONDS` | 30 | Query timeout (enforced) |
+| `MCP_MSSQL_DEFAULT_MAX_ROWS` | 10 | Default row limit for queries (clamped by `MCP_MSSQL_ROW_LIMIT`) |
+| `MCP_MSSQL_ROW_LIMIT` | 5000 | Maximum row limit for any query |
+| `MCP_MSSQL_COMMAND_TIMEOUT_SECONDS` | 30 | Query timeout in seconds (clamped by hard limit) |
 
 ### Development Configuration
 
@@ -64,7 +66,7 @@ dotnet user-secrets set "MCP_MSSQL_CONNECTION_STRING" "Server=...;Database=..." 
 To run the application with the Model Context Protocol Inspector (MCP Inspector):
 
 ```bash
-npx -y @modelcontextprotocol/inspector dotnet run --project src/Alyio.McpMssql
+npx -y @modelcontextprotocol/inspector -e DOTNET_ENVIRONMENT=Development dotnet run --project src/Alyio.McpMssql
 ```
 
 ### Testing Configuration
@@ -133,28 +135,37 @@ Below are common configurations for different agents.
 
 ## Available Tools
 
-### `select`
-Execute parameterized `SELECT` statements.
+### Core Query Engine
+- `select`: Executes read-only parameterized `SELECT` statements and returns tabular results.
+  ```json
+  {
+    "tool": "select",
+    "sql": "SELECT * FROM Users WHERE Id = @id",
+    "parameters": { "id": 42 },
+    "maxRows": 100
+  }
+  ```
 
-```json
-{
-  "tool": "select",
-  "sql": "SELECT * FROM Users WHERE Id = @id",
-  "parametersJson": "{\"id\": 42}",
-  "maxRows": 100
-}
-```
+### Metadata Discovery (Catalog)
+- `list_catalogs`: Lists accessible databases.
+- `list_schemas`: Lists schemas within a specified database.
+- `list_relations`: Lists tables and views within a specified schema.
+- `list_routines`: Lists stored procedures and functions within a specified schema.
+- `describe_relation`: Describes the columns of a specified table or view.
 
-### Metadata Tools
+### Server Context
 
-- `get_server_version` - Gets the SQL Server version.
-- `list_databases` - List all databases
-- `list_schemas` - List schemas in a database
-- `list_tables` - List tables in a schema
-- `list_views` - List views in a schema
-- `list_functions` - List user-defined functions
-- `list_procedures` - List stored procedures
-- `describe_table` - Show table/view columns with types
+## Available Resources
+
+### Server Context
+- `mssql://connection/context`: Retrieves current SQL Server connection context (server, database, user, version).
+
+### Metadata Discovery (Catalog)
+- `mssql://catalogs`: Lists accessible databases.
+- `mssql://catalogs/{catalog}/schemas`: Lists schemas within a specified database.
+- `mssql://catalogs/{catalog}/schemas/{schema}/relations`: Lists tables and views within a specified schema.
+- `mssql://catalogs/{catalog}/schemas/{schema}/relations/{name}`: Describes the columns of a specified table or view.
+- `mssql://catalogs/{catalog}/schemas/{schema}/routines`: Lists stored procedures and functions within a specified schema.
 
 ## Security
 
