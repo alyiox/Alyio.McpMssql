@@ -78,8 +78,10 @@ npx -y @modelcontextprotocol/inspector -e DOTNET_ENVIRONMENT=Development dotnet 
 Integration tests also use `MCP_MSSQL_CONNECTION_STRING`. Set it using environment variables or user secrets for the test project:
 
 ```bash
-dotnet user-secrets set "MCP_MSSQL_CONNECTION_STRING" "Server=...;Database=...;User ID=...;Password=...;" --project test/Alyio.McpMssql.Tests
+dotnet user-secrets set "MCP_MSSQL_CONNECTION_STRING" "Server=...;Database=...;User ID=...;Password=...;Initial Catalog=McpMssqlTest;" --project test/Alyio.McpMssql.Tests
 ```
+
+Note: Integration tests expect a dedicated test database named `McpMssqlTest` (this name is hardcoded in the test suite). The test infrastructure will execute embedded SQL scripts that create, seed, and drop the `McpMssqlTest` database when needed.
 
 ## Why not Data API Builder?
 
