@@ -81,6 +81,25 @@ Integration tests also use `MCP_MSSQL_CONNECTION_STRING`. Set it using environme
 dotnet user-secrets set "MCP_MSSQL_CONNECTION_STRING" "Server=...;Database=...;User ID=...;Password=...;" --project test/Alyio.McpMssql.Tests
 ```
 
+## Why not Data API Builder?
+
+Microsoft's Data API Builder (DAB) provides a full-featured REST/GraphQL layer over SQL Server with built-in authorization, CRUD, and policy configuration. That makes DAB an excellent choice for applications needing:
+
+- Full CRUD (create/update/delete) and complex authorization rules
+- REST or GraphQL endpoints with declarative mapping and policies
+- A production-grade, configurable API gateway for multiple data sources
+
+This project intentionally targets a different niche:
+
+- Lightweight, audit-friendly MCP server focused on read-only access for agent workflows
+- Small dependency surface and predictable behavior (stdio transport, parameterized SELECT only)
+- Easier to run locally as a dotnet tool and simpler to reason about security for agent use
+
+When to choose this project vs Data API Builder
+
+- Choose this project when you need a tiny, read-only MCP server for agents, fast startup, and low operational complexity.
+- Choose Data API Builder when you need CRUD operations, rich authorization, REST/GraphQL endpoints, or advanced policy configuration.
+
 ## MCP agents configuration examples
 
 Below are common example snippets used by various agents to start this MCP server. Replace the example connection string with your own.
@@ -182,3 +201,4 @@ Contributions are welcome. Please open issues for bugs or feature requests and s
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
