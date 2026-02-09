@@ -123,7 +123,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
             "name",
             "type",
             "nullable",
-            "ordinal");
+            "position");
     }
 
     // ------------------------------------------------------------------
@@ -199,6 +199,6 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
             "name",
             "type",
             "nullable",
-            "ordinal");
+            "position");
     }
 }

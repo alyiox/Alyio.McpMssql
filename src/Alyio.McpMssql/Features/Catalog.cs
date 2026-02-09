@@ -29,7 +29,7 @@ public static class Catalogs
     public static Task<string> CatalogsAsync(
         ICatalogService catalogService,
         CancellationToken cancellationToken)
-        => MssqlExecutor.RunAsTextAsync(catalogService.ListCatalogsAsync, cancellationToken);
+        => McpExecutor.RunAsTextAsync(catalogService.ListCatalogsAsync, cancellationToken);
 
     /// <summary>
     /// Resource that returns schemas within a catalog.
@@ -43,7 +43,7 @@ public static class Catalogs
         [Description("Catalog (database) name.")]
         string catalog,
         CancellationToken cancellationToken)
-        => MssqlExecutor.RunAsTextAsync(ct => catalogService.ListSchemasAsync(catalog, ct), cancellationToken);
+        => McpExecutor.RunAsTextAsync(ct => catalogService.ListSchemasAsync(catalog, ct), cancellationToken);
 
     /// <summary>
     /// Resource that returns relations within a schema.
@@ -59,7 +59,7 @@ public static class Catalogs
         [Description("Schema name.")]
         string schema,
         CancellationToken cancellationToken)
-        => MssqlExecutor.RunAsTextAsync(ct => catalogService.ListRelationsAsync(catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsTextAsync(ct => catalogService.ListRelationsAsync(catalog, schema, ct), cancellationToken);
 
     /// <summary>
     /// Resource that describes a relation (table or view).
@@ -77,7 +77,7 @@ public static class Catalogs
         [Description("Relation name.")]
         string name,
         CancellationToken cancellationToken)
-        => MssqlExecutor.RunAsTextAsync(ct => catalogService.DescribeRelationAsync(name, catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsTextAsync(ct => catalogService.DescribeRelationAsync(name, catalog, schema, ct), cancellationToken);
 
     /// <summary>
     /// Resource that returns routines within a schema.
@@ -93,7 +93,7 @@ public static class Catalogs
         [Description("Schema name.")]
         string schema,
         CancellationToken cancellationToken)
-        => MssqlExecutor.RunAsTextAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsTextAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, ct), cancellationToken);
 
     // =========================================================
     // Tools (imperative, parameter-driven)
@@ -107,7 +107,7 @@ public static class Catalogs
     public static Task<TabularResult> ListCatalogsAsync(
         ICatalogService catalogService,
         CancellationToken cancellationToken = default)
-        => MssqlExecutor.RunAsync(catalogService.ListCatalogsAsync, cancellationToken);
+        => McpExecutor.RunAsync(catalogService.ListCatalogsAsync, cancellationToken);
 
     /// <summary>
     /// Tool that lists schemas.
@@ -119,7 +119,7 @@ public static class Catalogs
         [Description("Optional catalog (database) name.")]
         string? catalog = null,
         CancellationToken cancellationToken = default)
-        => MssqlExecutor.RunAsync(ct => catalogService.ListSchemasAsync(catalog, ct), cancellationToken);
+        => McpExecutor.RunAsync(ct => catalogService.ListSchemasAsync(catalog, ct), cancellationToken);
 
     /// <summary>
     /// Tool that lists relations.
@@ -133,7 +133,7 @@ public static class Catalogs
         [Description("Optional schema name.")]
         string? schema = null,
         CancellationToken cancellationToken = default)
-        => MssqlExecutor.RunAsync(ct => catalogService.ListRelationsAsync(catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsync(ct => catalogService.ListRelationsAsync(catalog, schema, ct), cancellationToken);
 
     /// <summary>
     /// Tool that lists routines.
@@ -147,7 +147,7 @@ public static class Catalogs
         [Description("Optional schema name.")]
         string? schema = null,
         CancellationToken cancellationToken = default)
-        => MssqlExecutor.RunAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, ct), cancellationToken);
 
     /// <summary>
     /// Tool that describes a relation.
@@ -163,5 +163,5 @@ public static class Catalogs
         [Description("Optional schema name.")]
         string? schema = null,
         CancellationToken cancellationToken = default)
-        => MssqlExecutor.RunAsync(ct => catalogService.DescribeRelationAsync(name, catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsync(ct => catalogService.DescribeRelationAsync(name, catalog, schema, ct), cancellationToken);
 }

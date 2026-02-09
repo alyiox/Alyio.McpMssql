@@ -1,6 +1,6 @@
 // MIT License
 
-using Alyio.McpMssql.DependencyInjection;
+using Alyio.McpMssql.Options;
 using Alyio.McpMssql.Tests.Infrastructure.Database;
 using Alyio.McpMssql.Tests.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;

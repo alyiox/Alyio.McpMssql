@@ -14,7 +14,7 @@ namespace Alyio.McpMssql.Internal;
 /// Cancellation is propagated without translation.
 /// Non-MCP exceptions are normalized to <see cref="McpException"/>.
 /// </remarks>
-internal static class MssqlExecutor
+internal static class McpExecutor
 {
     private static readonly JsonSerializerOptions s_jsonOptions = new()
     {

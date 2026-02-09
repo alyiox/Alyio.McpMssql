@@ -1,21 +1,17 @@
 ﻿// MIT License
 
 using System.Text.Json;
-using Alyio.McpMssql.DependencyInjection;
 using Alyio.McpMssql.Internal;
 using Alyio.McpMssql.Models;
+using Alyio.McpMssql.Options;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
 namespace Alyio.McpMssql.Services;
 
-/// <summary>
-/// Executes read-only SQL queries against SQL Server and returns
-/// tabular results suitable for MCP tool responses.
-/// </summary>
-internal sealed class QueryService(IOptions<McpMssqlOptions> options) : IQueryService
+internal sealed class SelectService(IOptions<McpMssqlOptions> options) : ISelectService
 {
-    public async Task<QueryResult> ExecuteSelectAsync(
+    public async Task<QueryResult> ExecuteAsync(
         string sql,
         string? catalog = null,
         IReadOnlyDictionary<string, object>? parameters = null,
@@ -48,8 +44,8 @@ internal sealed class QueryService(IOptions<McpMssqlOptions> options) : IQuerySe
             sqlParameters = list;
         }
 
-        var rowLimit = maxRows ?? options.Value.DefaultMaxRows;
-        rowLimit = Math.Clamp(rowLimit, 1, options.Value.RowLimit);
+        var rowLimit = maxRows ?? options.Value.Select.DefaultMaxRows;
+        rowLimit = Math.Clamp(rowLimit, 1, options.Value.Select.MaxRows);
 
         var result = await conn.ExecuteAsQueryResultAsync(
             sql,

@@ -1,6 +1,6 @@
 // MIT License
 using System.IO.Pipelines;
-using Alyio.McpMssql.DependencyInjection;
+using Alyio.McpMssql.Internal;
 using Alyio.McpMssql.Tests.Infrastructure.DependencyInjection;
 using Alyio.McpMssql.Tests.Infrastructure.Transports;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,8 +52,8 @@ public sealed class McpServerFixture : IAsyncLifetime, IAsyncDisposable
 
         services.AddMcpServer()
             .WithStreamServerTransport(serverInput, serverOutput)
-            .WithToolsFromAssembly(typeof(McpMssqlOptions).Assembly)
-            .WithResourcesFromAssembly(typeof(McpMssqlOptions).Assembly);
+            .WithToolsFromAssembly(typeof(McpExecutor).Assembly)
+            .WithResourcesFromAssembly(typeof(McpExecutor).Assembly);
 
         _serviceProvider = services.BuildServiceProvider();
 

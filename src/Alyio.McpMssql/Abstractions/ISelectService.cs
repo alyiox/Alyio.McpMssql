@@ -7,17 +7,15 @@ namespace Alyio.McpMssql;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 
 /// <summary>
-/// Executes read-only SQL queries against SQL Server.
-///
-/// This service is responsible for validating and executing SELECT queries
-/// and returning bounded, tabular results for analysis and inspection.
+/// Executes bounded, read-only SELECT operations against SQL Server.
+/// Intended for interactive data exploration and inspection.
 /// </summary>
-public interface IQueryService
+public interface ISelectService
 {
     /// <summary>
-    /// Executes a read-only SELECT query and returns tabular results.
+    /// Executes a read-only SELECT query and returns a bounded tabular result.
     /// </summary>
-    Task<QueryResult> ExecuteSelectAsync(
+    Task<QueryResult> ExecuteAsync(
         string sql,
         string? catalog = null,
         IReadOnlyDictionary<string, object>? parameters = null,

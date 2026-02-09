@@ -11,11 +11,11 @@ namespace Alyio.McpMssql;
 /// This service exposes stable, read-only information about the active
 /// connection, such as server identity, user context, and engine version.
 /// </summary>
-public interface IServerContextService
+public interface IConnectionContextService
 {
     /// <summary>
     /// Retrieves metadata describing the active SQL Server connection.
     /// </summary>
-    Task<ServerConnectionContext> GetConnectionContextAsync(CancellationToken cancellationToken = default);
+    Task<ConnectionContext> GetConnectionContextAsync(CancellationToken cancellationToken = default);
 }
 

@@ -7,7 +7,7 @@ using ModelContextProtocol.Client;
 
 namespace Alyio.McpMssql.Tests.E2E;
 
-public class ServerContextE2ETests(McpServerFixture fixture) : IClassFixture<McpServerFixture>
+public class ConnectionContextE2ETests(McpServerFixture fixture) : IClassFixture<McpServerFixture>
 {
     private static readonly JsonSerializerOptions s_jsonOptions = new()
     {
@@ -20,17 +20,17 @@ public class ServerContextE2ETests(McpServerFixture fixture) : IClassFixture<Mcp
     public async Task Connection_Context_Resource_Is_Discoverable()
     {
         Assert.True(
-            await _client.IsResourceRegisteredAsync("mssql://connection/context"));
+            await _client.IsResourceRegisteredAsync("mssql://context/connection"));
     }
 
     [Fact]
     public async Task Reading_Connection_Context_Returns_Metadata()
     {
         var result = await _client.ReadResourceAsync(
-            new Uri("mssql://connection/context"));
+            new Uri("mssql://context/connection"));
 
         var text = result.ReadAsText();
-        var context = JsonSerializer.Deserialize<ServerConnectionContext>(
+        var context = JsonSerializer.Deserialize<ConnectionContext>(
             text, s_jsonOptions);
 
         Assert.NotNull(context);

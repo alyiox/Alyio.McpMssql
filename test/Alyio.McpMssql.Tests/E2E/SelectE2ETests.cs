@@ -7,7 +7,7 @@ using ModelContextProtocol.Protocol;
 
 namespace Alyio.McpMssql.Tests.E2E;
 
-public class QueryEngineSelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerFixture>
+public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerFixture>
 {
     private const string ToolName = "select";
     private readonly McpClient _client = fixture.Client;

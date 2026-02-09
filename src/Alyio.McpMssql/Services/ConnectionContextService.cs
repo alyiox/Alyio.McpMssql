@@ -1,15 +1,16 @@
 // MIT License
 
-using Alyio.McpMssql.DependencyInjection;
+using System.Globalization;
 using Alyio.McpMssql.Models;
+using Alyio.McpMssql.Options;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
 namespace Alyio.McpMssql.Services;
 
-internal sealed class ServerContextService(IOptions<McpMssqlOptions> options) : IServerContextService
+internal sealed class ConnectionContextService(IOptions<McpMssqlOptions> options) : IConnectionContextService
 {
-    public async Task<ServerConnectionContext> GetConnectionContextAsync(CancellationToken cancellationToken = default)
+    public async Task<ConnectionContext> GetConnectionContextAsync(CancellationToken cancellationToken = default)
     {
         var connectionString = options.Value.ConnectionString;
         var builder = new SqlConnectionStringBuilder(connectionString);
@@ -23,10 +24,10 @@ internal sealed class ServerContextService(IOptions<McpMssqlOptions> options) : 
 
         await reader.ReadAsync(cancellationToken);
 
-        var result = new ServerConnectionContext
+        var result = new ConnectionContext
         {
             Server = dataSourceParts[0].Trim(),
-            Port = dataSourceParts.Length > 1 ? dataSourceParts[1].Trim() : "1433",
+            Port = dataSourceParts.Length > 1 ? int.Parse(dataSourceParts[1].Trim(), CultureInfo.InvariantCulture) : 1433,
             Database = connection.Database,
             User = reader.GetString(0),
             Version = reader.GetString(1)

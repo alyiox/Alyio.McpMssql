@@ -5,19 +5,19 @@ using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 
 namespace Alyio.McpMssql.Tests.Functional;
 
-public sealed class QueryServiceTests : SqlServerFunctionalTest
+public sealed class SelectServiceTests : SqlServerFunctionalTest
 {
-    private readonly IQueryService _query;
+    private readonly ISelectService _select;
 
-    public QueryServiceTests(SqlServerFixture fixture) : base(fixture)
+    public SelectServiceTests(SqlServerFixture fixture) : base(fixture)
     {
-        _query = GetRequiredService<IQueryService>();
+        _select = GetRequiredService<ISelectService>();
     }
 
     [Fact]
     public async Task Select_From_Users_Returns_Seeded_Data()
     {
-        QueryResult result = await _query.ExecuteSelectAsync(
+        QueryResult result = await _select.ExecuteAsync(
             "select UserId, UserName from dbo.Users order by UserId",
             catalog: TestDatabaseName);
 
@@ -33,7 +33,7 @@ public sealed class QueryServiceTests : SqlServerFunctionalTest
     [Fact]
     public async Task Select_With_Parameter_Filters_Seeded_Data()
     {
-        var result = await _query.ExecuteSelectAsync(
+        var result = await _select.ExecuteAsync(
             "select UserName from dbo.Users where UserId = @id",
             catalog: TestDatabaseName,
             parameters: new Dictionary<string, object>
@@ -48,7 +48,7 @@ public sealed class QueryServiceTests : SqlServerFunctionalTest
     [Fact]
     public async Task Select_Join_Users_And_Orders()
     {
-        var result = await _query.ExecuteSelectAsync(
+        var result = await _select.ExecuteAsync(
             """
             select u.UserName, count(o.OrderId) as OrderCount
             from dbo.Users u
@@ -70,7 +70,7 @@ public sealed class QueryServiceTests : SqlServerFunctionalTest
     [Fact]
     public async Task Select_Respects_MaxRows_On_Seeded_Data()
     {
-        var result = await _query.ExecuteSelectAsync(
+        var result = await _select.ExecuteAsync(
             "select OrderId from dbo.Orders order by OrderId",
             catalog: TestDatabaseName,
             maxRows: 2);
@@ -84,7 +84,7 @@ public sealed class QueryServiceTests : SqlServerFunctionalTest
     public async Task Non_Select_SQL_Is_Rejected()
     {
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            _query.ExecuteSelectAsync(
+            _select.ExecuteAsync(
                 "delete from dbo.Users"));
     }
 }

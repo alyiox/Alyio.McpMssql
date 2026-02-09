@@ -8,19 +8,23 @@ using ModelContextProtocol.Server;
 namespace Alyio.McpMssql.Features;
 
 /// <summary>
-/// Read-only query execution tools.
-/// Provides a safe SELECT-only query engine with enforced row limits.
+/// Interactive read-only data access tools.
+/// 
+/// Provides safe, bounded SELECT execution intended for
+/// exploration, inspection, and reasoning over SQL Server data.
 /// </summary>
 [McpServerToolType]
-public static class QueryEngine
+public static class SelectTool
 {
     /// <summary>
-    /// Executes a read-only SELECT query and returns a tabular result.
+    /// Executes a read-only SELECT statement and returns a bounded tabular result.
     /// </summary>
     [McpServerTool(UseStructuredContent = true)]
-    [Description("Executes a read-only SELECT query and returns tabular results.")]
+    [Description(
+        "Executes a read-only SQL SELECT statement and returns tabular results. " +
+        "Results are bounded by server-enforced limits to ensure safe, interactive use.")]
     public static Task<QueryResult> SelectAsync(
-        IQueryService queryService,
+        ISelectService selectService,
 
         [Description(
             "SQL SELECT statement. Must be read-only. " +
@@ -38,13 +42,19 @@ public static class QueryEngine
 
         [Description(
             "Optional maximum number of rows to return. " +
-            "Clamped to the server-enforced row limit.")]
+            "The value is clamped to server-enforced limits.")]
         int? maxRows = null,
 
         CancellationToken cancellationToken = default)
     {
-        return MssqlExecutor.RunAsync(
-            ct => queryService.ExecuteSelectAsync(sql, catalog, parameters, maxRows, ct), cancellationToken);
+        return McpExecutor.RunAsync(
+            ct => selectService.ExecuteAsync(
+                sql,
+                catalog,
+                parameters,
+                maxRows,
+                ct),
+            cancellationToken);
     }
 }
 

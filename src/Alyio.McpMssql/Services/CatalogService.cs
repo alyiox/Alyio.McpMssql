@@ -1,7 +1,7 @@
 ﻿// MIT License
 
-using Alyio.McpMssql.DependencyInjection;
 using Alyio.McpMssql.Models;
+using Alyio.McpMssql.Options;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
@@ -64,10 +64,12 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
     {
         const string sql =
             """
-            SELECT TABLE_NAME AS [name], TABLE_SCHEMA AS [schema]
+            SELECT
+                TABLE_NAME AS [name],
+                TABLE_TYPE AS [type],
+                TABLE_SCHEMA AS [schema]
             FROM INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_TYPE = 'BASE TABLE'
-              AND (@schema IS NULL OR TABLE_SCHEMA = @schema)
+            WHERE @schema IS NULL OR TABLE_SCHEMA = @schema
             ORDER BY TABLE_SCHEMA, TABLE_NAME
             """;
 
@@ -96,9 +98,9 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
         const string sql =
             """
             SELECT
-                ROUTINE_SCHEMA AS [schema],
                 ROUTINE_NAME   AS [name],
-                ROUTINE_TYPE   AS [type]
+                ROUTINE_TYPE   AS [type],
+                ROUTINE_SCHEMA AS [schema]
             FROM INFORMATION_SCHEMA.ROUTINES
             WHERE ROUTINE_TYPE IN ('PROCEDURE', 'FUNCTION')
               AND (@schema IS NULL OR ROUTINE_SCHEMA = @schema)
@@ -137,7 +139,7 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
                     WHEN 'YES' THEN CAST(1 AS bit)
                     ELSE CAST(0 AS bit)
                 END                AS [nullable],
-                c.ORDINAL_POSITION AS [ordinal]
+                c.ORDINAL_POSITION AS [position]
             FROM INFORMATION_SCHEMA.COLUMNS c
             WHERE c.TABLE_NAME = @name
               AND (@schema IS NULL OR c.TABLE_SCHEMA = @schema)
