@@ -64,7 +64,7 @@ jobs:
 
       - name: Test
         env:
-          MCP_MSSQL_CONNECTION_STRING: "Server=localhost,1433;Database=master;User Id=sa;Password=YourStrong@Passw0rd123;TrustServerCertificate=True;Encrypt=True;"
+          MCP_MSSQL_CONNECTION_STRING: "Server=localhost,1433;Database=master;User Id=sa;Password=YourStrong@Passw0rd123;TrustServerCertificate=True;Encrypt=True;Initial Catalog=McpMssqlTest;"
         run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
 
       - name: Pack NuGet package
