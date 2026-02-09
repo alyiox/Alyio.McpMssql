@@ -52,6 +52,15 @@ jobs:
           cache: true
           cache-dependency-path: '**/packages.lock.json'
 
+      - name: Restore dependencies
+        run: dotnet restore --locked-mode
+
+      - name: Format check
+        run: dotnet format --verify-no-changes --verbosity normal
+
+      - name: Build
+        run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
+
       - name: Install sqlcmd (mssql-tools)
         run: |
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
@@ -60,24 +69,15 @@ jobs:
           sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
           echo "/opt/mssql-tools/bin" >> $GITHUB_PATH
 
-      - name: Restore dependencies
-        run: dotnet restore --locked-mode
-
       - name: Initialize test database
         run: |
           sqlcmd \
             -S localhost,1433 \
             -U sa \
-            -P "$SA_PASSWORD" \
+            -P YourStrong@Passw0rd123 \
             -d master \
             -Q "IF DB_ID(N'McpMssqlTest') IS NULL CREATE DATABASE [McpMssqlTest];" \
             -C
-
-      - name: Format check
-        run: dotnet format --verify-no-changes --verbosity normal
-
-      - name: Build
-        run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
 
       - name: Test
         env:
