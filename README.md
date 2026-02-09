@@ -75,13 +75,34 @@ npx -y @modelcontextprotocol/inspector -e DOTNET_ENVIRONMENT=Development dotnet 
 
 ## Integration testing
 
-Integration tests also use `MCP_MSSQL_CONNECTION_STRING`. Set it using environment variables or user secrets for the test project:
+Integration tests use a real SQL Server instance and read the connection string from `MCP_MSSQL_CONNECTION_STRING`.
+
+### IMPORTANT: TEST DATABASE REQUIREMENTS
+
+The integration test suite **requires a **hardcoded** and not configurable database named `McpMssqlTest`**.
+
+- The connection string **must include** `Initial Catalog=McpMssqlTest`, as the **active catalog** at connection time
+- The test infrastructure will **create, seed, and drop** `McpMssqlTest` automatically during test execution
+
+If the database does not exist or the catalog is omitted, tests will fail with errors similar to: `Cannot open database "McpMssqlTest" requested by the login.`.
+
+### Configuration
+
+Set the connection string using environment variables or user secrets for the test project.
+
+User secrets example:
 
 ```bash
-dotnet user-secrets set "MCP_MSSQL_CONNECTION_STRING" "Server=...;Database=...;User ID=...;Password=...;Initial Catalog=McpMssqlTest;" --project test/Alyio.McpMssql.Tests
+dotnet user-secrets set "MCP_MSSQL_CONNECTION_STRING" \
+  "Server=localhost,1433;User ID=sa;Password=YourStrong@Passw0rd123;TrustServerCertificate=True;Encrypt=True;Initial Catalog=McpMssqlTest;" \
+  --project test/Alyio.McpMssql.Tests
 ```
 
-Note: Integration tests expect a dedicated test database named `McpMssqlTest` (this name is hardcoded in the test suite). The test infrastructure will execute embedded SQL scripts that create, seed, and drop the `McpMssqlTest` database when needed.
+Environment variable example:
+
+```bash
+export MCP_MSSQL_CONNECTION_STRING="Server=localhost,1433;User ID=sa;Password=YourStrong@Passw0rd123;TrustServerCertificate=True;Encrypt=True;Initial Catalog=McpMssqlTest;"
+```
 
 ## Why not Data API Builder?
 

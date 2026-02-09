@@ -6,7 +6,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>mcp-mssql</ToolCommandName>
     <Description>Read-only Model Context Protocol (MCP) server for Microsoft SQL Server. Exposes safe metadata discovery and parameterized SELECT queries over stdio.</Description>
-    <Version>1.0.0-alpha.9</Version>
+    <Version>0.0.0-alpha.911</Version>
     <UserSecretsId>3852cfb6-6088-4198-9394-a7c0cb1f19a0</UserSecretsId>
     <Authors>Jon X</Authors>
     <Company>Jon X</Company>
