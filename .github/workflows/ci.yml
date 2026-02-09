@@ -21,8 +21,8 @@ env:
   CONFIGURATION: "Release"
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-  TEST_DB_NAME: McpMssqlTest
   SA_PASSWORD: "YourStrong@Passw0rd123"
+  TEST_DB_NAME: "McpMssqlTest"
 
 jobs:
   build:
@@ -38,9 +38,9 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $SA_PASSWORD -Q 'SELECT 1' -C"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${{ env.SA_PASSWORD }}' -Q 'SELECT 1' -C"
           --health-interval 10s
-          --health-timeout 3s
+          --health-timeout 5s
           --health-retries 5
 
     steps:
@@ -57,31 +57,33 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore --locked-mode
 
+      - name: Install sqlcmd
+        run: |
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/ubuntu/24.04/prod jammy main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo apt-get update && sudo apt-get install -y mssql-tools18 unixodbc-dev
+          echo "PATH=$PATH:/opt/mssql-tools18/bin" >> $GITHUB_ENV
+
+      - name: Initialize test database
+        run: |
+          sqlcmd -S sqlserver,1433 -U sa -P "${{ env.SA_PASSWORD }}" -d master -C \
+            -Q "IF DB_ID(N'${{ env.TEST_DB_NAME }}') IS NULL CREATE DATABASE [${{ env.TEST_DB_NAME }}];"
+
       - name: Format check
         run: dotnet format --verify-no-changes --verbosity normal
 
       - name: Build
         run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
 
-      - name: Initialize test database
-        run: |
-          /opt/mssql-tools18/bin/sqlcmd \
-            -S localhost,1433 \
-            -U sa \
-            -P "$SA_PASSWORD" \
-            -d master \
-            -Q "IF DB_ID(N'${{ env.TEST_DB_NAME }}') IS NULL CREATE DATABASE ${{ env.TEST_DB_NAME }};" \
-            -C
-
       - name: Test
         env:
-          MCP_MSSQL_CONNECTION_STRING: >
+          MCP_MSSQL_CONNECTION_STRING: >-
             Server=localhost,1433;
-            User Id=sa;
+            User ID=sa;
             Password=${{ env.SA_PASSWORD }};
-            Initial Catalog=${{ env.TEST_DB_NAME }};
             TrustServerCertificate=True;
             Encrypt=True;
+            Initial Catalog=${{ env.TEST_DB_NAME }};
         run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
 
       - name: Pack NuGet package
@@ -89,8 +91,8 @@ jobs:
 
       - name: Publish to NuGet
         if: startsWith(github.ref, 'refs/tags/')
-        run: dotnet nuget push ./artifacts/*.nupkg \
-             --api-key ${{ secrets.NUGET_API_KEY }} \
-             --source https://api.nuget.org/v3/index.json \
-             --skip-duplicate
-
+        run: |
+          dotnet nuget push ./artifacts/*.nupkg \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
