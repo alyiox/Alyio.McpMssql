@@ -1,15 +1,14 @@
-﻿// MIT License
+// MIT License
 
 using System.Text.Json;
+using Alyio.McpMssql.Configuration;
 using Alyio.McpMssql.Internal;
 using Alyio.McpMssql.Models;
-using Alyio.McpMssql.Options;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Options;
 
 namespace Alyio.McpMssql.Services;
 
-internal sealed class SelectService(IOptions<McpMssqlOptions> options) : ISelectService
+internal sealed class SelectService(IProfileResolver profileResolver) : ISelectService
 {
     public async Task<QueryResult> ExecuteAsync(
         string sql,
@@ -19,8 +18,9 @@ internal sealed class SelectService(IOptions<McpMssqlOptions> options) : ISelect
         CancellationToken cancellationToken = default)
     {
         SqlReadOnlyValidator.Validate(sql);
+        var profile = profileResolver.Resolve();
 
-        using var conn = new SqlConnection(options.Value.ConnectionString);
+        using var conn = new SqlConnection(profile.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(catalog))
@@ -44,8 +44,8 @@ internal sealed class SelectService(IOptions<McpMssqlOptions> options) : ISelect
             sqlParameters = list;
         }
 
-        var rowLimit = maxRows ?? options.Value.Select.DefaultMaxRows;
-        rowLimit = Math.Clamp(rowLimit, 1, options.Value.Select.MaxRows);
+        var rowLimit = maxRows ?? profile.Select.DefaultMaxRows;
+        rowLimit = Math.Clamp(rowLimit, 1, profile.Select.MaxRows);
 
         var result = await conn.ExecuteAsQueryResultAsync(
             sql,

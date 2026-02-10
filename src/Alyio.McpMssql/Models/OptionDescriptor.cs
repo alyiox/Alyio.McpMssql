@@ -3,7 +3,10 @@
 namespace Alyio.McpMssql.Models;
 
 /// <summary>
-/// Describes a server-enforced option for inspection and reasoning.
+/// Describes a server-enforced execution option for inspection and reasoning.
+///
+/// This model is intended to be surfaced to MCP clients to explain
+/// effective limits, defaults, and safety constraints applied by the server.
 /// </summary>
 public sealed class OptionDescriptor<T>
 {
@@ -13,18 +16,22 @@ public sealed class OptionDescriptor<T>
     public required T Value { get; init; }
 
     /// <summary>
-    /// Human- and AI-readable explanation of what this option controls.
+    /// Description of what this option controls, intended for humans
+    /// and AI agents.
+    ///
+    /// This value is informational only and does not influence behavior.
     /// </summary>
     public required string Description { get; init; }
 
     /// <summary>
-    /// Indicates whether the client or tool may override this value.
+    /// Indicates whether the client or tool may request an override
+    /// for this value.
     /// </summary>
     public bool IsOverridable { get; init; }
 
     /// <summary>
-    /// Logical scope of the option (e.g. "select", "analyze").
+    /// Logical scope in which this option applies
+    /// (for example, <c>"select"</c> or <c>"analyze"</c>).
     /// </summary>
     public required string Scope { get; init; }
 }
-

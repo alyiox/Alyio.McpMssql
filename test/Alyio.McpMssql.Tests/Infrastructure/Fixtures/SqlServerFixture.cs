@@ -1,16 +1,17 @@
 // MIT License
 
-using Alyio.McpMssql.Options;
+// IProfileResolver and profile-based config (default profile for tests)
+using Alyio.McpMssql;
 using Alyio.McpMssql.Tests.Infrastructure.Database;
 using Alyio.McpMssql.Tests.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 
 /// <summary>
 /// xUnit class fixture that manages the lifecycle of a shared SQL Server
 /// test database and exposes the application's DI container for functional tests.
+/// Uses the default MCP MSSQL profile (compatible with original single-connection behavior).
 /// </summary>
 public sealed class SqlServerFixture : IAsyncLifetime
 {
@@ -27,15 +28,13 @@ public sealed class SqlServerFixture : IAsyncLifetime
 
     /// <summary>
     /// Creates and initializes the test database by executing
-    /// schema and seed scripts.
+    /// schema and seed scripts using the default profile's connection string.
     /// </summary>
     public async Task InitializeAsync()
     {
-        var connectionString =
-            Services
-                .GetRequiredService<IOptions<McpMssqlOptions>>()
-                .Value
-                .ConnectionString;
+        var profileResolver = Services.GetRequiredService<IProfileResolver>();
+        var profile = profileResolver.Resolve();
+        var connectionString = profile.ConnectionString;
 
         await DatabaseInitializer.ExecuteEmbeddedScriptAsync(
             connectionString,

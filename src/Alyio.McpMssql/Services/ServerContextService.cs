@@ -1,18 +1,18 @@
 // MIT License
 
+using Alyio.McpMssql.Configuration;
 using Alyio.McpMssql.Models;
-using Alyio.McpMssql.Options;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Options;
 
 namespace Alyio.McpMssql.Services;
 
-internal sealed class ServerContextService(IOptions<McpMssqlOptions> options) : IServerContextService
+internal sealed class ServerContextService(IProfileResolver profileResolver) : IServerContextService
 {
     public async Task<ServerPropertiesContext> GetPropertiesAsync(
         CancellationToken cancellationToken = default)
     {
-        using var connection = new SqlConnection(options.Value.ConnectionString);
+        var profile = profileResolver.Resolve();
+        using var connection = new SqlConnection(profile.ConnectionString);
         await connection.OpenAsync(cancellationToken);
 
         const string sql = @"

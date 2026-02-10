@@ -1,17 +1,17 @@
-﻿// MIT License
+// MIT License
 
+using Alyio.McpMssql.Configuration;
 using Alyio.McpMssql.Models;
-using Alyio.McpMssql.Options;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Options;
 
 namespace Alyio.McpMssql.Services;
 
-internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatalogService
+internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalogService
 {
     public async Task<TabularResult> ListCatalogsAsync(
         CancellationToken cancellationToken = default)
     {
+        var profile = profileResolver.Resolve();
         const string sql =
             """
             SELECT 
@@ -26,7 +26,7 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
             ORDER BY database_id
             """;
 
-        using var conn = new SqlConnection(options.Value.ConnectionString);
+        using var conn = new SqlConnection(profile.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         return await conn.ExecuteAsTabularResultAsync(sql, null, cancellationToken)
@@ -37,6 +37,7 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
         string? catalog = null,
         CancellationToken cancellationToken = default)
     {
+        var profile = profileResolver.Resolve();
         const string sql =
             """
             SELECT [SCHEMA_NAME] AS [name]
@@ -45,7 +46,7 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
             ORDER BY [SCHEMA_NAME]
             """;
 
-        using var conn = new SqlConnection(options.Value.ConnectionString);
+        using var conn = new SqlConnection(profile.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(catalog))
@@ -62,6 +63,7 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
         string? schema = null,
         CancellationToken cancellationToken = default)
     {
+        var profile = profileResolver.Resolve();
         const string sql =
             """
             SELECT
@@ -73,7 +75,7 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
             ORDER BY TABLE_SCHEMA, TABLE_NAME
             """;
 
-        using var conn = new SqlConnection(options.Value.ConnectionString);
+        using var conn = new SqlConnection(profile.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(catalog))
@@ -95,6 +97,7 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
         string? schema = null,
         CancellationToken cancellationToken = default)
     {
+        var profile = profileResolver.Resolve();
         const string sql =
             """
             SELECT
@@ -107,7 +110,7 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
             ORDER BY ROUTINE_SCHEMA, ROUTINE_NAME;
             """;
 
-        using var conn = new SqlConnection(options.Value.ConnectionString);
+        using var conn = new SqlConnection(profile.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(catalog))
@@ -130,6 +133,7 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
         string? schema = null,
         CancellationToken cancellationToken = default)
     {
+        var profile = profileResolver.Resolve();
         const string sql =
             """
             SELECT
@@ -146,7 +150,7 @@ internal sealed class CatalogService(IOptions<McpMssqlOptions> options) : ICatal
             ORDER BY c.ORDINAL_POSITION;
             """;
 
-        using var conn = new SqlConnection(options.Value.ConnectionString);
+        using var conn = new SqlConnection(profile.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(catalog))

@@ -1,27 +1,25 @@
-﻿// MIT License
+// MIT License
 
+using Alyio.McpMssql.Configuration;
 using Alyio.McpMssql.Models;
-using Alyio.McpMssql.Options;
-using Microsoft.Extensions.Options;
 using ExecutionContext = Alyio.McpMssql.Models.ExecutionContext;
 
 #pragma warning disable IDE0130
 namespace Alyio.McpMssql.Services;
 #pragma warning restore IDE0130
 
-internal sealed class ExecutionContextService(IOptions<McpMssqlOptions> options) : IExecutionContextService
+internal sealed class ExecutionContextService(IProfileResolver profileResolver) : IExecutionContextService
 {
-    private readonly McpMssqlOptions _options = options.Value;
-
     public ValueTask<ExecutionContext> GetContextAsync(CancellationToken cancellationToken = default)
     {
+        var profile = profileResolver.Resolve();
         var context = new ExecutionContext
         {
             Select = new SelectExecutionContext
             {
                 DefaultMaxRows = new OptionDescriptor<int>
                 {
-                    Value = _options.Select.DefaultMaxRows,
+                    Value = profile.Select.DefaultMaxRows,
                     Description =
                         "Used when an inspection query does not explicitly specify a row limit, " +
                         "to prevent accidental large result sets.",
@@ -41,7 +39,7 @@ internal sealed class ExecutionContextService(IOptions<McpMssqlOptions> options)
 
                 CommandTimeoutSeconds = new OptionDescriptor<int>
                 {
-                    Value = _options.Select.CommandTimeoutSeconds,
+                    Value = profile.Select.CommandTimeoutSeconds,
                     Description =
                         "Maximum execution time allowed for an interactive inspection query before it is terminated.",
                     IsOverridable = false,

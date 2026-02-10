@@ -1,6 +1,6 @@
 ﻿// MIT License
 
-namespace Alyio.McpMssql.Options;
+namespace Alyio.McpMssql.Configuration;
 
 /// <summary>
 /// Server-enforced execution defaults and safety limits
@@ -11,7 +11,7 @@ public sealed class SelectExecutionOptions
     /// <summary>
     /// Default number of rows returned when no explicit limit is specified.
     /// </summary>
-    public int DefaultMaxRows { get; init; } = 100;
+    public int DefaultMaxRows { get; set; } = 100;
 
     /// <summary>
     /// Maximum number of rows that may be returned for a single SELECT.
@@ -38,24 +38,4 @@ public sealed class SelectExecutionOptions
     /// Absolute, non-configurable hard limit for SELECT execution time.
     /// </summary>
     internal const int HardCommandTimeoutSeconds = 300;
-
-    // -------------------------
-    // Configuration keys
-    // -------------------------
-
-    /// <summary>
-    /// Configuration key for the default maximum number of rows.
-    /// </summary>
-    internal const string DefaultMaxRowsKey = "MCP_MSSQL_SELECT_DEFAULT_MAX_ROWS";
-
-    /// <summary>
-    /// Configuration key for the maximum number of rows.
-    /// </summary>
-    internal const string MaxRowsKey = "MCP_MSSQL_SELECT_ROW_LIMIT";
-
-    /// <summary>
-    /// Configuration key for the SQL command timeout.
-    /// </summary>
-    internal const string CommandTimeoutSecondsKey = "MCP_MSSQL_SELECT_COMMAND_TIMEOUT_SECONDS";
 }
-
