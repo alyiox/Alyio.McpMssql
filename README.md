@@ -6,9 +6,10 @@
 A small, focused Read-only Model Context Protocol (MCP) server for Microsoft SQL Server. It exposes safe metadata discovery and parameterized `SELECT` queries over stdio so it can be used by MCP-compatible agents and tools.
 
 Key highlights:
+- **Profile-based configuration**: Multiple named connection profiles (e.g. `default`, `warehouse`); tools and resources accept an optional profile so hosts and agents can target a specific connection.
 - Strictly read-only: only `SELECT` queries are permitted and the server blocks DML/DDL and multi-statement batches.
 - Parameterized queries using `@paramName` to minimize risk of SQL injection.
-- Dedicated catalog and server-context services for safe metadata discovery (databases, schemas, relations, routines, server version, etc.).
+- Dedicated catalog and server-context services for safe metadata discovery (databases, schemas, relations, routines, server version, execution context, and available profiles).
 - Implemented using the official `ModelContextProtocol` C# SDK.
 
 ## Requirements
@@ -66,25 +67,77 @@ When to choose this project vs Data API Builder
 
 ## Configuration
 
-The application binds configuration from the `McpMssql` section of the .NET configuration system (appsettings, environment, user-secrets, etc.). In addition, a set of flat environment variables with the `MCP_MSSQL_` prefix can be used to override specific values.
+The server uses **profile-based configuration**: each named profile has a connection string and optional execution options. When a client calls a tool without a `profile` argument or reads a resource, the server uses the **default profile**—the profile whose name is set in `DefaultProfile` (if not set, the profile named `"default"` is used).
 
-Provide configuration via environment variables or .NET user secrets in development.
+### Single connection (simplest)
 
-**Environment variables**
+For one SQL Server connection, set the **MCP-specific environment variable** and nothing else. The server creates a single profile (named `default`) from it. No config file required.
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `MCP_MSSQL_CONNECTION_STRING` | (required) | SQL Server connection string (e.g. `Server=...;User ID=...;Password=...;`) |
-| `MCP_MSSQL_SELECT_DEFAULT_MAX_ROWS` | `100` | Default row limit returned when no explicit limit is provided (see `SelectExecutionOptions.DefaultMaxRows`). |
-| `MCP_MSSQL_SELECT_ROW_LIMIT` | `5000` | Maximum number of rows that may be returned for a single SELECT (clamped by the server hard limit). |
-| `MCP_MSSQL_SELECT_COMMAND_TIMEOUT_SECONDS` | `30` | Query timeout in seconds (clamped by server hard limit). |
+| Variable | Description |
+|----------|-------------|
+| `MCP_MSSQL_CONNECTION_STRING` | SQL Server connection string (required). |
+| `MCP_MSSQL_SELECT_DEFAULT_MAX_ROWS` | Default row limit when no limit is provided (default `100`). |
+| `MCP_MSSQL_SELECT_MAX_ROWS` | Max rows per SELECT (default `5000`). |
+| `MCP_MSSQL_SELECT_COMMAND_TIMEOUT_SECONDS` | Query timeout in seconds (default `30`). |
 
-Note: configuration is bound from the `McpMssql` section (for example in `appsettings.json`) and then overridden by the flat `MCP_MSSQL_*` environment variables listed above.
+Example: pass this env when starting the server (e.g. in MCP host config or inspector).
+
+```bash
+export MCP_MSSQL_CONNECTION_STRING="Server=127.0.0.1;User ID=sa;Password=...;Encrypt=True;TrustServerCertificate=True;"
+```
 
 **Local development with user-secrets**
 
 ```bash
 dotnet user-secrets set "MCP_MSSQL_CONNECTION_STRING" "Server=...;Database=...;User ID=...;Password=...;" --project src/Alyio.McpMssql
+```
+
+### Multiple profiles
+
+For more than one connection (e.g. default + warehouse), define each profile. **Prefer environment-based configuration**: this server runs as a local stdio process, and MCP hosts/agents typically pass env when they start the process, so env vars are the natural place for profile data. Config files (appsettings, user-secrets) work too.
+
+**Environment variables** (recommended for multiple profiles)
+
+Use the .NET convention: double underscore `__` for each level. The `Profiles` section is keyed by profile name.
+
+```bash
+# Which profile is used when the client doesn't specify one (default: "default")
+export McpMssql__DefaultProfile=default
+
+# Profile "default"
+export McpMssql__Profiles__default__ConnectionString="Server=...;User ID=...;Password=...;"
+export McpMssql__Profiles__default__Description="Primary connection"
+export McpMssql__Profiles__default__Select__DefaultMaxRows=100
+export McpMssql__Profiles__default__Select__MaxRows=5000
+
+# Profile "warehouse"
+export McpMssql__Profiles__warehouse__ConnectionString="Server=warehouse.example.com;..."
+export McpMssql__Profiles__warehouse__Description="Read-only warehouse"
+```
+
+If you also set `MCP_MSSQL_CONNECTION_STRING`, it overrides the **default profile’s** connection string (so you can still drive the default profile from that one key if you like).
+
+**Config file** (e.g. appsettings.json)
+
+Same structure under the `McpMssql` section; use colon `:` in keys for user-secrets or command-line.
+
+```json
+{
+  "McpMssql": {
+    "DefaultProfile": "default",
+    "Profiles": {
+      "default": {
+        "ConnectionString": "Server=...;User ID=...;Password=...;",
+        "Description": "Primary connection",
+        "Select": { "DefaultMaxRows": 100, "MaxRows": 5000, "CommandTimeoutSeconds": 30 }
+      },
+      "warehouse": {
+        "ConnectionString": "Server=...;",
+        "Description": "Read-only warehouse"
+      }
+    }
+  }
+}
 ```
 
 **Run in development mode with the inspector**
@@ -95,7 +148,7 @@ npx -y @modelcontextprotocol/inspector -e DOTNET_ENVIRONMENT=Development dotnet 
 
 ## Integration testing
 
-Integration tests use a real SQL Server instance and read the connection string from `MCP_MSSQL_CONNECTION_STRING`.
+Integration tests use a real SQL Server instance and the **default profile**: the connection string is read from `MCP_MSSQL_CONNECTION_STRING` (user secrets or environment).
 
 ### IMPORTANT: TEST DATABASE REQUIREMENTS
 
@@ -180,37 +233,32 @@ Below are common example snippets used by various agents to start this MCP serve
 }
 ```
 
-## Available tools and endpoints
+## Available tools and resources
+
+All tools accept an optional **`profile`** argument; when omitted, the default profile is used. Use the `list_profiles` tool or `mssql://profiles` resource to discover valid profile names.
+
+**Profile discovery**
+- **Tool** `list_profiles`: Returns configured profile names and the default profile name.
+- **Resource** `mssql://profiles`: Same as the tool (server-level metadata; no profile in the URI).
 
 **Core query tool**
-- `select`: Executes read-only parameterized `SELECT` statements and returns tabular results.
-
-Example request
-
-```json
-{
-  "tool": "select",
-  "sql": "SELECT * FROM Users WHERE Id = @id",
-  "parameters": { "id": 42 },
-  "maxRows": 100
-}
-```
+- `select`: Executes read-only parameterized `SELECT` statements and returns tabular results. Optional args: `profile`, `catalog`, `parameters`, `maxRows`.
 
 **Catalog discovery tools**
-- `list_catalogs`: Lists accessible databases
-- `list_schemas`: Lists schemas within a specified database
-- `list_relations`: Lists tables and views within a specified schema
-- `list_routines`: Lists stored procedures and functions within a specified schema
-- `describe_relation`: Describes the columns of a specified table or view
+- `list_catalogs`, `list_schemas`, `list_relations`, `list_routines`, `describe_relation`: Metadata for databases, schemas, tables/views, routines, and column descriptions. Each accepts an optional `profile` (and other args as relevant).
 
-**Server context endpoints (resources)**
-- `mssql://context/server/properties` - SQL Server instance properties (engine edition, version, etc.)
-- `mssql://context/execution` - current execution context (defaults, limits, timeouts enforced by the server)
-- `mssql://catalogs` - list databases
-- `mssql://catalogs/{catalog}/schemas` - list schemas for a database
-- `mssql://catalogs/{catalog}/schemas/{schema}/relations` - list relations (tables/views)
-- `mssql://catalogs/{catalog}/schemas/{schema}/relations/{name}` - describe a relation
-- `mssql://catalogs/{catalog}/schemas/{schema}/routines` - list routines (procs/functions)
+**Execution and server context**
+- **Tool** `get_execution_context`: Returns execution context (row limits, timeouts) for the given profile. Optional `profile`.
+- **Resources** (all use profile as the first path segment; use `default` for the default profile):
+  - `mssql://{profile}/context/server/properties` – SQL Server instance properties (engine edition, version, etc.)
+  - `mssql://{profile}/context/execution` – execution context (defaults, limits, timeouts)
+  - `mssql://{profile}/catalogs` – list databases
+  - `mssql://{profile}/catalogs/{catalog}/schemas` – list schemas
+  - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations` – list relations (tables/views)
+  - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}` – describe a relation
+  - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines` – list routines (procs/functions)
+
+Example: to read server properties for the default profile, use the resource URI `mssql://default/context/server/properties`.
 
 ## Security
 
