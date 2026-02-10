@@ -44,6 +44,25 @@ Notes:
 - The `@modelcontextprotocol/inspector` CLI (MCP Inspector) is a separate tool used to interact with MCP servers. The `--prerelease` flag is used in examples to allow pre-release server builds.
 - `dotnet dnx` is the command entrypoint used by the tool package in this repository; installed tool exposes the `mcp-mssql` command shown above.
 
+## Why not Data API Builder?
+
+Microsoft's Data API Builder (DAB) provides a full-featured REST/GraphQL layer over SQL Server with built-in authorization, CRUD, and policy configuration. That makes DAB an excellent choice for applications needing:
+
+- Full CRUD (create/update/delete) and complex authorization rules
+- REST or GraphQL endpoints with declarative mapping and policies
+- A production-grade, configurable API gateway for multiple data sources
+
+This project intentionally targets a different niche:
+
+- Lightweight, audit-friendly MCP server focused on read-only access for agent workflows
+- Small dependency surface and predictable behavior (stdio transport, parameterized SELECT only)
+- Easier to run locally as a dotnet tool and simpler to reason about security for agent use
+
+When to choose this project vs Data API Builder
+
+- Choose this project when you need a tiny, read-only MCP server for agents, fast startup, and low operational complexity.
+- Choose Data API Builder when you need CRUD operations, rich authorization, REST/GraphQL endpoints, or advanced policy configuration.
+
 ## Configuration
 
 The application binds configuration from the `McpMssql` section of the .NET configuration system (appsettings, environment, user-secrets, etc.). In addition, a set of flat environment variables with the `MCP_MSSQL_` prefix can be used to override specific values.
@@ -103,25 +122,6 @@ Environment variable example:
 ```bash
 export MCP_MSSQL_CONNECTION_STRING="Server=localhost,1433;User ID=sa;Password=YourStrong@Passw0rd123;TrustServerCertificate=True;Encrypt=True;Initial Catalog=McpMssqlTest;"
 ```
-
-## Why not Data API Builder?
-
-Microsoft's Data API Builder (DAB) provides a full-featured REST/GraphQL layer over SQL Server with built-in authorization, CRUD, and policy configuration. That makes DAB an excellent choice for applications needing:
-
-- Full CRUD (create/update/delete) and complex authorization rules
-- REST or GraphQL endpoints with declarative mapping and policies
-- A production-grade, configurable API gateway for multiple data sources
-
-This project intentionally targets a different niche:
-
-- Lightweight, audit-friendly MCP server focused on read-only access for agent workflows
-- Small dependency surface and predictable behavior (stdio transport, parameterized SELECT only)
-- Easier to run locally as a dotnet tool and simpler to reason about security for agent use
-
-When to choose this project vs Data API Builder
-
-- Choose this project when you need a tiny, read-only MCP server for agents, fast startup, and low operational complexity.
-- Choose Data API Builder when you need CRUD operations, rich authorization, REST/GraphQL endpoints, or advanced policy configuration.
 
 ## MCP agents configuration examples
 
@@ -216,6 +216,8 @@ Example request
 - Read-only: only `SELECT` statements are allowed.
 - Parameterized queries: use `@name` parameters to reduce injection risk.
 - Never commit secrets into code; use environment variables or user secrets.
+
+
 
 ## Contributing
 
