@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 using ModelContextProtocol.Client;
@@ -133,7 +133,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     [Fact]
     public async Task Catalogs_Resource_Returns_Expected_Columns()
     {
-        var result = await _client.ReadResourceAsync("mssql://catalogs");
+        var result = await _client.ReadResourceAsync("mssql://default/catalogs");
 
         var root = result.ReadJsonRoot();
         var (columns, _) = root.ReadColumnRows();
@@ -149,7 +149,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     public async Task Schemas_Resource_Returns_Expected_Columns()
     {
         var result = await _client.ReadResourceAsync(
-            "mssql://catalogs/master/schemas");
+            "mssql://default/catalogs/master/schemas");
 
         var root = result.ReadJsonRoot();
         var (columns, _) = root.ReadColumnRows();
@@ -161,7 +161,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     public async Task Relations_Resource_Returns_Expected_Columns()
     {
         var result = await _client.ReadResourceAsync(
-            "mssql://catalogs/master/schemas/dbo/relations");
+            "mssql://default/catalogs/master/schemas/dbo/relations");
 
         var root = result.ReadJsonRoot();
         var (columns, _) = root.ReadColumnRows();
@@ -175,7 +175,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     public async Task Routines_Resource_Returns_Expected_Columns()
     {
         var result = await _client.ReadResourceAsync(
-            "mssql://catalogs/master/schemas/dbo/routines");
+            "mssql://default/catalogs/master/schemas/dbo/routines");
 
         var root = result.ReadJsonRoot();
         var (columns, _) = root.ReadColumnRows();
@@ -190,7 +190,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     public async Task DescribeRelation_Resource_Returns_Expected_Columns()
     {
         var result = await _client.ReadResourceAsync(
-            "mssql://catalogs/master/schemas/dbo/relations/sysobjects");
+            "mssql://default/catalogs/master/schemas/dbo/relations/sysobjects");
 
         var root = result.ReadJsonRoot();
         var (columns, _) = root.ReadColumnRows();

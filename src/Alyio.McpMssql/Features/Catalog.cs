@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using System.ComponentModel;
 using Alyio.McpMssql.Internal;
@@ -23,53 +23,61 @@ public static class Catalogs
     /// Resource that returns all catalogs (databases).
     /// </summary>
     [McpServerResource(
-        UriTemplate = "mssql://catalogs",
+        UriTemplate = "mssql://{profile}/catalogs",
         MimeType = "application/json")]
     [Description("List catalogs (databases).")]
     public static Task<string> CatalogsAsync(
         ICatalogService catalogService,
+        [Description("Profile name (e.g. default).")]
+        string profile,
         CancellationToken cancellationToken)
-        => McpExecutor.RunAsTextAsync(catalogService.ListCatalogsAsync, cancellationToken);
+        => McpExecutor.RunAsTextAsync(ct => catalogService.ListCatalogsAsync(profile, ct), cancellationToken);
 
     /// <summary>
     /// Resource that returns schemas within a catalog.
     /// </summary>
     [McpServerResource(
-        UriTemplate = "mssql://catalogs/{catalog}/schemas",
+        UriTemplate = "mssql://{profile}/catalogs/{catalog}/schemas",
         MimeType = "application/json")]
     [Description("List schemas in a catalog.")]
     public static Task<string> SchemasAsync(
         ICatalogService catalogService,
+        [Description("Profile name (e.g. default).")]
+        string profile,
         [Description("Catalog (database) name.")]
         string catalog,
         CancellationToken cancellationToken)
-        => McpExecutor.RunAsTextAsync(ct => catalogService.ListSchemasAsync(catalog, ct), cancellationToken);
+        => McpExecutor.RunAsTextAsync(ct => catalogService.ListSchemasAsync(catalog, profile, ct), cancellationToken);
 
     /// <summary>
     /// Resource that returns relations within a schema.
     /// </summary>
     [McpServerResource(
-        UriTemplate = "mssql://catalogs/{catalog}/schemas/{schema}/relations",
+        UriTemplate = "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations",
         MimeType = "application/json")]
     [Description("List relations (tables and views) in a schema.")]
     public static Task<string> RelationsAsync(
         ICatalogService catalogService,
+        [Description("Profile name (e.g. default).")]
+        string profile,
         [Description("Catalog (database) name.")]
         string catalog,
         [Description("Schema name.")]
         string schema,
         CancellationToken cancellationToken)
-        => McpExecutor.RunAsTextAsync(ct => catalogService.ListRelationsAsync(catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsTextAsync(ct => catalogService.ListRelationsAsync(catalog, schema, profile, ct), cancellationToken);
 
     /// <summary>
     /// Resource that describes a relation (table or view).
     /// </summary>
     [McpServerResource(
-        UriTemplate = "mssql://catalogs/{catalog}/schemas/{schema}/relations/{name}",
+        UriTemplate = "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}",
         MimeType = "application/json")]
     [Description("Describe a relation (table or view).")]
     public static Task<string> RelationAsync(
         ICatalogService catalogService,
+        [Description("Profile name (e.g. default).")]
+        string profile,
         [Description("Catalog (database) name.")]
         string catalog,
         [Description("Schema name.")]
@@ -77,23 +85,25 @@ public static class Catalogs
         [Description("Relation name.")]
         string name,
         CancellationToken cancellationToken)
-        => McpExecutor.RunAsTextAsync(ct => catalogService.DescribeRelationAsync(name, catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsTextAsync(ct => catalogService.DescribeRelationAsync(name, catalog, schema, profile, ct), cancellationToken);
 
     /// <summary>
     /// Resource that returns routines within a schema.
     /// </summary>
     [McpServerResource(
-        UriTemplate = "mssql://catalogs/{catalog}/schemas/{schema}/routines",
+        UriTemplate = "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines",
         MimeType = "application/json")]
     [Description("List routines (procedures and functions) in a schema.")]
     public static Task<string> RoutinesAsync(
         ICatalogService catalogService,
+        [Description("Profile name (e.g. default).")]
+        string profile,
         [Description("Catalog (database) name.")]
         string catalog,
         [Description("Schema name.")]
         string schema,
         CancellationToken cancellationToken)
-        => McpExecutor.RunAsTextAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsTextAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, profile, ct), cancellationToken);
 
     // =========================================================
     // Tools (imperative, parameter-driven)
@@ -106,8 +116,10 @@ public static class Catalogs
     [Description("List catalogs (databases).")]
     public static Task<TabularResult> ListCatalogsAsync(
         ICatalogService catalogService,
+        [Description("Optional profile name. If omitted, the default profile is used.")]
+        string? profile = null,
         CancellationToken cancellationToken = default)
-        => McpExecutor.RunAsync(catalogService.ListCatalogsAsync, cancellationToken);
+        => McpExecutor.RunAsync(ct => catalogService.ListCatalogsAsync(profile, ct), cancellationToken);
 
     /// <summary>
     /// Tool that lists schemas.
@@ -118,8 +130,10 @@ public static class Catalogs
         ICatalogService catalogService,
         [Description("Optional catalog (database) name.")]
         string? catalog = null,
+        [Description("Optional profile name. If omitted, the default profile is used.")]
+        string? profile = null,
         CancellationToken cancellationToken = default)
-        => McpExecutor.RunAsync(ct => catalogService.ListSchemasAsync(catalog, ct), cancellationToken);
+        => McpExecutor.RunAsync(ct => catalogService.ListSchemasAsync(catalog, profile, ct), cancellationToken);
 
     /// <summary>
     /// Tool that lists relations.
@@ -132,8 +146,10 @@ public static class Catalogs
         string? catalog = null,
         [Description("Optional schema name.")]
         string? schema = null,
+        [Description("Optional profile name. If omitted, the default profile is used.")]
+        string? profile = null,
         CancellationToken cancellationToken = default)
-        => McpExecutor.RunAsync(ct => catalogService.ListRelationsAsync(catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsync(ct => catalogService.ListRelationsAsync(catalog, schema, profile, ct), cancellationToken);
 
     /// <summary>
     /// Tool that lists routines.
@@ -146,8 +162,10 @@ public static class Catalogs
         string? catalog = null,
         [Description("Optional schema name.")]
         string? schema = null,
+        [Description("Optional profile name. If omitted, the default profile is used.")]
+        string? profile = null,
         CancellationToken cancellationToken = default)
-        => McpExecutor.RunAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, profile, ct), cancellationToken);
 
     /// <summary>
     /// Tool that describes a relation.
@@ -162,6 +180,8 @@ public static class Catalogs
         string? catalog = null,
         [Description("Optional schema name.")]
         string? schema = null,
+        [Description("Optional profile name. If omitted, the default profile is used.")]
+        string? profile = null,
         CancellationToken cancellationToken = default)
-        => McpExecutor.RunAsync(ct => catalogService.DescribeRelationAsync(name, catalog, schema, ct), cancellationToken);
+        => McpExecutor.RunAsync(ct => catalogService.DescribeRelationAsync(name, catalog, schema, profile, ct), cancellationToken);
 }

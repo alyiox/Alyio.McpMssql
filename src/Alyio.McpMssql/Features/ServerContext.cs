@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using System.ComponentModel;
 using Alyio.McpMssql.Internal;
@@ -18,16 +18,20 @@ public static class ServerContext
     /// </summary>
     [McpServerResource(
         Name = "Server Properties",
-        UriTemplate = "mssql://context/server/properties",
+        UriTemplate = "mssql://{profile}/context/server/properties",
         MimeType = "application/json")]
     [Description(
         "SQL Server instance properties derived from SERVERPROPERTY and related metadata. " +
         "Use this resource to reason about engine edition, version compatibility, feature availability, " +
         "and server-level execution behavior.")]
-    public static Task<string> GetPropertiesAsync(IServerContextService server, CancellationToken cancellationToken = default)
+    public static Task<string> GetPropertiesAsync(
+        IServerContextService server,
+        [Description("Profile name (e.g. default).")]
+        string profile,
+        CancellationToken cancellationToken = default)
     {
         return McpExecutor.RunAsTextAsync(
-            server.GetPropertiesAsync,
+            ct => server.GetPropertiesAsync(profile, ct),
             cancellationToken);
     }
 }

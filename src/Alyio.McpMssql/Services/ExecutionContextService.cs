@@ -10,16 +10,18 @@ namespace Alyio.McpMssql.Services;
 
 internal sealed class ExecutionContextService(IProfileResolver profileResolver) : IExecutionContextService
 {
-    public ValueTask<ExecutionContext> GetContextAsync(CancellationToken cancellationToken = default)
+    public ValueTask<ExecutionContext> GetContextAsync(
+        string? profile = null,
+        CancellationToken cancellationToken = default)
     {
-        var profile = profileResolver.Resolve();
+        var resolved = profileResolver.Resolve(profile);
         var context = new ExecutionContext
         {
             Select = new SelectExecutionContext
             {
                 DefaultMaxRows = new OptionDescriptor<int>
                 {
-                    Value = profile.Select.DefaultMaxRows,
+                    Value = resolved.Select.DefaultMaxRows,
                     Description =
                         "Used when an inspection query does not explicitly specify a row limit, " +
                         "to prevent accidental large result sets.",
@@ -39,7 +41,7 @@ internal sealed class ExecutionContextService(IProfileResolver profileResolver) 
 
                 CommandTimeoutSeconds = new OptionDescriptor<int>
                 {
-                    Value = profile.Select.CommandTimeoutSeconds,
+                    Value = resolved.Select.CommandTimeoutSeconds,
                     Description =
                         "Maximum execution time allowed for an interactive inspection query before it is terminated.",
                     IsOverridable = false,

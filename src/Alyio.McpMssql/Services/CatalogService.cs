@@ -9,9 +9,10 @@ namespace Alyio.McpMssql.Services;
 internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalogService
 {
     public async Task<TabularResult> ListCatalogsAsync(
+        string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var profile = profileResolver.Resolve();
+        var resolved = profileResolver.Resolve(profile);
         const string sql =
             """
             SELECT 
@@ -26,7 +27,7 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
             ORDER BY database_id
             """;
 
-        using var conn = new SqlConnection(profile.ConnectionString);
+        using var conn = new SqlConnection(resolved.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         return await conn.ExecuteAsTabularResultAsync(sql, null, cancellationToken)
@@ -35,9 +36,10 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
 
     public async Task<TabularResult> ListSchemasAsync(
         string? catalog = null,
+        string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var profile = profileResolver.Resolve();
+        var resolved = profileResolver.Resolve(profile);
         const string sql =
             """
             SELECT [SCHEMA_NAME] AS [name]
@@ -46,7 +48,7 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
             ORDER BY [SCHEMA_NAME]
             """;
 
-        using var conn = new SqlConnection(profile.ConnectionString);
+        using var conn = new SqlConnection(resolved.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(catalog))
@@ -61,9 +63,10 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
     public async Task<TabularResult> ListRelationsAsync(
         string? catalog = null,
         string? schema = null,
+        string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var profile = profileResolver.Resolve();
+        var resolved = profileResolver.Resolve(profile);
         const string sql =
             """
             SELECT
@@ -75,7 +78,7 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
             ORDER BY TABLE_SCHEMA, TABLE_NAME
             """;
 
-        using var conn = new SqlConnection(profile.ConnectionString);
+        using var conn = new SqlConnection(resolved.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(catalog))
@@ -95,9 +98,10 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
     public async Task<TabularResult> ListRoutinesAsync(
         string? catalog = null,
         string? schema = null,
+        string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var profile = profileResolver.Resolve();
+        var resolved = profileResolver.Resolve(profile);
         const string sql =
             """
             SELECT
@@ -110,7 +114,7 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
             ORDER BY ROUTINE_SCHEMA, ROUTINE_NAME;
             """;
 
-        using var conn = new SqlConnection(profile.ConnectionString);
+        using var conn = new SqlConnection(resolved.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(catalog))
@@ -131,9 +135,10 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
         string name,
         string? catalog = null,
         string? schema = null,
+        string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var profile = profileResolver.Resolve();
+        var resolved = profileResolver.Resolve(profile);
         const string sql =
             """
             SELECT
@@ -150,7 +155,7 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
             ORDER BY c.ORDINAL_POSITION;
             """;
 
-        using var conn = new SqlConnection(profile.ConnectionString);
+        using var conn = new SqlConnection(resolved.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(catalog))

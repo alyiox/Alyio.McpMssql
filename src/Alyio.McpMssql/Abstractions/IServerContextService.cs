@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 using Alyio.McpMssql.Models;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -21,7 +21,14 @@ public interface IServerContextService
     /// Retrieves stable SQL Server engine metadata such as version,
     /// edition, and engine type derived from SERVERPROPERTY.
     /// </summary>
+    /// <param name="profile">
+    /// Optional profile name. If null or empty, the default profile is used.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the operation.
+    /// </param>
     Task<ServerPropertiesContext> GetPropertiesAsync(
+        string? profile = null,
         CancellationToken cancellationToken = default);
 
     // --- Future expansion (intentionally explicit & typed) ---

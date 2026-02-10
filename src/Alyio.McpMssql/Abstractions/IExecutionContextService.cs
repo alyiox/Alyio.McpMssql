@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using ExecutionContext = Alyio.McpMssql.Models.ExecutionContext;
 
@@ -16,6 +16,14 @@ public interface IExecutionContextService
     /// Returns the current execution context, including
     /// defaults and hard limits applied to SQL execution.
     /// </summary>
-    ValueTask<ExecutionContext> GetContextAsync(CancellationToken cancellationToken = default);
+    /// <param name="profile">
+    /// Optional profile name. If null or empty, the default profile is used.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the operation.
+    /// </param>
+    ValueTask<ExecutionContext> GetContextAsync(
+        string? profile = null,
+        CancellationToken cancellationToken = default);
 }
 

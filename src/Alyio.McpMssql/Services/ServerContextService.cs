@@ -9,10 +9,11 @@ namespace Alyio.McpMssql.Services;
 internal sealed class ServerContextService(IProfileResolver profileResolver) : IServerContextService
 {
     public async Task<ServerPropertiesContext> GetPropertiesAsync(
+        string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var profile = profileResolver.Resolve();
-        using var connection = new SqlConnection(profile.ConnectionString);
+        var resolved = profileResolver.Resolve(profile);
+        using var connection = new SqlConnection(resolved.ConnectionString);
         await connection.OpenAsync(cancellationToken);
 
         const string sql = @"

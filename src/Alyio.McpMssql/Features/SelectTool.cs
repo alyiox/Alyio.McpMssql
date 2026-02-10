@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using System.ComponentModel;
 using Alyio.McpMssql.Internal;
@@ -45,6 +45,10 @@ public static class SelectTool
             "The value is clamped to server-enforced limits.")]
         int? maxRows = null,
 
+        [Description(
+            "Optional profile name. If omitted, the default profile is used.")]
+        string? profile = null,
+
         CancellationToken cancellationToken = default)
     {
         return McpExecutor.RunAsync(
@@ -53,6 +57,7 @@ public static class SelectTool
                 catalog,
                 parameters,
                 maxRows,
+                profile,
                 ct),
             cancellationToken);
     }

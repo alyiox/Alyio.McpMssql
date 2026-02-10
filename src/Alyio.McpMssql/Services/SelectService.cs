@@ -15,12 +15,13 @@ internal sealed class SelectService(IProfileResolver profileResolver) : ISelectS
         string? catalog = null,
         IReadOnlyDictionary<string, object>? parameters = null,
         int? maxRows = null,
+        string? profile = null,
         CancellationToken cancellationToken = default)
     {
         SqlReadOnlyValidator.Validate(sql);
-        var profile = profileResolver.Resolve();
+        var resolved = profileResolver.Resolve(profile);
 
-        using var conn = new SqlConnection(profile.ConnectionString);
+        using var conn = new SqlConnection(resolved.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(catalog))
@@ -44,8 +45,8 @@ internal sealed class SelectService(IProfileResolver profileResolver) : ISelectS
             sqlParameters = list;
         }
 
-        var rowLimit = maxRows ?? profile.Select.DefaultMaxRows;
-        rowLimit = Math.Clamp(rowLimit, 1, profile.Select.MaxRows);
+        var rowLimit = maxRows ?? resolved.Select.DefaultMaxRows;
+        rowLimit = Math.Clamp(rowLimit, 1, resolved.Select.MaxRows);
 
         var result = await conn.ExecuteAsQueryResultAsync(
             sql,

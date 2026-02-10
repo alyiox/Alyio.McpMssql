@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using Alyio.McpMssql.Models;
 
@@ -17,6 +17,9 @@ public interface ICatalogService
     /// <summary>
     /// Lists catalogs accessible to the current connection.
     /// </summary>
+    /// <param name="profile">
+    /// Optional profile name. If null or empty, the default profile is used.
+    /// </param>
     /// <param name="cancellationToken">
     /// Token used to cancel the operation.
     /// </param>
@@ -24,6 +27,7 @@ public interface ICatalogService
     /// A read-only list of catalog (database) names.
     /// </returns>
     Task<TabularResult> ListCatalogsAsync(
+        string? profile = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -31,6 +35,9 @@ public interface ICatalogService
     /// </summary>
     /// <param name="catalog">
     /// Optional catalog (database) name. If omitted, uses the active catalog.
+    /// </param>
+    /// <param name="profile">
+    /// Optional profile name. If null or empty, the default profile is used.
     /// </param>
     /// <param name="cancellationToken">
     /// Token used to cancel the operation.
@@ -40,6 +47,7 @@ public interface ICatalogService
     /// </returns>
     Task<TabularResult> ListSchemasAsync(
         string? catalog = null,
+        string? profile = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -51,6 +59,9 @@ public interface ICatalogService
     /// <param name="schema">
     /// Optional schema name. If omitted, lists relations from all schemas.
     /// </param>
+    /// <param name="profile">
+    /// Optional profile name. If null or empty, the default profile is used.
+    /// </param>
     /// <param name="cancellationToken">
     /// Token used to cancel the operation.
     /// </param>
@@ -60,6 +71,7 @@ public interface ICatalogService
     Task<TabularResult> ListRelationsAsync(
         string? catalog = null,
         string? schema = null,
+        string? profile = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -71,6 +83,9 @@ public interface ICatalogService
     /// <param name="schema">
     /// Optional schema name. If omitted, lists routines from all schemas.
     /// </param>
+    /// <param name="profile">
+    /// Optional profile name. If null or empty, the default profile is used.
+    /// </param>
     /// <param name="cancellationToken">
     /// Token used to cancel the operation.
     /// </param>
@@ -80,6 +95,7 @@ public interface ICatalogService
     Task<TabularResult> ListRoutinesAsync(
         string? catalog = null,
         string? schema = null,
+        string? profile = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -94,6 +110,9 @@ public interface ICatalogService
     /// <param name="schema">
     /// Optional schema name. If omitted, uses default schema resolution.
     /// </param>
+    /// <param name="profile">
+    /// Optional profile name. If null or empty, the default profile is used.
+    /// </param>
     /// <param name="cancellationToken">
     /// Token used to cancel the operation.
     /// </param>
@@ -104,6 +123,7 @@ public interface ICatalogService
         string name,
         string? catalog = null,
         string? schema = null,
+        string? profile = null,
         CancellationToken cancellationToken = default);
 }
 
