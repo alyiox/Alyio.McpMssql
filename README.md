@@ -8,7 +8,7 @@ A small, focused Read-only Model Context Protocol (MCP) server for Microsoft SQL
 Key highlights:
 - Strictly read-only: only `SELECT` queries are permitted and the server blocks DML/DDL and multi-statement batches.
 - Parameterized queries using `@paramName` to minimize risk of SQL injection.
-- Dedicated catalog and server-context services for safe metadata discovery (databases, schemas, relations, routines, server version, user, etc.).
+- Dedicated catalog and server-context services for safe metadata discovery (databases, schemas, relations, routines, server version, etc.).
 - Implemented using the official `ModelContextProtocol` C# SDK.
 
 ## Requirements
@@ -41,7 +41,8 @@ npx -y @modelcontextprotocol/inspector \
 ```
 
 Notes:
-- The `@modelcontextprotocol/inspector` CLI (MCP Inspector) is a separate tool used to interact with MCP servers. The `--prerelease` flag is used in examples to allow pre-release server builds.
+- The `@modelcontextprotocol/inspector` CLI (MCP Inspector) is a separate tool used to interact with MCP servers.
+- The `--prerelease` flag is used in examples to allow pre-release server builds.
 - `dotnet dnx` is the command entrypoint used by the tool package in this repository; installed tool exposes the `mcp-mssql` command shown above.
 
 ## Why not Data API Builder?
@@ -203,7 +204,7 @@ Example request
 - `describe_relation`: Describes the columns of a specified table or view
 
 **Server context endpoints (resources)**
-- `mssql://context/connection` - current server connection context (server identity, user, database, version)
+- `mssql://context/server/properties` - SQL Server instance properties (engine edition, version, etc.)
 - `mssql://context/execution` - current execution context (defaults, limits, timeouts enforced by the server)
 - `mssql://catalogs` - list databases
 - `mssql://catalogs/{catalog}/schemas` - list schemas for a database
@@ -216,8 +217,6 @@ Example request
 - Read-only: only `SELECT` statements are allowed.
 - Parameterized queries: use `@name` parameters to reduce injection risk.
 - Never commit secrets into code; use environment variables or user secrets.
-
-
 
 ## Contributing
 
