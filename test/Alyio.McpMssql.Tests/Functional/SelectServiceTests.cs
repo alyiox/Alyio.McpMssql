@@ -2,17 +2,13 @@
 
 using Alyio.McpMssql.Models;
 using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Alyio.McpMssql.Tests.Functional;
 
-public sealed class SelectServiceTests : SqlServerFunctionalTest
+public sealed class SelectServiceTests(SqlServerFixture fixture) : SqlServerFunctionalTest(fixture)
 {
-    private readonly ISelectService _select;
-
-    public SelectServiceTests(SqlServerFixture fixture) : base(fixture)
-    {
-        _select = GetRequiredService<ISelectService>();
-    }
+    private readonly ISelectService _select = fixture.Services.GetRequiredService<ISelectService>();
 
     [Fact]
     public async Task Select_From_Users_Returns_Seeded_Data()

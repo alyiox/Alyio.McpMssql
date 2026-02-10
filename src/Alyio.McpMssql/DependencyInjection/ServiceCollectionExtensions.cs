@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddMcpMssqlOptions(configuration);
 
-        services.AddSingleton<IConnectionContextService, ConnectionContextService>();
+        services.AddSingleton<IServerContextService, ServerContextService>();
         services.AddSingleton<ICatalogService, CatalogService>();
         services.AddSingleton<ISelectService, SelectService>();
         services.AddSingleton<IExecutionContextService, ExecutionContextService>();
