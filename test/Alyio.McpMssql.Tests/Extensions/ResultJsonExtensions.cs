@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using System.Text.Json;
 using ModelContextProtocol.Protocol;
@@ -48,6 +48,27 @@ internal static class ResultJsonExtensions
             root.GetProperty("truncated").GetBoolean(),
             root.GetProperty("rowLimit").GetInt32()
         );
+    }
+
+    /// <summary>
+    /// Gets a property by name, trying exact match then case-insensitive match.
+    /// </summary>
+    public static bool TryGetPropertyIgnoreCase(this JsonElement element, string name, out JsonElement value)
+    {
+        if (element.TryGetProperty(name, out value))
+            return true;
+
+        foreach (var p in element.EnumerateObject())
+        {
+            if (string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                value = p.Value;
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
     }
 }
 
