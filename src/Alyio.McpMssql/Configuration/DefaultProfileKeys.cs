@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 namespace Alyio.McpMssql.Configuration;
 
@@ -16,6 +16,12 @@ internal static class DefaultProfileKeys
     /// Overrides the connection string of the default profile.
     /// </summary>
     public const string ConnectionString = "MCPMSSQL_CONNECTION_STRING";
+
+    /// <summary>
+    /// Overrides the optional description of the default profile
+    /// (for tooling discovery and AI agents).
+    /// </summary>
+    public const string Description = "MCPMSSQL_DESCRIPTION";
 
     /// <summary>
     /// Overrides the maximum number of rows returned by SELECT

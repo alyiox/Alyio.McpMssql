@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using Microsoft.Extensions.Configuration;
 
@@ -23,6 +23,12 @@ internal static class DefaultProfileOverrideApplier
         if (connectionString is not null)
         {
             profile.ConnectionString = connectionString;
+        }
+
+        var description = GetString(configuration, DefaultProfileKeys.Description);
+        if (description is not null)
+        {
+            profile.Description = description;
         }
 
         var select = profile.Select;
