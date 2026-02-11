@@ -28,11 +28,13 @@ Use `--prerelease` for pre-release builds. The tool entrypoint is `dotnet dnx Al
 
 ## Configuration
 
-All settings use the **MCPMSSQL** prefix: flat env vars for a single connection; the **McpMssql** section (or env `MCPMSSQL__...`) for profile-based config.
+All settings use the **MCPMSSQL** prefix: flat environment variables (e.g., `MCPMSSQL_CONNECTION_STRING`) for a single connection, or the environment variable (e.g., `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`) for profile-based config.
 
-**Single server / one connection:** Set the following in the environment (or user-secrets); no config file needed.
+**Single server / one connection:**
 
-| Variable | Description |
+- Set the following as environment variables or in config file.
+
+| Environment variable | Description |
 |----------|-------------|
 | `MCPMSSQL_CONNECTION_STRING` | Connection string (required). |
 | `MCPMSSQL_DESCRIPTION` | Optional description for the default profile (tooling/AI discovery). |
@@ -42,30 +44,30 @@ All settings use the **MCPMSSQL** prefix: flat env vars for a single connection;
 
 **Multiple servers or connections:**
 
-- Env-first: use env vars or the same structure in appsettings.json / user-secrets.
+- Use environment variables or the same structure in `appsettings.json`.
 - Use the **McpMssql** section: prefix `MCPMSSQL__` with `__` for each level.
+- Under `Profiles:<name>` set `ConnectionString`, optional `Description`, optional `Select`.
+- The default profile is the one named `default`—define it under `Profiles:default` (like any other profile) or use the single-connection environment variable keys to create or override the default profile when set.
 
-    - Under `Profiles:<name>` set `ConnectionString`, optional `Description`, optional `Select`.
-
-    - The default profile is the one named `default`—define it under `Profiles:default` (like any other profile) or use the single-connection env keys to create it.
-
-- Single-connection env keys create or override the default profile when set.
-
-Example (env, UPPERCASE keys):
+Example (environment variables):
 
 ```bash
 export MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING="Server=...;User ID=...;Password=...;"
 export MCPMSSQL__PROFILES__DEFAULT__DESCRIPTION="Primary connection"
 export MCPMSSQL__PROFILES__WAREHOUSE__CONNECTIONSTRING="Server=warehouse.example.com;..."
-# Single-connection env keys create or override the default profile
+# Single-connection environment variable keys create or override the default profile
 ```
 
-**Local dev:** User-secrets are loaded only when `DOTNET_ENVIRONMENT=Development`. Set the connection string, then run with that environment:
+**Local development:**
+
+- Set the connection string, then run with that environment:
 
 ```bash
 dotnet user-secrets set "MCPMSSQL_CONNECTION_STRING" "..." --project src/Alyio.McpMssql
 npx -y @modelcontextprotocol/inspector -e DOTNET_ENVIRONMENT=Development dotnet run --project src/Alyio.McpMssql
 ```
+
+Note: User-secrets are loaded only when `DOTNET_ENVIRONMENT=Development`.
 
 ## Tools and resources
 
@@ -75,8 +77,8 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 - **Query:** `select` — parameterized `SELECT`; optional `profile`, `catalog`, `parameters`, `maxRows`.
 - **Catalog:** `list_catalogs`, `list_schemas`, `list_relations`, `list_routines`, `describe_columns`, `describe_indexes` — optional `profile` and other args.
 - **Context:** Tool `get_execution_context` (optional `profile`). Resources (use `{profile}` in path, e.g. `default`):
-  - `mssql://{profile}/context/server/properties` — server properties
-  - `mssql://{profile}/context/execution` — execution context
+  - `mssql://{profile}/context/server/properties` — server properties, such as product version, edition, and engine type
+  - `mssql://{profile}/context/execution` — execution context, such as row limits and command timeout
   - `mssql://{profile}/catalogs` — list databases
   - `mssql://{profile}/catalogs/{catalog}/schemas` — list schemas
   - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations` — list relations
@@ -86,7 +88,7 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 
 ## Security
 
-Read-only (`SELECT` only); parameterized `@paramName`; use env or user-secrets for connection strings—never commit secrets.
+Read-only (`SELECT` only); parameterized `@paramName`. Use environment variables or user-secrets for connection strings—never commit secrets.
 
 ## MCP host examples
 
@@ -148,7 +150,7 @@ Config file location depends on the client (e.g. Cursor: `.cursor/mcp.json`).
 
 ## Integration tests
 
-Tests use a real SQL Server and the default profile (`MCPMSSQL_CONNECTION_STRING` from env or user-secrets). The suite expects a database named **`McpMssqlTest`**: the connection string must include `Initial Catalog=McpMssqlTest`. The test infrastructure creates, seeds, and drops this database. Set the secret for the test project:
+Tests use a real SQL Server and the `default` profile (`MCPMSSQL_CONNECTION_STRING` from environment variables or user-secrets). The suite expects a database named **`McpMssqlTest`**: the connection string must include `Initial Catalog=McpMssqlTest`. The test infrastructure creates, seeds, and drops this database. Set the secret for the test project:
 
 ```bash
 dotnet user-secrets set "MCPMSSQL_CONNECTION_STRING" \
