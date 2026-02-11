@@ -52,7 +52,7 @@ public sealed class McpServerFixture : IAsyncLifetime, IAsyncDisposable
 
         services.AddMcpServer()
             .WithStreamServerTransport(serverInput, serverOutput)
-            .WithToolsFromAssembly(typeof(McpExecutor).Assembly)
+            .WithToolsFromAssembly(typeof(McpExecutor).Assembly, McpJsonDefaults.Options)
             .WithResourcesFromAssembly(typeof(McpExecutor).Assembly);
 
         _serviceProvider = services.BuildServiceProvider();

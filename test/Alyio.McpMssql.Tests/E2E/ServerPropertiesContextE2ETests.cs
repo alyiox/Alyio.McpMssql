@@ -1,6 +1,7 @@
 // MIT License
 
 using System.Text.Json;
+using Alyio.McpMssql.Internal;
 using Alyio.McpMssql.Models;
 using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 using ModelContextProtocol.Client;
@@ -10,18 +11,15 @@ namespace Alyio.McpMssql.Tests.E2E;
 public class ServerPropertiesContextE2ETests(McpServerFixture fixture)
     : IClassFixture<McpServerFixture>
 {
-    private static readonly JsonSerializerOptions s_jsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
-    };
+    private static readonly JsonSerializerOptions s_jsonOptions = McpJsonDefaults.Options;
 
     private readonly McpClient _client = fixture.Client;
 
-    [Fact(Skip = "TODO: fix discoverability assertion for A1 resource URI (mssql://{profile}/context/server/properties)")]
+    [Fact]
     public async Task Server_Properties_Resource_Is_Discoverable()
     {
         Assert.True(
-            await _client.IsResourceRegisteredAsync("mssql://default/context/server/properties"));
+            await _client.IsResourceTemplateRegisteredAsync("mssql://{profile}/context/server/properties"));
     }
 
     [Fact]

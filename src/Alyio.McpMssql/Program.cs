@@ -1,5 +1,6 @@
 // MIT License
 
+using Alyio.McpMssql.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -17,7 +18,7 @@ builder.Services
     .AddMcpMssql(builder.Configuration)
     .AddMcpServer()
     .WithStdioServerTransport()
-    .WithToolsFromAssembly()
+    .WithToolsFromAssembly(serializerOptions: McpJsonDefaults.Options)
     .WithResourcesFromAssembly();
 
 await builder.Build().RunAsync();

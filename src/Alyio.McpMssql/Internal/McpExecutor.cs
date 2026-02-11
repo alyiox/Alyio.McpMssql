@@ -1,7 +1,6 @@
 // MIT License
 
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using ModelContextProtocol;
 
 namespace Alyio.McpMssql.Internal;
@@ -16,11 +15,7 @@ namespace Alyio.McpMssql.Internal;
 /// </remarks>
 internal static class McpExecutor
 {
-    private static readonly JsonSerializerOptions s_jsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    };
+    private static readonly JsonSerializerOptions s_jsonOptions = McpJsonDefaults.Options;
 
     /// <summary>
     /// Executes an asynchronous operation and normalizes exceptions.
