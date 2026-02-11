@@ -77,7 +77,7 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 - **Query:** `select` — parameterized `SELECT`; optional `profile`, `catalog`, `parameters`, `maxRows`.
 - **Catalog:** `list_catalogs`, `list_schemas`, `list_relations`, `list_routines`, `describe_columns`, `describe_indexes` — optional `profile` and other args.
 - **Context:** Tool `get_execution_context` (optional `profile`). Resources (use `{profile}` in path, e.g. `default`):
-  - `mssql://{profile}/context/server/properties` — server properties, such as product version, edition, and engine type
+  - `mssql://{profile}/context/server/properties` — server properties, such as product version, and edition
   - `mssql://{profile}/context/execution` — execution context, such as row limits and command timeout
   - `mssql://{profile}/catalogs` — list databases
   - `mssql://{profile}/catalogs/{catalog}/schemas` — list schemas
