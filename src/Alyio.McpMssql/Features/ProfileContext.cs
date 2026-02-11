@@ -19,7 +19,7 @@ public static class ProfileContext
     /// No profile segment in the URI; this is server-level metadata.
     /// </summary>
     [McpServerResource(
-        Name = "Profiles",
+        Name = "profile context",
         UriTemplate = "mssql://context/profiles",
         MimeType = "application/json")]
     [Description("List configured connection profiles and the default profile name.")]

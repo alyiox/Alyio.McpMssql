@@ -23,7 +23,7 @@ public sealed class ProfileContextE2ETests(McpServerFixture fixture) : IClassFix
     {
         Assert.True(
             await _client.IsResourceRegisteredAsync("mssql://context/profiles"),
-            "Profiles resource should be discoverable.");
+            "Profile context resource should be discoverable.");
     }
 
     [Fact]
