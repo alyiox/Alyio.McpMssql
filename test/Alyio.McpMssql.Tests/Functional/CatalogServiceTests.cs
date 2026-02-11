@@ -190,4 +190,52 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
 
         Assert.NotEmpty(result.Rows);
     }
+
+    // -----------------------------
+    // Describe indexes
+    // -----------------------------
+
+    [Fact]
+    public async Task DescribeIndexes_Returns_Orders_Index_Metadata()
+    {
+        var result = await _service.DescribeIndexesAsync(
+            name: "Orders",
+            catalog: TestDatabaseName,
+            schema: "dbo");
+
+        Assert.NotEmpty(result.Columns);
+        Assert.NotEmpty(result.Rows);
+
+        result.Columns.AssertHasColumns(
+            "index_name",
+            "index_type",
+            "is_unique",
+            "has_filter",
+            "filter_definition",
+            "key_ordinal",
+            "is_descending",
+            "column_name",
+            "is_included_column");
+
+        var indexNameIndex = result.Columns
+            .Select((c, i) => (c, i))
+            .First(p => p.c.Equals("index_name", StringComparison.OrdinalIgnoreCase))
+            .i;
+
+        var indexNames = result.Rows.Select(r => r[indexNameIndex]?.ToString()).Distinct().ToList();
+
+        // PK name is system-generated (e.g. PK__Orders__...); we assert on the named indexes we created
+        Assert.Contains("IX_Orders_OrderDate", indexNames);
+        Assert.Contains("IX_Orders_User_Date", indexNames);
+        Assert.Contains("IX_Orders_OrderDate_Filtered", indexNames);
+        Assert.True(indexNames.Count >= 4, "Orders should have at least 4 indexes (PK + 3 named).");
+    }
+
+    [Fact]
+    public async Task DescribeIndexes_Without_Catalog_Or_Schema_Uses_Default_Resolution()
+    {
+        var result = await _service.DescribeIndexesAsync("Orders");
+
+        Assert.NotEmpty(result.Rows);
+    }
 }

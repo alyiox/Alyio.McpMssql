@@ -88,6 +88,26 @@ public static class Catalogs
         => McpExecutor.RunAsTextAsync(ct => catalogService.DescribeColumnsAsync(name, catalog, schema, profile, ct), cancellationToken);
 
     /// <summary>
+    /// Resource that describes indexes of a relation (table or view).
+    /// </summary>
+    [McpServerResource(
+        UriTemplate = "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/indexes",
+        MimeType = "application/json")]
+    [Description("Describe indexes of a relation (table or view).")]
+    public static Task<string> IndexesAsync(
+        ICatalogService catalogService,
+        [Description("Profile name (e.g. default).")]
+        string profile,
+        [Description("Catalog (database) name.")]
+        string catalog,
+        [Description("Schema name.")]
+        string schema,
+        [Description("Relation name.")]
+        string name,
+        CancellationToken cancellationToken)
+        => McpExecutor.RunAsTextAsync(ct => catalogService.DescribeIndexesAsync(name, catalog, schema, profile, ct), cancellationToken);
+
+    /// <summary>
     /// Resource that returns routines within a schema.
     /// </summary>
     [McpServerResource(
@@ -184,4 +204,22 @@ public static class Catalogs
         string? profile = null,
         CancellationToken cancellationToken = default)
         => McpExecutor.RunAsync(ct => catalogService.DescribeColumnsAsync(name, catalog, schema, profile, ct), cancellationToken);
+
+    /// <summary>
+    /// Tool that describes indexes of a relation (table or view).
+    /// </summary>
+    [McpServerTool(UseStructuredContent = true)]
+    [Description("Describe indexes of a relation (table or view).")]
+    public static Task<TabularResult> DescribeIndexesAsync(
+        ICatalogService catalogService,
+        [Description("Relation name.")]
+        string name,
+        [Description("Optional catalog (database) name.")]
+        string? catalog = null,
+        [Description("Optional schema name.")]
+        string? schema = null,
+        [Description("Optional profile name. If omitted, the default profile is used.")]
+        string? profile = null,
+        CancellationToken cancellationToken = default)
+        => McpExecutor.RunAsync(ct => catalogService.DescribeIndexesAsync(name, catalog, schema, profile, ct), cancellationToken);
 }

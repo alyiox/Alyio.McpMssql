@@ -14,6 +14,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     private const string ListRelationsTool = "list_relations";
     private const string ListRoutinesTool = "list_routines";
     private const string DescribeColumnsTool = "describe_columns";
+    private const string DescribeIndexesTool = "describe_indexes";
 
     // ------------------------------------------------------------------
     // Tool discovery
@@ -27,7 +28,8 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
             ListSchemasTool,
             ListRelationsTool,
             ListRoutinesTool,
-            DescribeColumnsTool));
+            DescribeColumnsTool,
+            DescribeIndexesTool));
     }
 
     // ------------------------------------------------------------------
@@ -43,6 +45,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
                 "mssql://{profile}/catalogs/{catalog}/schemas",
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations",
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/columns",
+                "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/indexes",
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines"),
             "All catalog resource templates should be discoverable.");
     }
@@ -143,6 +146,33 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
             "position");
     }
 
+    [Fact]
+    public async Task DescribeIndexes_Tool_Returns_Expected_Columns()
+    {
+        var result = await _client.CallToolAsync(
+            DescribeIndexesTool,
+            new Dictionary<string, object?>
+            {
+                ["name"] = "Orders",
+                ["catalog"] = "McpMssqlTest",
+                ["schema"] = "dbo"
+            });
+
+        var root = result.ReadJsonRoot();
+        var (columns, _) = root.ReadColumnRows();
+
+        columns.AssertHasColumns(
+            "index_name",
+            "index_type",
+            "is_unique",
+            "has_filter",
+            "filter_definition",
+            "key_ordinal",
+            "is_descending",
+            "column_name",
+            "is_included_column");
+    }
+
     // ------------------------------------------------------------------
     // Resources
     // ------------------------------------------------------------------
@@ -217,5 +247,26 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
             "type",
             "nullable",
             "position");
+    }
+
+    [Fact]
+    public async Task DescribeIndexes_Resource_Returns_Expected_Columns()
+    {
+        var result = await _client.ReadResourceAsync(
+            "mssql://default/catalogs/McpMssqlTest/schemas/dbo/relations/Orders/indexes");
+
+        var root = result.ReadJsonRoot();
+        var (columns, _) = root.ReadColumnRows();
+
+        columns.AssertHasColumns(
+            "index_name",
+            "index_type",
+            "is_unique",
+            "has_filter",
+            "filter_definition",
+            "key_ordinal",
+            "is_descending",
+            "column_name",
+            "is_included_column");
     }
 }

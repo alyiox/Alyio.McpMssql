@@ -36,6 +36,19 @@ CREATE TABLE dbo.Orders (
 );
 GO
 
+-- Indexes for describe_indexes tests (nonclustered, unique, composite, included, filtered)
+CREATE UNIQUE NONCLUSTERED INDEX IX_Users_Email ON dbo.Users (Email);
+GO
+
+CREATE NONCLUSTERED INDEX IX_Orders_OrderDate ON dbo.Orders (OrderDate);
+GO
+
+CREATE NONCLUSTERED INDEX IX_Orders_User_Date ON dbo.Orders (UserId, OrderDate) INCLUDE (TotalAmount);
+GO
+
+CREATE NONCLUSTERED INDEX IX_Orders_OrderDate_Filtered ON dbo.Orders (OrderDate) WHERE TotalAmount > 0;
+GO
+
 -- Create test views
 CREATE VIEW dbo.ActiveUsers AS
     SELECT UserId, UserName, Email

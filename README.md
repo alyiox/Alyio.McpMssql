@@ -73,7 +73,7 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 
 - **Profile context:** Tool `list_profiles`; resource `mssql://context/profiles` — configured profiles and default profile name (server-level; no profile in URI).
 - **Query:** `select` — parameterized `SELECT`; optional `profile`, `catalog`, `parameters`, `maxRows`.
-- **Catalog:** `list_catalogs`, `list_schemas`, `list_relations`, `list_routines`, `describe_columns` — optional `profile` and other args.
+- **Catalog:** `list_catalogs`, `list_schemas`, `list_relations`, `list_routines`, `describe_columns`, `describe_indexes` — optional `profile` and other args.
 - **Context:** Tool `get_execution_context` (optional `profile`). Resources (use `{profile}` in path, e.g. `default`):
   - `mssql://{profile}/context/server/properties` — server properties
   - `mssql://{profile}/context/execution` — execution context
@@ -81,6 +81,7 @@ All tools accept an optional `profile`; when omitted, the default profile is use
   - `mssql://{profile}/catalogs/{catalog}/schemas` — list schemas
   - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations` — list relations
   - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/columns` — describe columns
+  - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/indexes` — describe indexes
   - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines` — list routines
 
 ## Security

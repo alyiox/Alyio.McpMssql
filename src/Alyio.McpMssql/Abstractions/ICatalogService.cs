@@ -125,5 +125,33 @@ public interface ICatalogService
         string? schema = null,
         string? profile = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Describes the indexes of a tabular relation (table or view).
+    /// </summary>
+    /// <param name="name">
+    /// Name of the relation (table or view).
+    /// </param>
+    /// <param name="catalog">
+    /// Optional catalog (database) name. If omitted, uses the active catalog.
+    /// </param>
+    /// <param name="schema">
+    /// Optional schema name. If omitted, uses default schema resolution.
+    /// </param>
+    /// <param name="profile">
+    /// Optional profile name. If null or empty, the default profile is used.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the operation.
+    /// </param>
+    /// <returns>
+    /// A read-only list of index metadata (one row per index column).
+    /// </returns>
+    Task<TabularResult> DescribeIndexesAsync(
+        string name,
+        string? catalog = null,
+        string? schema = null,
+        string? profile = null,
+        CancellationToken cancellationToken = default);
 }
 
