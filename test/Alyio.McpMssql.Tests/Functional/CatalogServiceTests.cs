@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
@@ -148,13 +148,13 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
     }
 
     // -----------------------------
-    // Describe relation
+    // Describe columns
     // -----------------------------
 
     [Fact]
-    public async Task DescribeRelation_Returns_Users_Column_Metadata()
+    public async Task DescribeColumns_Returns_Users_Column_Metadata()
     {
-        var result = await _service.DescribeRelationAsync(
+        var result = await _service.DescribeColumnsAsync(
             name: "Users",
             catalog: TestDatabaseName,
             schema: "dbo");
@@ -184,9 +184,9 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
     }
 
     [Fact]
-    public async Task DescribeRelation_Without_Catalog_Or_Schema_Uses_Default_Resolution()
+    public async Task DescribeColumns_Without_Catalog_Or_Schema_Uses_Default_Resolution()
     {
-        var result = await _service.DescribeRelationAsync("Users");
+        var result = await _service.DescribeColumnsAsync("Users");
 
         Assert.NotEmpty(result.Rows);
     }

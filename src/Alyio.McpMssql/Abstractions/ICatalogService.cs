@@ -119,7 +119,7 @@ public interface ICatalogService
     /// <returns>
     /// A read-only list of column metadata describing the relation structure.
     /// </returns>
-    Task<TabularResult> DescribeRelationAsync(
+    Task<TabularResult> DescribeColumnsAsync(
         string name,
         string? catalog = null,
         string? schema = null,

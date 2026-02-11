@@ -68,13 +68,13 @@ public static class Catalogs
         => McpExecutor.RunAsTextAsync(ct => catalogService.ListRelationsAsync(catalog, schema, profile, ct), cancellationToken);
 
     /// <summary>
-    /// Resource that describes a relation (table or view).
+    /// Resource that describes columns of a relation (table or view).
     /// </summary>
     [McpServerResource(
-        UriTemplate = "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}",
+        UriTemplate = "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/columns",
         MimeType = "application/json")]
-    [Description("Describe a relation (table or view).")]
-    public static Task<string> RelationAsync(
+    [Description("Describe columns of a relation (table or view).")]
+    public static Task<string> ColumnsAsync(
         ICatalogService catalogService,
         [Description("Profile name (e.g. default).")]
         string profile,
@@ -85,7 +85,7 @@ public static class Catalogs
         [Description("Relation name.")]
         string name,
         CancellationToken cancellationToken)
-        => McpExecutor.RunAsTextAsync(ct => catalogService.DescribeRelationAsync(name, catalog, schema, profile, ct), cancellationToken);
+        => McpExecutor.RunAsTextAsync(ct => catalogService.DescribeColumnsAsync(name, catalog, schema, profile, ct), cancellationToken);
 
     /// <summary>
     /// Resource that returns routines within a schema.
@@ -168,11 +168,11 @@ public static class Catalogs
         => McpExecutor.RunAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, profile, ct), cancellationToken);
 
     /// <summary>
-    /// Tool that describes a relation.
+    /// Tool that describes columns of a relation (table or view).
     /// </summary>
     [McpServerTool(UseStructuredContent = true)]
-    [Description("Describe a relation (table or view).")]
-    public static Task<TabularResult> DescribeRelationAsync(
+    [Description("Describe columns of a relation (table or view).")]
+    public static Task<TabularResult> DescribeColumnsAsync(
         ICatalogService catalogService,
         [Description("Relation name.")]
         string name,
@@ -183,5 +183,5 @@ public static class Catalogs
         [Description("Optional profile name. If omitted, the default profile is used.")]
         string? profile = null,
         CancellationToken cancellationToken = default)
-        => McpExecutor.RunAsync(ct => catalogService.DescribeRelationAsync(name, catalog, schema, profile, ct), cancellationToken);
+        => McpExecutor.RunAsync(ct => catalogService.DescribeColumnsAsync(name, catalog, schema, profile, ct), cancellationToken);
 }

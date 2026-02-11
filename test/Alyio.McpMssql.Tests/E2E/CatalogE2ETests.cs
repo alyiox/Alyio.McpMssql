@@ -13,7 +13,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     private const string ListSchemasTool = "list_schemas";
     private const string ListRelationsTool = "list_relations";
     private const string ListRoutinesTool = "list_routines";
-    private const string DescribeRelationTool = "describe_relation";
+    private const string DescribeColumnsTool = "describe_columns";
 
     // ------------------------------------------------------------------
     // Tool discovery
@@ -27,7 +27,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
             ListSchemasTool,
             ListRelationsTool,
             ListRoutinesTool,
-            DescribeRelationTool));
+            DescribeColumnsTool));
     }
 
     // ------------------------------------------------------------------
@@ -42,7 +42,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
                 "mssql://{profile}/catalogs",
                 "mssql://{profile}/catalogs/{catalog}/schemas",
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations",
-                "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}",
+                "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/columns",
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines"),
             "All catalog resource templates should be discoverable.");
     }
@@ -122,10 +122,10 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     }
 
     [Fact]
-    public async Task DescribeRelation_Tool_Returns_Expected_Columns()
+    public async Task DescribeColumns_Tool_Returns_Expected_Columns()
     {
         var result = await _client.CallToolAsync(
-            DescribeRelationTool,
+            DescribeColumnsTool,
             new Dictionary<string, object?>
             {
                 ["name"] = "sysobjects",
@@ -204,10 +204,10 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     }
 
     [Fact]
-    public async Task DescribeRelation_Resource_Returns_Expected_Columns()
+    public async Task DescribeColumns_Resource_Returns_Expected_Columns()
     {
         var result = await _client.ReadResourceAsync(
-            "mssql://default/catalogs/master/schemas/dbo/relations/sysobjects");
+            "mssql://default/catalogs/master/schemas/dbo/relations/sysobjects/columns");
 
         var root = result.ReadJsonRoot();
         var (columns, _) = root.ReadColumnRows();

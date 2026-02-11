@@ -130,7 +130,7 @@ internal sealed class CatalogService(IProfileService profileService) : ICatalogS
             .ConfigureAwait(false);
     }
 
-    public async Task<TabularResult> DescribeRelationAsync(
+    public async Task<TabularResult> DescribeColumnsAsync(
         string name,
         string? catalog = null,
         string? schema = null,
