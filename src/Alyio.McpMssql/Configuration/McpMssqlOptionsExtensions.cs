@@ -46,6 +46,12 @@ public static class McpMssqlOptionsExtensions
         if (options.Profiles.Count == 0)
         {
             options.Profiles[McpMssqlOptions.DefaultProfileName] = new McpMssqlProfileOptions();
+            return;
+        }
+
+        if (!options.Profiles.TryGetValue(McpMssqlOptions.DefaultProfileName, out _))
+        {
+            options.Profiles[McpMssqlOptions.DefaultProfileName] = new McpMssqlProfileOptions();
         }
     }
 

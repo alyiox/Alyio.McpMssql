@@ -114,6 +114,24 @@ public sealed class ProfileServiceTests
     }
 
     [Fact]
+    public void Resolve_Default_From_Flat_Key_And_Other_Profile_From_Section_Without_Named_Default()
+    {
+        var envVars = new[]
+        {
+            ("MCPMSSQL_CONNECTION_STRING", "Server=.;Database=DefaultFromFlat;TrustServerCertificate=True;"),
+            ("MCPMSSQL__PROFILES__OTHER__CONNECTIONSTRING", "Server=other;Database=OtherDb;TrustServerCertificate=True;"),
+        };
+
+        var profileService = BuildProfileService(envVars);
+
+        var defaultProfile = profileService.Resolve(null);
+        var otherProfile = profileService.Resolve("other");
+
+        Assert.Contains("DefaultFromFlat", defaultProfile.ConnectionString);
+        Assert.Contains("OtherDb", otherProfile.ConnectionString);
+    }
+
+    [Fact]
     public void Resolve_Default_From_Section_Only()
     {
         var envVars = new[]
