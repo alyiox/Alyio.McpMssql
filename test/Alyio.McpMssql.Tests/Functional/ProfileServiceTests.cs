@@ -59,11 +59,10 @@ public sealed class ProfileServiceTests
     {
         var envVars = new[]
         {
-            ("MCPMSSQL__DEFAULTPROFILE", "custom"),
             ("MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING", "Server=.;Database=DefaultDb;TrustServerCertificate=True;"),
             ("MCPMSSQL__PROFILES__DEFAULT__DESCRIPTION", "Default database"),
-            ("MCPMSSQL__PROFILES__CUSTOM__CONNECTIONSTRING", "Server=.;Database=CustomDb;TrustServerCertificate=True;"),
-            ("MCPMSSQL__PROFILES__CUSTOM__DESCRIPTION", "Custom default"),
+            ("MCPMSSQL__PROFILES__WAREHOUSE__CONNECTIONSTRING", "Server=.;Database=WarehouseDb;TrustServerCertificate=True;"),
+            ("MCPMSSQL__PROFILES__WAREHOUSE__DESCRIPTION", "Warehouse read-only"),
         };
         var profileService = BuildProfileService(envVars);
 
@@ -71,15 +70,13 @@ public sealed class ProfileServiceTests
 
         Assert.NotNull(context);
         Assert.Equal(2, context.Profiles.Count);
-        Assert.True(
-            context.DefaultProfile.Equals("custom", StringComparison.OrdinalIgnoreCase),
-            "DefaultProfile should be 'custom' (case-insensitive).");
-        var custom = context.Profiles.FirstOrDefault(p => p.Name.Equals("custom", StringComparison.OrdinalIgnoreCase));
-        Assert.NotNull(custom);
-        Assert.Equal("Custom default", custom.Description);
+        Assert.Equal(McpMssqlOptions.DefaultProfileName, context.DefaultProfile);
         var defaultProfile = context.Profiles.FirstOrDefault(p => p.Name.Equals("default", StringComparison.OrdinalIgnoreCase));
         Assert.NotNull(defaultProfile);
         Assert.Equal("Default database", defaultProfile.Description);
+        var warehouse = context.Profiles.FirstOrDefault(p => p.Name.Equals("warehouse", StringComparison.OrdinalIgnoreCase));
+        Assert.NotNull(warehouse);
+        Assert.Equal("Warehouse read-only", warehouse.Description);
     }
 
     [Fact]
@@ -152,7 +149,6 @@ public sealed class ProfileServiceTests
     {
         var envVars = new[]
         {
-            ("MCPMSSQL__DEFAULTPROFILE", "default"),
             ("MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING", "Server=.;Database=DefaultFromSection;TrustServerCertificate=True;"),
             ("MCPMSSQL__PROFILES__OTHER__CONNECTIONSTRING", "Server=other;Database=OtherFromSection;TrustServerCertificate=True;"),
         };
@@ -164,22 +160,6 @@ public sealed class ProfileServiceTests
 
         Assert.Contains("DefaultFromSection", defaultProfile.ConnectionString);
         Assert.Contains("OtherFromSection", otherProfile.ConnectionString);
-    }
-
-    [Fact]
-    public void Resolve_Respects_DefaultProfile_From_Environment()
-    {
-        var envVars = new[]
-        {
-            ("MCPMSSQL__DEFAULTPROFILE", "other"),
-            ("MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING", "Server=.;Database=Default;TrustServerCertificate=True;"),
-            ("MCPMSSQL__PROFILES__OTHER__CONNECTIONSTRING", "Server=.;Database=OtherAsDefault;TrustServerCertificate=True;"),
-        };
-
-        var profileService = BuildProfileService(envVars);
-
-        var profile = profileService.Resolve(null);
-        Assert.Contains("OtherAsDefault", profile.ConnectionString);
     }
 
     [Fact]

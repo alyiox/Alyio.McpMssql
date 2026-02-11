@@ -12,7 +12,7 @@ internal sealed class ProfileService(IOptions<McpMssqlOptions> options) : IProfi
 
     public McpMssqlProfileOptions Resolve(string? profileName = null)
     {
-        var name = string.IsNullOrWhiteSpace(profileName) ? _options.DefaultProfile : profileName;
+        var name = string.IsNullOrWhiteSpace(profileName) ? McpMssqlOptions.DefaultProfileName : profileName;
 
         if (_options.Profiles.TryGetValue(name, out var profile))
         {
@@ -38,7 +38,7 @@ internal sealed class ProfileService(IOptions<McpMssqlOptions> options) : IProfi
         return new ProfileContext
         {
             Profiles = list,
-            DefaultProfile = options.Value.DefaultProfile,
+            DefaultProfile = McpMssqlOptions.DefaultProfileName,
         };
     }
 }

@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using Microsoft.Extensions.Configuration;
 
@@ -13,7 +13,7 @@ internal static class DefaultProfileOverrideApplier
 {
     public static void Apply(IConfiguration configuration, McpMssqlOptions options)
     {
-        if (!options.Profiles.TryGetValue(options.DefaultProfile, out var profile))
+        if (!options.Profiles.TryGetValue(McpMssqlOptions.DefaultProfileName, out var profile))
         {
             return;
         }

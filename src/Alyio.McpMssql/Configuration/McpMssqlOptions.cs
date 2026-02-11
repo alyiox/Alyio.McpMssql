@@ -14,17 +14,9 @@ public sealed class McpMssqlOptions
 {
     /// <summary>
     /// The well-known name of the default MCP MSSQL profile.
+    /// When no profile is specified by the client, this profile is used.
     /// </summary>
     public const string DefaultProfileName = "default";
-
-    /// <summary>
-    /// The name of the default profile used when no profile is explicitly
-    /// selected by the MCP client.
-    /// </summary>
-    /// <remarks>
-    /// If not specified, the profile named <c>"default"</c> is used.
-    /// </remarks>
-    public string DefaultProfile { get; set; } = DefaultProfileName;
 
     /// <summary>
     /// Named SQL Server connection profiles.

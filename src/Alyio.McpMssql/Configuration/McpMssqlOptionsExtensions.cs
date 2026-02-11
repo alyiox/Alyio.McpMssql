@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using Alyio.McpMssql.Configuration;
 using Microsoft.Data.SqlClient;
@@ -51,10 +51,10 @@ public static class McpMssqlOptionsExtensions
 
     private static void ValidateAndNormalize(McpMssqlOptions options)
     {
-        if (!options.Profiles.TryGetValue(options.DefaultProfile, out var defaultProfile))
+        if (!options.Profiles.TryGetValue(McpMssqlOptions.DefaultProfileName, out _))
         {
             throw new InvalidOperationException(
-                $"Default MCP MSSQL profile '{options.DefaultProfile}' was not found. " +
+                $"Default MCP MSSQL profile '{McpMssqlOptions.DefaultProfileName}' was not found. " +
                 $"Available profiles: {string.Join(", ", options.Profiles.Keys)}");
         }
 

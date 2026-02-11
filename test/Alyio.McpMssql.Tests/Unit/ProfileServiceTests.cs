@@ -17,7 +17,6 @@ public class ProfileServiceTests
         var defaultProfile = new McpMssqlProfileOptions { ConnectionString = "Server=.;Database=DefaultDb;" };
         var options = new McpMssqlOptions
         {
-            DefaultProfile = McpMssqlOptions.DefaultProfileName,
             Profiles = new Dictionary<string, McpMssqlProfileOptions>(StringComparer.OrdinalIgnoreCase)
             {
                 [McpMssqlOptions.DefaultProfileName] = defaultProfile,
@@ -36,7 +35,6 @@ public class ProfileServiceTests
         var otherProfile = new McpMssqlProfileOptions { ConnectionString = "Server=other;Database=OtherDb;" };
         var options = new McpMssqlOptions
         {
-            DefaultProfile = McpMssqlOptions.DefaultProfileName,
             Profiles = new Dictionary<string, McpMssqlProfileOptions>(StringComparer.OrdinalIgnoreCase)
             {
                 [McpMssqlOptions.DefaultProfileName] = new McpMssqlProfileOptions { ConnectionString = "Server=.;" },
@@ -56,9 +54,9 @@ public class ProfileServiceTests
         var otherProfile = new McpMssqlProfileOptions { ConnectionString = "Server=other;" };
         var options = new McpMssqlOptions
         {
-            DefaultProfile = McpMssqlOptions.DefaultProfileName,
             Profiles = new Dictionary<string, McpMssqlProfileOptions>(StringComparer.OrdinalIgnoreCase)
             {
+                [McpMssqlOptions.DefaultProfileName] = new McpMssqlProfileOptions { ConnectionString = "Server=.;" },
                 ["Other"] = otherProfile,
             },
         };
@@ -70,30 +68,10 @@ public class ProfileServiceTests
     }
 
     [Fact]
-    public void Resolve_With_Custom_DefaultProfile_Returns_That_Profile_When_Given_Null()
-    {
-        var customDefault = new McpMssqlProfileOptions { ConnectionString = "Server=custom;" };
-        var options = new McpMssqlOptions
-        {
-            DefaultProfile = "custom",
-            Profiles = new Dictionary<string, McpMssqlProfileOptions>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["custom"] = customDefault,
-            },
-        };
-        var profileService = new ProfileService(Options.Create(options));
-
-        var result = profileService.Resolve(null);
-
-        Assert.Same(customDefault, result);
-    }
-
-    [Fact]
     public void Resolve_Throws_When_Profile_Not_Found()
     {
         var options = new McpMssqlOptions
         {
-            DefaultProfile = McpMssqlOptions.DefaultProfileName,
             Profiles = new Dictionary<string, McpMssqlProfileOptions>(StringComparer.OrdinalIgnoreCase)
             {
                 [McpMssqlOptions.DefaultProfileName] = new McpMssqlProfileOptions(),
@@ -112,7 +90,6 @@ public class ProfileServiceTests
     {
         var options = new McpMssqlOptions
         {
-            DefaultProfile = McpMssqlOptions.DefaultProfileName,
             Profiles = new Dictionary<string, McpMssqlProfileOptions>(StringComparer.OrdinalIgnoreCase),
         };
         var profileService = new ProfileService(Options.Create(options));
@@ -128,11 +105,10 @@ public class ProfileServiceTests
     {
         var options = new McpMssqlOptions
         {
-            DefaultProfile = "custom",
             Profiles = new Dictionary<string, McpMssqlProfileOptions>(StringComparer.OrdinalIgnoreCase)
             {
                 ["default"] = new McpMssqlProfileOptions { Description = "Default instance" },
-                ["custom"] = new McpMssqlProfileOptions { Description = "Custom default" },
+                ["warehouse"] = new McpMssqlProfileOptions { Description = "Warehouse DB" },
             },
         };
         var profileService = new ProfileService(Options.Create(options));
@@ -141,11 +117,11 @@ public class ProfileServiceTests
 
         Assert.NotNull(context);
         Assert.Equal(2, context.Profiles.Count);
-        Assert.Equal("custom", context.DefaultProfile);
+        Assert.Equal(McpMssqlOptions.DefaultProfileName, context.DefaultProfile);
         var names = context.Profiles.Select(p => p.Name).OrderBy(n => n, StringComparer.Ordinal).ToList();
-        Assert.Equal(["custom", "default"], names);
-        Assert.Equal("Custom default", context.Profiles.Single(p => p.Name == "custom").Description);
+        Assert.Equal(["default", "warehouse"], names);
         Assert.Equal("Default instance", context.Profiles.Single(p => p.Name == "default").Description);
+        Assert.Equal("Warehouse DB", context.Profiles.Single(p => p.Name == "warehouse").Description);
     }
 
     [Fact]
@@ -153,7 +129,6 @@ public class ProfileServiceTests
     {
         var options = new McpMssqlOptions
         {
-            DefaultProfile = McpMssqlOptions.DefaultProfileName,
             Profiles = new Dictionary<string, McpMssqlProfileOptions>(StringComparer.OrdinalIgnoreCase)
             {
                 [McpMssqlOptions.DefaultProfileName] = new McpMssqlProfileOptions { Description = null },
@@ -175,7 +150,6 @@ public class ProfileServiceTests
     {
         var options = new McpMssqlOptions
         {
-            DefaultProfile = McpMssqlOptions.DefaultProfileName,
             Profiles = new Dictionary<string, McpMssqlProfileOptions>(StringComparer.OrdinalIgnoreCase)
             {
                 [McpMssqlOptions.DefaultProfileName] = new McpMssqlProfileOptions { Description = "  dev server  " },
@@ -193,7 +167,6 @@ public class ProfileServiceTests
     {
         var options = new McpMssqlOptions
         {
-            DefaultProfile = "default",
             Profiles = new Dictionary<string, McpMssqlProfileOptions>(StringComparer.OrdinalIgnoreCase),
         };
         var profileService = new ProfileService(Options.Create(options));
@@ -202,7 +175,7 @@ public class ProfileServiceTests
 
         Assert.NotNull(context);
         Assert.Empty(context.Profiles);
-        Assert.Equal("default", context.DefaultProfile);
+        Assert.Equal(McpMssqlOptions.DefaultProfileName, context.DefaultProfile);
     }
 
     [Fact]
@@ -210,7 +183,6 @@ public class ProfileServiceTests
     {
         var options = new McpMssqlOptions
         {
-            DefaultProfile = McpMssqlOptions.DefaultProfileName,
             Profiles = new Dictionary<string, McpMssqlProfileOptions>(StringComparer.OrdinalIgnoreCase)
             {
                 [McpMssqlOptions.DefaultProfileName] = new McpMssqlProfileOptions(),
