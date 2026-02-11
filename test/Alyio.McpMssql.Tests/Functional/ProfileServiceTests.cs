@@ -1,14 +1,15 @@
-﻿// MIT License
+// MIT License
 
+using Alyio.McpMssql.Configuration;
 using Alyio.McpMssql.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Alyio.McpMssql.Tests.Functional;
 
-public sealed class DefaultProfileResolverFunctionalTests
+public sealed class ProfileServiceTests
 {
-    private static IProfileResolver BuildResolver((string Key, string Value)[] envVars)
+    private static IProfileService BuildProfileService((string Key, string Value)[] envVars)
     {
         var keyValues = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
         foreach (var (key, value) in envVars)
@@ -22,8 +23,8 @@ public sealed class DefaultProfileResolverFunctionalTests
 
         var services = new ServiceCollection();
         services.AddMcpMssqlOptions(configuration);
-        services.AddSingleton<IProfileResolver, DefaultProfileResolver>();
-        return services.BuildServiceProvider().GetRequiredService<IProfileResolver>();
+        services.AddSingleton<IProfileService, ProfileService>();
+        return services.BuildServiceProvider().GetRequiredService<IProfileService>();
     }
 
     [Fact]
@@ -32,12 +33,53 @@ public sealed class DefaultProfileResolverFunctionalTests
         var envVars = new[]
         {
             ("MCPMSSQL_CONNECTION_STRING", "Server=.;Database=FlatOnly;TrustServerCertificate=True;"),
+            ("MCPMSSQL_DESCRIPTION", "Local development SQL Server instance for MCP-MSSQL testing.")
+
         };
-        var resolver = BuildResolver(envVars);
-        var profile = resolver.Resolve(null);
+        var profileService = BuildProfileService(envVars);
+        var profile = profileService.Resolve(null);
 
         Assert.NotNull(profile);
         Assert.Contains("FlatOnly", profile.ConnectionString);
+
+        var context = profileService.GetContext();
+
+        Assert.NotNull(context);
+        Assert.NotEmpty(context.Profiles);
+
+        var defaultContext = context.Profiles.FirstOrDefault(p => p.Name.Equals(McpMssqlProfileOptions.DefaultProfileName, StringComparison.OrdinalIgnoreCase));
+
+        Assert.NotNull(defaultContext);
+        Assert.Contains(envVars[1].Item2, defaultContext.Description);
+
+    }
+
+    [Fact]
+    public void GetContext_From_Section_Returns_All_Profiles_And_DefaultProfile_Name()
+    {
+        var envVars = new[]
+        {
+            ("MCPMSSQL__DEFAULTPROFILE", "custom"),
+            ("MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING", "Server=.;Database=DefaultDb;TrustServerCertificate=True;"),
+            ("MCPMSSQL__PROFILES__DEFAULT__DESCRIPTION", "Default database"),
+            ("MCPMSSQL__PROFILES__CUSTOM__CONNECTIONSTRING", "Server=.;Database=CustomDb;TrustServerCertificate=True;"),
+            ("MCPMSSQL__PROFILES__CUSTOM__DESCRIPTION", "Custom default"),
+        };
+        var profileService = BuildProfileService(envVars);
+
+        var context = profileService.GetContext();
+
+        Assert.NotNull(context);
+        Assert.Equal(2, context.Profiles.Count);
+        Assert.True(
+            context.DefaultProfile.Equals("custom", StringComparison.OrdinalIgnoreCase),
+            "DefaultProfile should be 'custom' (case-insensitive).");
+        var custom = context.Profiles.FirstOrDefault(p => p.Name.Equals("custom", StringComparison.OrdinalIgnoreCase));
+        Assert.NotNull(custom);
+        Assert.Equal("Custom default", custom.Description);
+        var defaultProfile = context.Profiles.FirstOrDefault(p => p.Name.Equals("default", StringComparison.OrdinalIgnoreCase));
+        Assert.NotNull(defaultProfile);
+        Assert.Equal("Default database", defaultProfile.Description);
     }
 
     [Fact]
@@ -48,9 +90,9 @@ public sealed class DefaultProfileResolverFunctionalTests
             ("MCPMSSQL_CONNECTION_STRING", "Server=.;TrustServerCertificate=True;"),
             ("MCPMSSQL_SELECT_MAX_ROWS", "2000"),
         };
-        var resolver = BuildResolver(envVars);
+        var profileService = BuildProfileService(envVars);
 
-        var profile = resolver.Resolve(null);
+        var profile = profileService.Resolve(null);
 
         Assert.Equal(2000, profile.Select.MaxRows);
     }
@@ -65,10 +107,10 @@ public sealed class DefaultProfileResolverFunctionalTests
             ("MCPMSSQL__PROFILES__OTHER__CONNECTIONSTRING", "Server=other;Database=OtherDb;TrustServerCertificate=True;"),
         };
 
-        var resolver = BuildResolver(envVars);
+        var profileService = BuildProfileService(envVars);
 
-        var defaultProfile = resolver.Resolve(null);
-        var otherProfile = resolver.Resolve("other");
+        var defaultProfile = profileService.Resolve(null);
+        var otherProfile = profileService.Resolve("other");
 
         Assert.Contains("DefaultDb", defaultProfile.ConnectionString);
         Assert.Contains("OtherDb", otherProfile.ConnectionString);
@@ -83,9 +125,9 @@ public sealed class DefaultProfileResolverFunctionalTests
             ("MCPMSSQL__PROFILES__OTHER__CONNECTIONSTRING", "Server=other;Database=OtherFromSection;TrustServerCertificate=True;"),
         };
 
-        var resolver = BuildResolver(envVars);
+        var profileService = BuildProfileService(envVars);
 
-        var profile = resolver.Resolve(null);
+        var profile = profileService.Resolve(null);
 
         Assert.Contains("SectionOnly", profile.ConnectionString);
     }
@@ -99,9 +141,9 @@ public sealed class DefaultProfileResolverFunctionalTests
             ("MCPMSSQL_CONNECTION_STRING", "Server=.;Database=FromFlat;TrustServerCertificate=True;"),
         };
 
-        var resolver = BuildResolver(envVars);
+        var profileService = BuildProfileService(envVars);
 
-        var profile = resolver.Resolve(null);
+        var profile = profileService.Resolve(null);
         Assert.Contains("FromFlat", profile.ConnectionString);
     }
 
@@ -115,10 +157,10 @@ public sealed class DefaultProfileResolverFunctionalTests
             ("MCPMSSQL__PROFILES__OTHER__CONNECTIONSTRING", "Server=other;Database=OtherFromSection;TrustServerCertificate=True;"),
         };
 
-        var resolver = BuildResolver(envVars);
+        var profileService = BuildProfileService(envVars);
 
-        var defaultProfile = resolver.Resolve(null);
-        var otherProfile = resolver.Resolve("other");
+        var defaultProfile = profileService.Resolve(null);
+        var otherProfile = profileService.Resolve("other");
 
         Assert.Contains("DefaultFromSection", defaultProfile.ConnectionString);
         Assert.Contains("OtherFromSection", otherProfile.ConnectionString);
@@ -134,9 +176,9 @@ public sealed class DefaultProfileResolverFunctionalTests
             ("MCPMSSQL__PROFILES__OTHER__CONNECTIONSTRING", "Server=.;Database=OtherAsDefault;TrustServerCertificate=True;"),
         };
 
-        var resolver = BuildResolver(envVars);
+        var profileService = BuildProfileService(envVars);
 
-        var profile = resolver.Resolve(null);
+        var profile = profileService.Resolve(null);
         Assert.Contains("OtherAsDefault", profile.ConnectionString);
     }
 
@@ -148,9 +190,9 @@ public sealed class DefaultProfileResolverFunctionalTests
             ("MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING", "Server=.;Database=UppercaseSection;TrustServerCertificate=True;"),
         };
 
-        var resolver = BuildResolver(envVars);
+        var profileService = BuildProfileService(envVars);
 
-        var profile = resolver.Resolve(null);
+        var profile = profileService.Resolve(null);
         Assert.Contains("UppercaseSection", profile.ConnectionString);
     }
 
@@ -162,7 +204,11 @@ public sealed class DefaultProfileResolverFunctionalTests
             ("MCPMSSQL__PROFILES__OTHER__CONNECTIONSTRING", "Server=other;Database=OtherDb;TrustServerCertificate=True;"),
         };
 
-        var ex = Assert.Throws<InvalidOperationException>(() => BuildResolver(envVars));
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+        {
+            var svc = BuildProfileService(envVars);
+            svc.Resolve(null);
+        });
 
         Assert.Contains("default", ex.Message, StringComparison.OrdinalIgnoreCase);
     }

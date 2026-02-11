@@ -1,18 +1,17 @@
 // MIT License
 
-using Alyio.McpMssql.Configuration;
 using Alyio.McpMssql.Models;
 using Microsoft.Data.SqlClient;
 
 namespace Alyio.McpMssql.Services;
 
-internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalogService
+internal sealed class CatalogService(IProfileService profileService) : ICatalogService
 {
     public async Task<TabularResult> ListCatalogsAsync(
         string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var resolved = profileResolver.Resolve(profile);
+        var resolved = profileService.Resolve(profile);
         const string sql =
             """
             SELECT 
@@ -39,7 +38,7 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
         string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var resolved = profileResolver.Resolve(profile);
+        var resolved = profileService.Resolve(profile);
         const string sql =
             """
             SELECT [SCHEMA_NAME] AS [name]
@@ -66,7 +65,7 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
         string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var resolved = profileResolver.Resolve(profile);
+        var resolved = profileService.Resolve(profile);
         const string sql =
             """
             SELECT
@@ -101,7 +100,7 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
         string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var resolved = profileResolver.Resolve(profile);
+        var resolved = profileService.Resolve(profile);
         const string sql =
             """
             SELECT
@@ -138,7 +137,7 @@ internal sealed class CatalogService(IProfileResolver profileResolver) : ICatalo
         string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var resolved = profileResolver.Resolve(profile);
+        var resolved = profileService.Resolve(profile);
         const string sql =
             """
             SELECT

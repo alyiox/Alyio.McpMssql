@@ -1,6 +1,6 @@
 // MIT License
 
-// IProfileResolver and profile-based config (default profile for tests)
+// IProfileService and profile-based config (default profile for tests)
 using Alyio.McpMssql;
 using Alyio.McpMssql.Tests.Infrastructure.Database;
 using Alyio.McpMssql.Tests.Infrastructure.DependencyInjection;
@@ -32,8 +32,8 @@ public sealed class SqlServerFixture : IAsyncLifetime
     /// </summary>
     public async Task InitializeAsync()
     {
-        var profileResolver = Services.GetRequiredService<IProfileResolver>();
-        var profile = profileResolver.Resolve();
+        var profileService = Services.GetRequiredService<IProfileService>();
+        var profile = profileService.Resolve();
         var connectionString = profile.ConnectionString;
 
         await DatabaseInitializer.ExecuteEmbeddedScriptAsync(

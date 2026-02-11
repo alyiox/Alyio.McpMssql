@@ -8,13 +8,13 @@ using ExecutionContext = Alyio.McpMssql.Models.ExecutionContext;
 namespace Alyio.McpMssql.Services;
 #pragma warning restore IDE0130
 
-internal sealed class ExecutionContextService(IProfileResolver profileResolver) : IExecutionContextService
+internal sealed class ExecutionContextService(IProfileService profileService) : IExecutionContextService
 {
     public ValueTask<ExecutionContext> GetContextAsync(
         string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var resolved = profileResolver.Resolve(profile);
+        var resolved = profileService.Resolve(profile);
         var context = new ExecutionContext
         {
             Select = new SelectExecutionContext

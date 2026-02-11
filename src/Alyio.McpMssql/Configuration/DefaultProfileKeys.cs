@@ -1,4 +1,4 @@
-// MIT License
+﻿// MIT License
 
 namespace Alyio.McpMssql.Configuration;
 

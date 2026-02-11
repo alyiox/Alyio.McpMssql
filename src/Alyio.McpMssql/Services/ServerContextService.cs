@@ -1,18 +1,17 @@
 // MIT License
 
-using Alyio.McpMssql.Configuration;
 using Alyio.McpMssql.Models;
 using Microsoft.Data.SqlClient;
 
 namespace Alyio.McpMssql.Services;
 
-internal sealed class ServerContextService(IProfileResolver profileResolver) : IServerContextService
+internal sealed class ServerContextService(IProfileService profileService) : IServerContextService
 {
     public async Task<ServerPropertiesContext> GetPropertiesAsync(
         string? profile = null,
         CancellationToken cancellationToken = default)
     {
-        var resolved = profileResolver.Resolve(profile);
+        var resolved = profileService.Resolve(profile);
         using var connection = new SqlConnection(resolved.ConnectionString);
         await connection.OpenAsync(cancellationToken);
 

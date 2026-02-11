@@ -1,15 +1,12 @@
-﻿// MIT License
+// MIT License
 
 using Alyio.McpMssql.Configuration;
+using Alyio.McpMssql.Models;
 using Microsoft.Extensions.Options;
 
 namespace Alyio.McpMssql.Services;
 
-/// <summary>
-/// Default implementation of <see cref="IProfileResolver"/> that
-/// resolves profiles from configured MCP MSSQL options.
-/// </summary>
-internal sealed class DefaultProfileResolver(IOptions<McpMssqlOptions> options) : IProfileResolver
+internal sealed class ProfileService(IOptions<McpMssqlOptions> options) : IProfileService
 {
     private readonly McpMssqlOptions _options = options.Value;
 
@@ -25,6 +22,24 @@ internal sealed class DefaultProfileResolver(IOptions<McpMssqlOptions> options) 
         throw new InvalidOperationException(
             $"MCP MSSQL profile '{name}' was not found. "
             + $"Available profiles: {string.Join(", ", _options.Profiles.Keys)}");
+    }
+
+    /// <inheritdoc />
+    public ProfileContext GetContext()
+    {
+        var list = options.Value.Profiles
+            .Select(p => new Profile
+            {
+                Name = p.Key,
+                Description = string.IsNullOrWhiteSpace(p.Value.Description) ? null : p.Value.Description.Trim(),
+            })
+            .ToList();
+
+        return new ProfileContext
+        {
+            Profiles = list,
+            DefaultProfile = options.Value.DefaultProfile,
+        };
     }
 }
 

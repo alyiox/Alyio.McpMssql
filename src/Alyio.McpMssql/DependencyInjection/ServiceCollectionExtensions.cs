@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICatalogService, CatalogService>();
         services.AddSingleton<ISelectService, SelectService>();
         services.AddSingleton<IExecutionContextService, ExecutionContextService>();
-        services.AddSingleton<IProfileResolver, DefaultProfileResolver>();
+        services.AddSingleton<IProfileService, ProfileService>();
 
         return services;
     }

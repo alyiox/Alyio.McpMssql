@@ -1,4 +1,4 @@
-// MIT License
+﻿// MIT License
 
 using Microsoft.Extensions.Configuration;
 

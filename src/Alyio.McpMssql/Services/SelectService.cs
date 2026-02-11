@@ -1,14 +1,13 @@
 // MIT License
 
 using System.Text.Json;
-using Alyio.McpMssql.Configuration;
 using Alyio.McpMssql.Internal;
 using Alyio.McpMssql.Models;
 using Microsoft.Data.SqlClient;
 
 namespace Alyio.McpMssql.Services;
 
-internal sealed class SelectService(IProfileResolver profileResolver) : ISelectService
+internal sealed class SelectService(IProfileService profileService) : ISelectService
 {
     public async Task<QueryResult> ExecuteAsync(
         string sql,
@@ -19,7 +18,7 @@ internal sealed class SelectService(IProfileResolver profileResolver) : ISelectS
         CancellationToken cancellationToken = default)
     {
         SqlReadOnlyValidator.Validate(sql);
-        var resolved = profileResolver.Resolve(profile);
+        var resolved = profileService.Resolve(profile);
 
         using var conn = new SqlConnection(resolved.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);

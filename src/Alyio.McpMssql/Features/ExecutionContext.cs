@@ -34,7 +34,7 @@ public static class ExecutionContext
         CancellationToken cancellationToken = default)
     {
         return McpExecutor.RunAsTextAsync(
-            async ct => await options.GetContextAsync(profile, ct),
+            async ct => await options.GetContextAsync(profile, ct).ConfigureAwait(false),
             cancellationToken);
     }
 
@@ -54,7 +54,7 @@ public static class ExecutionContext
         CancellationToken cancellationToken = default)
     {
         return McpExecutor.RunAsync(
-            ct => options.GetContextAsync(profile, ct).AsTask(),
+            async ct => await options.GetContextAsync(profile, ct).ConfigureAwait(false),
             cancellationToken);
     }
 }
