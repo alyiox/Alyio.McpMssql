@@ -19,6 +19,14 @@ public sealed class ProfilesE2ETests(McpServerFixture fixture) : IClassFixture<M
     }
 
     [Fact]
+    public async Task Profiles_Resource_Is_Discoverable()
+    {
+        Assert.True(
+            await _client.IsResourceTemplateRegisteredAsync("mssql://profiles"),
+            "Profiles resource should be discoverable.");
+    }
+
+    [Fact]
     public async Task ListProfiles_Tool_Returns_Profiles_And_DefaultProfile()
     {
         var result = await _client.CallToolAsync(ListProfilesTool);

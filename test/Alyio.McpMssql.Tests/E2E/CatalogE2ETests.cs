@@ -31,6 +31,23 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     }
 
     // ------------------------------------------------------------------
+    // Resource discovery
+    // ------------------------------------------------------------------
+
+    [Fact]
+    public async Task All_Catalog_Resource_Templates_Are_Discoverable()
+    {
+        Assert.True(
+            await _client.IsResourceTemplateRegisteredAsync(
+                "mssql://{profile}/catalogs",
+                "mssql://{profile}/catalogs/{catalog}/schemas",
+                "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations",
+                "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}",
+                "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines"),
+            "All catalog resource templates should be discoverable.");
+    }
+
+    // ------------------------------------------------------------------
     // Tools
     // ------------------------------------------------------------------
 
