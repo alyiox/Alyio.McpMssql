@@ -30,9 +30,7 @@ Use `--prerelease` for pre-release builds. The tool entrypoint is `dotnet dnx Al
 
 All settings use the **MCPMSSQL** prefix: flat environment variables (e.g., `MCPMSSQL_CONNECTION_STRING`) for a single connection, or the environment variable (e.g., `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`) for profile-based config.
 
-**Single server / one connection:**
-
-- Set the following as environment variables or in config file.
+**Single server / one connection:** Set the following as environment variables or in config file.
 
 | Environment variable | Description |
 |----------|-------------|
@@ -42,32 +40,48 @@ All settings use the **MCPMSSQL** prefix: flat environment variables (e.g., `MCP
 | `MCPMSSQL_SELECT_MAX_ROWS` | Max rows per SELECT (default `5000`). |
 | `MCPMSSQL_SELECT_COMMAND_TIMEOUT_SECONDS` | Query timeout in seconds (default `30`). |
 
-**Multiple servers or connections:**
+**Multiple servers or connections:** Use environment variables or the same structure in `appsettings.json`.
 
-- Use environment variables or the same structure in `appsettings.json`.
-- Use the **McpMssql** section: prefix `MCPMSSQL__` with `__` for each level.
-- Under `Profiles:<name>` set `ConnectionString`, optional `Description`, optional `Select`.
-- The default profile is the one named `default`—define it under `Profiles:default` (like any other profile) or use the single-connection environment variable keys to create or override the default profile when set.
+- Use environment variables with the **MCPMSSQL** prefix, then `__` for each level (e.g. `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`).
+- For each profile, set `MCPMSSQL__PROFILES__<name>__CONNECTIONSTRING`, and optionally add `__DESCRIPTION` and `__SELECT`.
+- The default profile is the one named `default`. Define it with `MCPMSSQL__PROFILES__DEFAULT__...` or use the single-connection variables (`MCPMSSQL_CONNECTION_STRING`, etc.) to create or override the default profile when set.
 
 Example (environment variables):
 
 ```bash
+# Default profile
 export MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING="Server=...;User ID=...;Password=...;"
 export MCPMSSQL__PROFILES__DEFAULT__DESCRIPTION="Primary connection"
+export MCPMSSQL__PROFILES__DEFAULT__SELECT__DEFAULTMAXROWS="200"
+export MCPMSSQL__PROFILES__DEFAULT__SELECT__MAXROWS="5000"
+export MCPMSSQL__PROFILES__DEFAULT__SELECT__COMMANDTIMEOUTSECONDS="60"
+
+# Named profile
 export MCPMSSQL__PROFILES__WAREHOUSE__CONNECTIONSTRING="Server=warehouse.example.com;..."
-# Single-connection environment variable keys create or override the default profile
+export MCPMSSQL__PROFILES__WAREHOUSE__SELECT__MAXROWS="10000"
+export MCPMSSQL__PROFILES__WAREHOUSE__SELECT__COMMANDTIMEOUTSECONDS="120"
+
+# Single-connection (flat) keys create or override the default profile:
+export MCPMSSQL_CONNECTION_STRING="Server=...;User ID=...;Password=...;"
+export MCPMSSQL_DESCRIPTION="Primary connection"
+export MCPMSSQL_SELECT_DEFAULT_MAX_ROWS="200"
+export MCPMSSQL_SELECT_MAX_ROWS="5000"
+export MCPMSSQL_SELECT_COMMAND_TIMEOUT_SECONDS="60"
 ```
 
-**Local development:**
+**Local development:** Set the connection string, then run with that environment:
 
-- Set the connection string, then run with that environment:
+- Store connection string in user-secrets (Development only).
 
 ```bash
 dotnet user-secrets set "MCPMSSQL_CONNECTION_STRING" "..." --project src/Alyio.McpMssql
-npx -y @modelcontextprotocol/inspector -e DOTNET_ENVIRONMENT=Development dotnet run --project src/Alyio.McpMssql
 ```
 
-Note: User-secrets are loaded only when `DOTNET_ENVIRONMENT=Development`.
+- Run server with MCP inspector (use `DOTNET_ENVIRONMENT=Development` so user-secrets load).
+
+```bash
+npx -y @modelcontextprotocol/inspector -e DOTNET_ENVIRONMENT=Development dotnet run --project src/Alyio.McpMssql
+```
 
 ## Tools and resources
 
