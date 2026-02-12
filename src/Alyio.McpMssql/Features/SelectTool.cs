@@ -28,7 +28,9 @@ public static class SelectTool
 
         [Description(
             "SQL SELECT statement. Must be read-only. " +
-            "Use @paramName syntax for parameters.")]
+            "Use @paramName syntax for parameters. " +
+            "For IN/NOT IN clauses, expand each value as a separate numbered parameter " +
+            "(e.g., WHERE id IN (@id_0, @id_1, @id_2)).")]
         string sql,
 
         [Description(
@@ -37,7 +39,10 @@ public static class SelectTool
         string? catalog = null,
 
         [Description(
-            "Optional parameter values keyed by parameter name (without '@').")]
+            "Optional parameter values keyed by parameter name (without '@'). " +
+            "Each value must be a scalar (string, number, boolean, or null). " +
+            "For IN/NOT IN clauses, provide individually numbered entries " +
+            "(e.g., {\"id_0\": 1, \"id_1\": 2, \"id_2\": 3}).")]
         IReadOnlyDictionary<string, object>? parameters = null,
 
         [Description(
