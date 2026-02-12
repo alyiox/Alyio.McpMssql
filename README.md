@@ -30,15 +30,20 @@ Use `--prerelease` for pre-release builds. The tool entrypoint is `dotnet dnx Al
 
 All settings use the **MCPMSSQL** prefix: flat environment variables (e.g., `MCPMSSQL_CONNECTION_STRING`) for a single connection, or the environment variable (e.g., `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`) for profile-based config.
 
-**Single server / one connection:** Set the following as environment variables or in config file.
+**Single server / one connection:** Set the following as environment variables.
 
-| Environment variable | Description |
-|----------|-------------|
-| `MCPMSSQL_CONNECTION_STRING` | Connection string (required). |
-| `MCPMSSQL_DESCRIPTION` | Optional description for the default profile (tooling/AI discovery). |
-| `MCPMSSQL_SELECT_DEFAULT_MAX_ROWS` | Default row limit (default `100`). |
-| `MCPMSSQL_SELECT_MAX_ROWS` | Max rows per SELECT (default `5000`). |
-| `MCPMSSQL_SELECT_COMMAND_TIMEOUT_SECONDS` | Query timeout in seconds (default `30`). |
+```bash
+# Connection string (required). 
+export MCPMSSQL_CONNECTION_STRING="Server=...;User ID=...;Password=...;"
+# Optional description for the default profile (tooling/AI discovery). 
+export MCPMSSQL_DESCRIPTION="Primary connection"
+# Optional default row limit (default `100`). 
+export MCPMSSQL_SELECT_DEFAULT_MAX_ROWS="200"
+# Optional max rows per SELECT (default `5000`).
+export MCPMSSQL_SELECT_MAX_ROWS="5000"
+# Optional query timeout in seconds (default `30`). 
+export MCPMSSQL_SELECT_COMMAND_TIMEOUT_SECONDS="60"
+```
 
 **Multiple servers or connections:** Use environment variables or the same structure in `appsettings.json`.
 
