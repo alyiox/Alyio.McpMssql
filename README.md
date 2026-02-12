@@ -92,6 +92,8 @@ dotnet user-secrets set "MCPMSSQL_CONNECTION_STRING" "..." --project src/Alyio.M
 npx -y @modelcontextprotocol/inspector -e DOTNET_ENVIRONMENT=Development dotnet run --project src/Alyio.McpMssql
 ```
 
+**Azure SQL / Microsoft Entra ID:** This MCP server uses [Microsoft.Data.SqlClient](https://www.nuget.org/packages/Microsoft.Data.SqlClient), which supports Microsoft Entra (Azure AD) authentication. Set the `Authentication` property in the connection string to a supported mode (e.g. `Active Directory Default`, `Active Directory Managed Identity`, or `Active Directory Interactive`) when connecting to Azure SQL. See [Connect to Azure SQL with Microsoft Entra authentication and SqlClient](https://learn.microsoft.com/en-us/sql/connect/ado-net/sql/azure-active-directory-authentication) for all modes and details.
+
 ## Tools and resources
 
 All tools accept an optional `profile`; when omitted, the default profile is used. Discover profiles via the `list_profiles` tool or the **Profile context** resource `mssql://context/profiles`.
