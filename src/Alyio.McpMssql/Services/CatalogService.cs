@@ -71,8 +71,7 @@ internal sealed class CatalogService(IProfileService profileService) : ICatalogS
             """
             SELECT
                 TABLE_NAME AS [name],
-                TABLE_TYPE AS [type],
-                TABLE_SCHEMA AS [schema]
+                TABLE_TYPE AS [type]
             FROM INFORMATION_SCHEMA.TABLES
             WHERE @schema IS NULL OR TABLE_SCHEMA = @schema
             ORDER BY TABLE_SCHEMA, TABLE_NAME
@@ -99,20 +98,11 @@ internal sealed class CatalogService(IProfileService profileService) : ICatalogS
         string? catalog = null,
         string? schema = null,
         string? profile = null,
+        bool? includeSystem = null,
         CancellationToken cancellationToken = default)
     {
         var resolved = profileService.Resolve(profile);
-        const string sql =
-            """
-            SELECT
-                ROUTINE_NAME   AS [name],
-                ROUTINE_TYPE   AS [type],
-                ROUTINE_SCHEMA AS [schema]
-            FROM INFORMATION_SCHEMA.ROUTINES
-            WHERE ROUTINE_TYPE IN ('PROCEDURE', 'FUNCTION')
-              AND (@schema IS NULL OR ROUTINE_SCHEMA = @schema)
-            ORDER BY ROUTINE_SCHEMA, ROUTINE_NAME;
-            """;
+        var sql = await Loader.ReadText("list_routines.sql", cancellationToken).ConfigureAwait(false);
 
         using var conn = new SqlConnection(resolved.ConnectionString);
         await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
@@ -124,7 +114,8 @@ internal sealed class CatalogService(IProfileService profileService) : ICatalogS
 
         var parameters = new[]
         {
-            new SqlParameter("@schema", schema ?? (object)DBNull.Value)
+            new SqlParameter("@schema", schema ?? (object)DBNull.Value),
+            new SqlParameter("@is_ms_shipped", includeSystem == true ? (object)DBNull.Value : 0),
         };
 
         return await conn.ExecuteAsTabularResultAsync(sql, parameters, cancellationToken)
@@ -275,6 +266,50 @@ internal sealed class CatalogService(IProfileService profileService) : ICatalogS
             ForeignKeys = results[2],
             CheckConstraints = results[3],
             DefaultConstraints = results[4]
+        };
+    }
+
+    public async Task<TabularResult> GetRoutineDefinitionAsync(
+        string name,
+        string? catalog = null,
+        string? schema = null,
+        string? profile = null,
+        CancellationToken cancellationToken = default)
+    {
+        var resolved = profileService.Resolve(profile);
+        var sql = await Loader.ReadText("routine_definition.sql", cancellationToken).ConfigureAwait(false);
+
+        using var conn = new SqlConnection(resolved.ConnectionString);
+        await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!string.IsNullOrWhiteSpace(catalog))
+        {
+            conn.ChangeDatabase(catalog);
+        }
+
+        var parameters = new[]
+        {
+            new SqlParameter("@schema", schema ?? (object)DBNull.Value),
+            new SqlParameter("@name", name)
+        };
+
+        var result = await conn.ExecuteAsTabularResultAsync(sql, parameters, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (result.Rows.Count == 0 || result.Columns.Count == 0)
+        {
+            return new TabularResult
+            {
+                Columns = ["definition"],
+                Rows = []
+            };
+        }
+
+        var definition = result.Rows[0][0];
+        return new TabularResult
+        {
+            Columns = ["definition"],
+            Rows = [new object?[] { definition }]
         };
     }
 }

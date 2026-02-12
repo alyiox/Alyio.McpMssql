@@ -81,10 +81,13 @@ public interface ICatalogService
     /// Optional catalog (database) name. If omitted, uses the active catalog.
     /// </param>
     /// <param name="schema">
-    /// Optional schema name. If omitted, lists routines from all schemas.
+    /// Optional schema name. If omitted, uses the default schema of the caller.
     /// </param>
     /// <param name="profile">
     /// Optional profile name. If null or empty, the default profile is used.
+    /// </param>
+    /// <param name="includeSystem">
+    /// Optional. When true, include system routines; when false or null, exclude them (default).
     /// </param>
     /// <param name="cancellationToken">
     /// Token used to cancel the operation.
@@ -96,6 +99,7 @@ public interface ICatalogService
         string? catalog = null,
         string? schema = null,
         string? profile = null,
+        bool? includeSystem = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -164,6 +168,16 @@ public interface ICatalogService
     /// <param name="cancellationToken">Token used to cancel the operation.</param>
     /// <returns>The five constraint result sets.</returns>
     Task<TableConstraints> DescribeConstraintsAsync(
+        string name,
+        string? catalog = null,
+        string? schema = null,
+        string? profile = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the T-SQL definition of a routine (procedure or function). Tabular result with one column "definition"; one row when found, zero rows when not found.
+    /// </summary>
+    Task<TabularResult> GetRoutineDefinitionAsync(
         string name,
         string? catalog = null,
         string? schema = null,

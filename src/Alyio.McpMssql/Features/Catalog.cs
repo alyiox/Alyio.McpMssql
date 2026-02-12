@@ -143,7 +143,27 @@ public static class Catalogs
         [Description("Schema name.")]
         string schema,
         CancellationToken cancellationToken)
-        => McpExecutor.RunAsTextAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, profile, ct), cancellationToken);
+        => McpExecutor.RunAsTextAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, profile, null, ct), cancellationToken);
+
+    /// <summary>
+    /// Resource that returns the T-SQL definition of a routine (procedure or function). Tabular: one column "definition", one row when found.
+    /// </summary>
+    [McpServerResource(
+        UriTemplate = "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines/{name}/definition",
+        MimeType = "application/json")]
+    [Description("Get routine definition (T-SQL body).")]
+    public static Task<string> RoutineDefinitionAsync(
+        ICatalogService catalogService,
+        [Description("Profile name (e.g. default).")]
+        string profile,
+        [Description("Catalog (database) name.")]
+        string catalog,
+        [Description("Schema name.")]
+        string schema,
+        [Description("Routine name.")]
+        string name,
+        CancellationToken cancellationToken)
+        => McpExecutor.RunAsTextAsync(ct => catalogService.GetRoutineDefinitionAsync(name, catalog, schema, profile, ct), cancellationToken);
 
     // =========================================================
     // Tools (imperative, parameter-driven)
@@ -200,12 +220,32 @@ public static class Catalogs
         ICatalogService catalogService,
         [Description("Optional catalog (database) name.")]
         string? catalog = null,
+        [Description("Optional schema name. If omitted, uses the default schema of the caller.")]
+        string? schema = null,
+        [Description("Optional profile name. If omitted, the default profile is used.")]
+        string? profile = null,
+        [Description("Optional. When true, include system routines; when false or omitted, exclude them.")]
+        bool? includeSystem = null,
+        CancellationToken cancellationToken = default)
+        => McpExecutor.RunAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, profile, includeSystem, ct), cancellationToken);
+
+    /// <summary>
+    /// Tool that gets the T-SQL definition of a routine (procedure or function). Tabular: one column "definition", one row when found.
+    /// </summary>
+    [McpServerTool(UseStructuredContent = true)]
+    [Description("Get routine definition (T-SQL body).")]
+    public static Task<TabularResult> GetRoutineDefinitionAsync(
+        ICatalogService catalogService,
+        [Description("Routine name.")]
+        string name,
+        [Description("Optional catalog (database) name.")]
+        string? catalog = null,
         [Description("Optional schema name.")]
         string? schema = null,
         [Description("Optional profile name. If omitted, the default profile is used.")]
         string? profile = null,
         CancellationToken cancellationToken = default)
-        => McpExecutor.RunAsync(ct => catalogService.ListRoutinesAsync(catalog, schema, profile, ct), cancellationToken);
+        => McpExecutor.RunAsync(ct => catalogService.GetRoutineDefinitionAsync(name, catalog, schema, profile, ct), cancellationToken);
 
     /// <summary>
     /// Tool that describes columns of a relation (table or view).

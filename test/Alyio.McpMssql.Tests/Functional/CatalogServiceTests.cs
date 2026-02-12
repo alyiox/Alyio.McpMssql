@@ -74,8 +74,7 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
 
         result.Columns.AssertHasColumns(
             "name",
-            "type",
-            "schema");
+            "type");
 
         var names = result.Rows.Select(r => r[0]?.ToString()).ToList();
 
@@ -118,8 +117,7 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
 
         result.Columns.AssertHasColumns(
             "name",
-            "type",
-            "schema");
+            "type");
 
         var names = result.Rows.Select(r => r[0]?.ToString()).ToList();
 
@@ -130,6 +128,45 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
         // scalar functions
         Assert.Contains("GetUserEmail", names);
         Assert.Contains("GetTotalOrderAmount", names);
+    }
+
+    [Fact]
+    public async Task GetRoutineDefinition_Returns_NonEmpty_Definition_For_Existing_Routine()
+    {
+        var result = await _service.GetRoutineDefinitionAsync(
+            name: "GetUserById",
+            catalog: TestDatabaseName,
+            schema: "dbo");
+
+        result.Columns.AssertHasColumns("definition");
+        Assert.Single(result.Rows);
+        var definition = result.Rows[0][0]?.ToString();
+        Assert.NotNull(definition);
+        Assert.Contains("SELECT", definition, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task GetRoutineDefinition_Returns_Empty_Rows_For_Nonexistent_Routine()
+    {
+        var result = await _service.GetRoutineDefinitionAsync(
+            name: "NonExistentRoutine_XYZ",
+            catalog: TestDatabaseName,
+            schema: "dbo");
+
+        result.Columns.AssertHasColumns("definition");
+        Assert.Empty(result.Rows);
+    }
+
+    [Fact]
+    public async Task ListRoutines_IncludeSystem_Returns_Superset()
+    {
+        var userOnly = await _service.ListRoutinesAsync(
+            catalog: TestDatabaseName, schema: "dbo");
+
+        var withSystem = await _service.ListRoutinesAsync(
+            catalog: TestDatabaseName, schema: "dbo", includeSystem: true);
+
+        Assert.True(withSystem.Rows.Count >= userOnly.Rows.Count);
     }
 
     [Fact]

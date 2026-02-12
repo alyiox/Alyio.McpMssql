@@ -16,6 +16,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     private const string DescribeColumnsTool = "describe_columns";
     private const string DescribeIndexesTool = "describe_indexes";
     private const string DescribeConstraintsTool = "describe_constraints";
+    private const string GetRoutineDefinitionTool = "get_routine_definition";
 
     // ------------------------------------------------------------------
     // Tool discovery
@@ -31,7 +32,8 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
             ListRoutinesTool,
             DescribeColumnsTool,
             DescribeIndexesTool,
-            DescribeConstraintsTool));
+            DescribeConstraintsTool,
+            GetRoutineDefinitionTool));
     }
 
     // ------------------------------------------------------------------
@@ -49,7 +51,8 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/columns",
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/indexes",
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/constraints",
-                "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines"),
+                "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines",
+                "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines/{name}/definition"),
             "All catalog resource templates should be discoverable.");
     }
 
@@ -104,7 +107,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
 
         columns.AssertHasColumns(
             "name",
-            "schema");
+            "type");
     }
 
     [Fact]
@@ -122,7 +125,6 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
         var (columns, _) = root.ReadColumnRows();
 
         columns.AssertHasColumns(
-            "schema",
             "name",
             "type");
     }
@@ -219,7 +221,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
 
         columns.AssertHasColumns(
             "name",
-            "schema");
+            "type");
     }
 
     [Fact]
@@ -232,7 +234,6 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
         var (columns, _) = root.ReadColumnRows();
 
         columns.AssertHasColumns(
-            "schema",
             "name",
             "type");
     }
@@ -313,5 +314,41 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
         Assert.True(root.TryGetPropertyIgnoreCase("foreign_keys", out _));
         Assert.True(root.TryGetPropertyIgnoreCase("check_constraints", out _));
         Assert.True(root.TryGetPropertyIgnoreCase("default_constraints", out _));
+    }
+
+    [Fact]
+    public async Task GetRoutineDefinition_Tool_Returns_Expected_Columns_And_Content()
+    {
+        var result = await _client.CallToolAsync(
+            GetRoutineDefinitionTool,
+            new Dictionary<string, object?>
+            {
+                ["name"] = "GetUserById",
+                ["catalog"] = "McpMssqlTest",
+                ["schema"] = "dbo"
+            });
+
+        var root = result.ReadJsonRoot();
+        var (columns, rows) = root.ReadColumnRows();
+        columns.AssertHasColumns("definition");
+        Assert.True(rows.GetArrayLength() >= 1);
+        var definition = rows[0][0].GetString();
+        Assert.NotNull(definition);
+        Assert.Contains("SELECT", definition, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task RoutineDefinition_Resource_Returns_Expected_Columns_And_Content()
+    {
+        var result = await _client.ReadResourceAsync(
+            "mssql://default/catalogs/McpMssqlTest/schemas/dbo/routines/GetUserById/definition");
+
+        var root = result.ReadJsonRoot();
+        var (columns, rows) = root.ReadColumnRows();
+        columns.AssertHasColumns("definition");
+        Assert.True(rows.GetArrayLength() >= 1);
+        var definition = rows[0][0].GetString();
+        Assert.NotNull(definition);
+        Assert.Contains("SELECT", definition, StringComparison.OrdinalIgnoreCase);
     }
 }
