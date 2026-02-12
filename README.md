@@ -35,12 +35,16 @@ All settings use the **MCPMSSQL** prefix: flat environment variables (e.g., `MCP
 ```bash
 # Connection string (required). 
 export MCPMSSQL_CONNECTION_STRING="Server=...;User ID=...;Password=...;"
+
 # Optional description for the default profile (tooling/AI discovery). 
 export MCPMSSQL_DESCRIPTION="Primary connection"
+
 # Optional default row limit (default `100`). 
 export MCPMSSQL_SELECT_DEFAULT_MAX_ROWS="200"
+
 # Optional max rows per SELECT (default `5000`).
 export MCPMSSQL_SELECT_MAX_ROWS="5000"
+
 # Optional query timeout in seconds (default `30`). 
 export MCPMSSQL_SELECT_COMMAND_TIMEOUT_SECONDS="60"
 ```
