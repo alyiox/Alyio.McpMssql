@@ -15,6 +15,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
     private const string ListRoutinesTool = "list_routines";
     private const string DescribeColumnsTool = "describe_columns";
     private const string DescribeIndexesTool = "describe_indexes";
+    private const string DescribeConstraintsTool = "describe_constraints";
 
     // ------------------------------------------------------------------
     // Tool discovery
@@ -29,7 +30,8 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
             ListRelationsTool,
             ListRoutinesTool,
             DescribeColumnsTool,
-            DescribeIndexesTool));
+            DescribeIndexesTool,
+            DescribeConstraintsTool));
     }
 
     // ------------------------------------------------------------------
@@ -46,6 +48,7 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations",
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/columns",
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/indexes",
+                "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/constraints",
                 "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines"),
             "All catalog resource templates should be discoverable.");
     }
@@ -270,5 +273,45 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
             "is_descending",
             "column_name",
             "is_included_column");
+    }
+
+    [Fact]
+    public async Task DescribeConstraints_Tool_Returns_Expected_Structure()
+    {
+        var result = await _client.CallToolAsync(
+            DescribeConstraintsTool,
+            new Dictionary<string, object?>
+            {
+                ["name"] = "Orders",
+                ["catalog"] = "McpMssqlTest",
+                ["schema"] = "dbo"
+            });
+
+        var root = result.ReadJsonRoot();
+        Assert.True(root.TryGetPropertyIgnoreCase("primary_keys", out var pk));
+        Assert.True(pk.TryGetProperty("columns", out _));
+        Assert.True(pk.TryGetProperty("rows", out _));
+        Assert.True(root.TryGetPropertyIgnoreCase("unique_constraints", out _));
+        Assert.True(root.TryGetPropertyIgnoreCase("foreign_keys", out var fk));
+        Assert.True(fk.TryGetProperty("columns", out _));
+        Assert.True(fk.TryGetProperty("rows", out _));
+        Assert.True(root.TryGetPropertyIgnoreCase("check_constraints", out _));
+        Assert.True(root.TryGetPropertyIgnoreCase("default_constraints", out _));
+    }
+
+    [Fact]
+    public async Task DescribeConstraints_Resource_Returns_Expected_Structure()
+    {
+        var result = await _client.ReadResourceAsync(
+            "mssql://default/catalogs/McpMssqlTest/schemas/dbo/relations/Orders/constraints");
+
+        var root = result.ReadJsonRoot();
+        Assert.True(root.TryGetPropertyIgnoreCase("primary_keys", out var pk));
+        Assert.True(pk.TryGetProperty("columns", out _));
+        Assert.True(pk.TryGetProperty("rows", out _));
+        Assert.True(root.TryGetPropertyIgnoreCase("unique_constraints", out _));
+        Assert.True(root.TryGetPropertyIgnoreCase("foreign_keys", out _));
+        Assert.True(root.TryGetPropertyIgnoreCase("check_constraints", out _));
+        Assert.True(root.TryGetPropertyIgnoreCase("default_constraints", out _));
     }
 }

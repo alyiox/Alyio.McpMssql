@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using System.Data;
 using Alyio.McpMssql.Models;
@@ -14,6 +14,31 @@ namespace Microsoft.Data.SqlClient;
 /// </summary>
 internal static class SqlConnectionExtensions
 {
+    /// <summary>
+    /// Executes a batch that returns multiple result sets and returns each as a <see cref="TabularResult"/>.
+    /// </summary>
+    public static async Task<IReadOnlyList<TabularResult>> ExecuteMultipleTabularResultsAsync(
+        this SqlConnection connection,
+        string sql,
+        IReadOnlyList<SqlParameter>? parameters,
+        CancellationToken cancellationToken)
+    {
+        using var cmd = connection.CreateCommand(sql, parameters);
+        using var reader = await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+
+        var results = new List<TabularResult>();
+
+        do
+        {
+            var columns = reader.ReadColumns();
+            var (rows, _) = await reader.ReadRowsAsync(int.MaxValue, cancellationToken).ConfigureAwait(false);
+            results.Add(new TabularResult { Columns = columns, Rows = rows });
+        }
+        while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+
+        return results;
+    }
+
     /// <summary>
     /// Executes a metadata query that returns column definitions only.
     /// Used for describing relations such as tables or views.

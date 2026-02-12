@@ -239,4 +239,38 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
 
         Assert.NotEmpty(result.Rows);
     }
+
+    // -----------------------------
+    // Constraints
+    // -----------------------------
+
+    [Fact]
+    public async Task DescribeConstraints_Returns_Orders_Constraint_Metadata()
+    {
+        var result = await _service.DescribeConstraintsAsync(
+            name: "Orders",
+            catalog: TestDatabaseName,
+            schema: "dbo");
+
+        Assert.NotNull(result.PrimaryKeys);
+        Assert.NotNull(result.UniqueConstraints);
+        Assert.NotNull(result.ForeignKeys);
+        Assert.NotNull(result.CheckConstraints);
+        Assert.NotNull(result.DefaultConstraints);
+
+        result.PrimaryKeys.Columns.AssertHasColumns("constraint_name", "column_name", "column_ordinal");
+        result.UniqueConstraints.Columns.AssertHasColumns("constraint_name", "column_name", "column_ordinal");
+        result.ForeignKeys.Columns.AssertHasColumns(
+            "constraint_name", "column_name", "column_ordinal",
+            "referenced_schema", "referenced_table", "referenced_column",
+            "on_delete", "on_update", "is_disabled", "is_not_trusted");
+        result.CheckConstraints.Columns.AssertHasColumns(
+            "constraint_name", "definition", "is_disabled", "is_not_trusted");
+        result.DefaultConstraints.Columns.AssertHasColumns("constraint_name", "column_name", "definition");
+
+        Assert.NotEmpty(result.PrimaryKeys.Rows);
+        Assert.NotEmpty(result.ForeignKeys.Rows);
+        Assert.NotEmpty(result.CheckConstraints.Rows);
+        Assert.NotEmpty(result.DefaultConstraints.Rows);
+    }
 }

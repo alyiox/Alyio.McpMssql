@@ -36,10 +36,14 @@ CREATE TABLE dbo.Orders (
 );
 GO
 
--- Indexes for describe_indexes tests (nonclustered, unique, composite, included, filtered)
-CREATE UNIQUE NONCLUSTERED INDEX IX_Users_Email ON dbo.Users (Email);
+-- Constraints for describe_constraints tests (UQ, CHECK; PK/FK/DEFAULT already on tables above)
+ALTER TABLE dbo.Users ADD CONSTRAINT UQ_Users_Email UNIQUE (Email);
 GO
 
+ALTER TABLE dbo.Orders ADD CONSTRAINT CK_Orders_TotalAmountNonNegative CHECK (TotalAmount >= 0);
+GO
+
+-- Indexes for describe_indexes tests (nonclustered, composite, included, filtered)
 CREATE NONCLUSTERED INDEX IX_Orders_OrderDate ON dbo.Orders (OrderDate);
 GO
 

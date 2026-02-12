@@ -29,4 +29,8 @@
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Services\Scripts\*.sql" />
+  </ItemGroup>
+
 </Project>

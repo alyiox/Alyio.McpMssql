@@ -153,5 +153,21 @@ public interface ICatalogService
         string? schema = null,
         string? profile = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Describes the constraints of a table (PK, UQ, FK, CHECK, DEFAULT). Tables only; views are not supported.
+    /// </summary>
+    /// <param name="name">Name of the table.</param>
+    /// <param name="catalog">Optional catalog (database) name. If omitted, uses the active catalog.</param>
+    /// <param name="schema">Optional schema name. If omitted, uses default schema resolution.</param>
+    /// <param name="profile">Optional profile name. If null or empty, the default profile is used.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <returns>The five constraint result sets.</returns>
+    Task<TableConstraints> DescribeConstraintsAsync(
+        string name,
+        string? catalog = null,
+        string? schema = null,
+        string? profile = null,
+        CancellationToken cancellationToken = default);
 }
 

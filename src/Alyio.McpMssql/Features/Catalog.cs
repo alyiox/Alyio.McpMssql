@@ -108,6 +108,26 @@ public static class Catalogs
         => McpExecutor.RunAsTextAsync(ct => catalogService.DescribeIndexesAsync(name, catalog, schema, profile, ct), cancellationToken);
 
     /// <summary>
+    /// Resource that describes constraints of a table (PK, UQ, FK, CHECK, DEFAULT). Tables only.
+    /// </summary>
+    [McpServerResource(
+        UriTemplate = "mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/constraints",
+        MimeType = "application/json")]
+    [Description("Describe constraints of a table (primary key, unique, foreign key, check, default).")]
+    public static Task<string> ConstraintsAsync(
+        ICatalogService catalogService,
+        [Description("Profile name (e.g. default).")]
+        string profile,
+        [Description("Catalog (database) name.")]
+        string catalog,
+        [Description("Schema name.")]
+        string schema,
+        [Description("Table name.")]
+        string name,
+        CancellationToken cancellationToken)
+        => McpExecutor.RunAsTextAsync(ct => catalogService.DescribeConstraintsAsync(name, catalog, schema, profile, ct), cancellationToken);
+
+    /// <summary>
     /// Resource that returns routines within a schema.
     /// </summary>
     [McpServerResource(
@@ -222,4 +242,22 @@ public static class Catalogs
         string? profile = null,
         CancellationToken cancellationToken = default)
         => McpExecutor.RunAsync(ct => catalogService.DescribeIndexesAsync(name, catalog, schema, profile, ct), cancellationToken);
+
+    /// <summary>
+    /// Tool that describes constraints of a table (PK, UQ, FK, CHECK, DEFAULT). Tables only.
+    /// </summary>
+    [McpServerTool(UseStructuredContent = true)]
+    [Description("Describe constraints of a table (primary key, unique, foreign key, check, default).")]
+    public static Task<TableConstraints> DescribeConstraintsAsync(
+        ICatalogService catalogService,
+        [Description("Table name.")]
+        string name,
+        [Description("Optional catalog (database) name.")]
+        string? catalog = null,
+        [Description("Optional schema name.")]
+        string? schema = null,
+        [Description("Optional profile name. If omitted, the default profile is used.")]
+        string? profile = null,
+        CancellationToken cancellationToken = default)
+        => McpExecutor.RunAsync(ct => catalogService.DescribeConstraintsAsync(name, catalog, schema, profile, ct), cancellationToken);
 }

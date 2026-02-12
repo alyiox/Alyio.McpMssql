@@ -1,6 +1,7 @@
 // MIT License
 
 using Alyio.McpMssql.Models;
+using Alyio.McpMssql.Services.Scripts;
 using Microsoft.Data.SqlClient;
 
 namespace Alyio.McpMssql.Services;
@@ -232,6 +233,49 @@ internal sealed class CatalogService(IProfileService profileService) : ICatalogS
 
         return await conn.ExecuteAsTabularResultAsync(sql, parameters, cancellationToken)
             .ConfigureAwait(false);
+    }
+
+    public async Task<TableConstraints> DescribeConstraintsAsync(
+        string name,
+        string? catalog = null,
+        string? schema = null,
+        string? profile = null,
+        CancellationToken cancellationToken = default)
+    {
+        var resolved = profileService.Resolve(profile);
+        var sql = await Loader.ReadText("describe_constraints.sql", cancellationToken).ConfigureAwait(false);
+
+        using var conn = new SqlConnection(resolved.ConnectionString);
+        await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!string.IsNullOrWhiteSpace(catalog))
+        {
+            conn.ChangeDatabase(catalog);
+        }
+
+        var parameters = new[]
+        {
+            new SqlParameter("@table", name),
+            new SqlParameter("@schema", schema ?? (object)DBNull.Value)
+        };
+
+        var results = await conn.ExecuteMultipleTabularResultsAsync(sql, parameters, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (results.Count != 5)
+        {
+            throw new InvalidOperationException(
+                $"Describe constraints script must return exactly 5 result sets; got {results.Count}.");
+        }
+
+        return new TableConstraints
+        {
+            PrimaryKeys = results[0],
+            UniqueConstraints = results[1],
+            ForeignKeys = results[2],
+            CheckConstraints = results[3],
+            DefaultConstraints = results[4]
+        };
     }
 }
 
