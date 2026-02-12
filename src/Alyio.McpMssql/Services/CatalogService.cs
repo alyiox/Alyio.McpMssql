@@ -190,6 +190,7 @@ internal sealed class CatalogService(IProfileService profileService) : ICatalogS
                 i.name                    AS index_name,
                 i.type_desc               AS index_type,        -- CLUSTERED / NONCLUSTERED
                 i.is_unique               AS is_unique,
+                i.is_disabled             AS is_disabled,
                 i.has_filter              AS has_filter,
                 i.filter_definition,
                 ic.key_ordinal            AS key_ordinal,       -- 0 = included column, 1+ = key

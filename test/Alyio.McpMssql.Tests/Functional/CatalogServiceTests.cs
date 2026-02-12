@@ -210,6 +210,7 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
             "index_name",
             "index_type",
             "is_unique",
+            "is_disabled",
             "has_filter",
             "filter_definition",
             "key_ordinal",
