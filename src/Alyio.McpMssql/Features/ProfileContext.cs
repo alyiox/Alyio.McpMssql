@@ -7,8 +7,9 @@ using ModelContextProtocol.Server;
 namespace Alyio.McpMssql.Features;
 
 /// <summary>
-/// Exposes the list of configured MCP MSSQL profiles so that hosts and
-/// agents can discover which profile names are valid for tools and resources.
+/// Exposes the list of configured Microsoft SQL Server / Azure SQL Database
+/// profiles for this MCP server so hosts and agents can discover valid
+/// profile names for this server's tools and resources.
 /// </summary>
 [McpServerToolType]
 [McpServerResourceType]
@@ -23,8 +24,9 @@ public static class ProfileContext
         UriTemplate = "mssql://context/profiles",
         MimeType = "application/json")]
     [Description(
-        "List configured MCP MSSQL connection profiles. " +
-        "Use this to discover valid profile names for other tools and resources (e.g. default, warehouse).")]
+        "List configured Microsoft SQL Server / Azure SQL Database connection profiles for this MCP server only. " +
+        "Valid profile names for this server's tools and resources (e.g. default, warehouse). " +
+        "Use this server's list_profiles tool or this resource to obtain valid values.")]
     public static Task<string> GetProfilesAsTextAsync(
         IProfileService service,
         CancellationToken cancellationToken = default)
@@ -39,8 +41,9 @@ public static class ProfileContext
     /// </summary>
     [McpServerTool(UseStructuredContent = true)]
     [Description(
-        "List configured MCP MSSQL connection profiles. " +
-        "Use this to discover valid profile names for other tools and resources (e.g. default, warehouse).")]
+        "List configured Microsoft SQL Server / Azure SQL Database connection profiles for this MCP server only. " +
+        "Use to discover valid profile names for this server's tools and resources (e.g. default, warehouse). " +
+        "Profiles are scoped to this server; valid values are returned by this tool or the profile context resource.")]
     public static Task<Models.ProfileContext> ListProfilesAsync(
         IProfileService service,
         CancellationToken cancellationToken = default)

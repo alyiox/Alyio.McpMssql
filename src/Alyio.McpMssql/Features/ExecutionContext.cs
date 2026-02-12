@@ -8,8 +8,8 @@ using ExecutionContextModel = Alyio.McpMssql.Models.ExecutionContext;
 namespace Alyio.McpMssql.Features;
 
 /// <summary>
-/// Exposes server-enforced execution rules and defaults
-/// that govern SQL operations.
+/// Exposes execution rules and defaults for this MCP server's
+/// Microsoft SQL Server / Azure SQL Database operations.
 /// </summary>
 [McpServerToolType]
 [McpServerResourceType]
@@ -24,12 +24,11 @@ public static class ExecutionContext
         UriTemplate = "mssql://{profile}/context/execution",
         MimeType = "application/json")]
     [Description(
-        "Server-enforced execution rules and defaults that govern SQL operations. " +
-        "Includes row limits, hard caps, and execution timeouts. " +
-        "Values are scoped by operation type (e.g. SELECT).")]
+        "Microsoft SQL Server / Azure SQL Database execution rules and defaults for this MCP server (row limits, timeouts). " +
+        "Scoped by profile and operation type (e.g. SELECT). Profiles are scoped to this server only.")]
     public static Task<string> GetAsync(
         IExecutionContextService options,
-        [Description("Profile name (e.g. default).")]
+        [Description("Profile name for this MCP server. Valid values from this server's list_profiles tool or the profile context resource.")]
         string profile,
         CancellationToken cancellationToken = default)
     {
@@ -44,12 +43,11 @@ public static class ExecutionContext
     /// </summary>
     [McpServerTool(UseStructuredContent = true)]
     [Description(
-        "Returns server-enforced execution rules and defaults for SQL operations. " +
-        "Includes SELECT row limits, hard caps, and command timeouts. " +
-        "Use to reason about query limits before running SELECTs.")]
+        "Returns execution rules and defaults for this MCP server's Microsoft SQL Server / Azure SQL Database operations. " +
+        "Includes SELECT row limits, hard caps, and command timeouts. Use to reason about limits before running T-SQL SELECTs.")]
     public static Task<ExecutionContextModel> GetExecutionContextAsync(
         IExecutionContextService options,
-        [Description("Optional profile name. If omitted, the default profile is used.")]
+        [Description("Optional. Profile name for this MCP server. Valid values from this server's list_profiles tool or the profile context resource. If omitted, default profile is used.")]
         string? profile = null,
         CancellationToken cancellationToken = default)
     {

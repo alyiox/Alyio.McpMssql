@@ -8,10 +8,9 @@ using ModelContextProtocol.Server;
 namespace Alyio.McpMssql.Features;
 
 /// <summary>
-/// Interactive read-only data access tools.
-/// 
-/// Provides safe, bounded SELECT execution intended for
-/// exploration, inspection, and reasoning over SQL Server data.
+/// Read-only T-SQL data access for Microsoft SQL Server / Azure SQL Database.
+/// Safe, bounded SELECT execution for exploration and reasoning over
+/// this server's connected instances.
 /// </summary>
 [McpServerToolType]
 public static class SelectTool
@@ -21,21 +20,20 @@ public static class SelectTool
     /// </summary>
     [McpServerTool(UseStructuredContent = true)]
     [Description(
-        "Executes a read-only SQL SELECT statement and returns tabular results. " +
-        "Results are bounded by server-enforced limits to ensure safe, interactive use.")]
+        "Executes a read-only T-SQL SELECT statement against Microsoft SQL Server or Azure SQL Database and returns tabular results. " +
+        "Results are bounded by this server's enforced limits. Use only for this MCP server's profiles.")]
     public static Task<QueryResult> SelectAsync(
         ISelectService selectService,
 
         [Description(
-            "SQL SELECT statement. Must be read-only. " +
-            "Use @paramName syntax for parameters. " +
+            "Read-only T-SQL SELECT statement. Use @paramName syntax for parameters. " +
             "For IN/NOT IN clauses, expand each value as a separate numbered parameter " +
-            "(e.g., WHERE id IN (@id_0, @id_1, @id_2)).")]
+            "(e.g., WHERE id IN (@id_0, @id_1, @id_2)). Only SELECT is allowed.")]
         string sql,
 
         [Description(
-            "Optional catalog (database) name. " +
-            "If omitted, the current catalog is used.")]
+            "Optional. Catalog (database) name for Microsoft SQL Server / Azure SQL Database. " +
+            "Valid values from this server's list_catalogs tool or the catalogs resource. If omitted, current catalog is used.")]
         string? catalog = null,
 
         [Description(
@@ -51,7 +49,7 @@ public static class SelectTool
         int? maxRows = null,
 
         [Description(
-            "Optional profile name. If omitted, the default profile is used.")]
+            "Optional. Profile name for this MCP server. Valid values from this server's list_profiles tool or the profile context resource. If omitted, default profile is used.")]
         string? profile = null,
 
         CancellationToken cancellationToken = default)

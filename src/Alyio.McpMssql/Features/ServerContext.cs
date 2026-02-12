@@ -7,7 +7,8 @@ using ModelContextProtocol.Server;
 namespace Alyio.McpMssql.Features;
 
 /// <summary>
-/// Exposes read-only metadata about the connected SQL Server instance.
+/// Exposes read-only metadata about the connected Microsoft SQL Server or
+/// Azure SQL Database instance for this MCP server.
 /// </summary>
 [McpServerResourceType]
 public static class ServerContext
@@ -21,12 +22,11 @@ public static class ServerContext
         UriTemplate = "mssql://{profile}/context/server/properties",
         MimeType = "application/json")]
     [Description(
-        "SQL Server instance properties derived from SERVERPROPERTY and related metadata. " +
-        "Use this resource to reason about engine edition, version compatibility, feature availability, " +
-        "and server-level execution behavior.")]
+        "Microsoft SQL Server / Azure SQL Database instance properties for this MCP server (SERVERPROPERTY and related metadata). " +
+        "Use to reason about engine edition, version, feature availability. Scoped to this server's profile only.")]
     public static Task<string> GetPropertiesAsync(
         IServerContextService server,
-        [Description("Profile name (e.g. default).")]
+        [Description("Profile name for this MCP server. Valid values from this server's list_profiles tool or the profile context resource.")]
         string profile,
         CancellationToken cancellationToken = default)
     {
