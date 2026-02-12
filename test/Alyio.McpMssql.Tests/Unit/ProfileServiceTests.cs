@@ -101,7 +101,7 @@ public class ProfileServiceTests
     }
 
     [Fact]
-    public void GetContext_Returns_Profiles_And_DefaultProfile_Name()
+    public void GetContext_Returns_Profiles()
     {
         var options = new McpMssqlOptions
         {
@@ -117,7 +117,6 @@ public class ProfileServiceTests
 
         Assert.NotNull(context);
         Assert.Equal(2, context.Profiles.Count);
-        Assert.Equal(McpMssqlOptions.DefaultProfileName, context.DefaultProfile);
         var names = context.Profiles.Select(p => p.Name).OrderBy(n => n, StringComparer.Ordinal).ToList();
         Assert.Equal(["default", "warehouse"], names);
         Assert.Equal("Default instance", context.Profiles.Single(p => p.Name == "default").Description);
@@ -175,7 +174,6 @@ public class ProfileServiceTests
 
         Assert.NotNull(context);
         Assert.Empty(context.Profiles);
-        Assert.Equal(McpMssqlOptions.DefaultProfileName, context.DefaultProfile);
     }
 
     [Fact]

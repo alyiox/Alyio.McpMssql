@@ -38,7 +38,6 @@ internal sealed class ProfileService(IOptions<McpMssqlOptions> options) : IProfi
         return new ProfileContext
         {
             Profiles = list,
-            DefaultProfile = McpMssqlOptions.DefaultProfileName,
         };
     }
 }

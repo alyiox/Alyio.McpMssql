@@ -15,14 +15,16 @@ namespace Alyio.McpMssql.Features;
 public static class ProfileContext
 {
     /// <summary>
-    /// Resource that returns available profiles and the default profile name.
+    /// Resource that returns available profiles.
     /// No profile segment in the URI; this is server-level metadata.
     /// </summary>
     [McpServerResource(
         Name = "profile context",
         UriTemplate = "mssql://context/profiles",
         MimeType = "application/json")]
-    [Description("List configured connection profiles and the default profile name.")]
+    [Description(
+        "List configured MCP MSSQL connection profiles. " +
+        "Use this to discover valid profile names for other tools and resources (e.g. default, warehouse).")]
     public static Task<string> GetProfilesAsTextAsync(
         IProfileService service,
         CancellationToken cancellationToken = default)
@@ -33,7 +35,7 @@ public static class ProfileContext
     }
 
     /// <summary>
-    /// Tool that returns available profiles and the default profile name.
+    /// Tool that returns available profiles.
     /// </summary>
     [McpServerTool(UseStructuredContent = true)]
     [Description(

@@ -27,7 +27,7 @@ public sealed class ProfileContextE2ETests(McpServerFixture fixture) : IClassFix
     }
 
     [Fact]
-    public async Task ListProfiles_Tool_Returns_Profiles_And_DefaultProfile()
+    public async Task ListProfiles_Tool_Returns_Profiles()
     {
         var result = await _client.CallToolAsync(ListProfilesTool);
         var text = result.ReadAsText();
@@ -42,12 +42,6 @@ public sealed class ProfileContextE2ETests(McpServerFixture fixture) : IClassFix
         var first = profiles[0];
         Assert.True(first.TryGetPropertyIgnoreCase("name", out var name));
         Assert.Equal(JsonValueKind.String, name.ValueKind);
-
-        Assert.True(
-            root.TryGetPropertyIgnoreCase("default_profile", out var defaultProfile) ||
-            root.TryGetPropertyIgnoreCase("DefaultProfile", out defaultProfile));
-        Assert.Equal(JsonValueKind.String, defaultProfile.ValueKind);
-        Assert.False(string.IsNullOrWhiteSpace(defaultProfile.GetString()));
     }
 
     private static JsonElement UnwrapToolResult(string text)
@@ -64,7 +58,7 @@ public sealed class ProfileContextE2ETests(McpServerFixture fixture) : IClassFix
     }
 
     [Fact]
-    public async Task Profiles_Resource_Returns_Profiles_And_DefaultProfile()
+    public async Task Profiles_Resource_Returns_Profiles()
     {
         var result = await _client.ReadResourceAsync("mssql://context/profiles");
         var root = result.ReadJsonRoot();
@@ -72,8 +66,5 @@ public sealed class ProfileContextE2ETests(McpServerFixture fixture) : IClassFix
         Assert.True(root.TryGetProperty("profiles", out var profiles));
         Assert.Equal(JsonValueKind.Array, profiles.ValueKind);
         Assert.True(profiles.GetArrayLength() >= 1);
-
-        Assert.True(root.TryGetProperty("default_profile", out var defaultProfile));
-        Assert.Equal(JsonValueKind.String, defaultProfile.ValueKind);
     }
 }

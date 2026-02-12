@@ -98,7 +98,7 @@ npx -y @modelcontextprotocol/inspector -e DOTNET_ENVIRONMENT=Development dotnet 
 
 All tools accept an optional `profile`; when omitted, the default profile is used. Discover profiles via the `list_profiles` tool or the **Profile context** resource `mssql://context/profiles`.
 
-- **Profile context:** Tool `list_profiles`; resource `mssql://context/profiles` — configured profiles and default profile name (server-level; no profile in URI).
+- **Profile context:** Tool `list_profiles`; resource `mssql://context/profiles` — configured profiles.
 - **Query:** `select` — parameterized `SELECT`; optional `profile`, `catalog`, `parameters`, `maxRows`.
 - **Catalog:** `list_catalogs`, `list_schemas`, `list_relations`, `list_routines`, `describe_columns`, `describe_indexes`, `describe_constraints`, `get_routine_definition` — optional `profile` and other args.
 - **Context:** Tool `get_execution_context` (optional `profile`). Resources (use `{profile}` in path, e.g. `default`):

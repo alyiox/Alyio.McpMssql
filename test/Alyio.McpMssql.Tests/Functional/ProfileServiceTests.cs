@@ -55,7 +55,7 @@ public sealed class ProfileServiceTests
     }
 
     [Fact]
-    public void GetContext_From_Section_Returns_All_Profiles_And_DefaultProfile_Name()
+    public void GetContext_From_Section_Returns_All_Profiles()
     {
         var envVars = new[]
         {
@@ -70,8 +70,7 @@ public sealed class ProfileServiceTests
 
         Assert.NotNull(context);
         Assert.Equal(2, context.Profiles.Count);
-        Assert.Equal(McpMssqlOptions.DefaultProfileName, context.DefaultProfile);
-        var defaultProfile = context.Profiles.FirstOrDefault(p => p.Name.Equals("default", StringComparison.OrdinalIgnoreCase));
+        var defaultProfile = context.Profiles.FirstOrDefault(p => p.Name.Equals(McpMssqlOptions.DefaultProfileName, StringComparison.OrdinalIgnoreCase));
         Assert.NotNull(defaultProfile);
         Assert.Equal("Default database", defaultProfile.Description);
         var warehouse = context.Profiles.FirstOrDefault(p => p.Name.Equals("warehouse", StringComparison.OrdinalIgnoreCase));

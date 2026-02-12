@@ -9,7 +9,7 @@ namespace Alyio.McpMssql;
 
 /// <summary>
 /// Resolves MCP MSSQL connection profiles from configured options and provides
-/// profile context (available profiles and default profile name) for discovery.
+/// profile context (available profiles) for discovery.
 /// </summary>
 public interface IProfileService
 {
@@ -24,8 +24,7 @@ public interface IProfileService
     McpMssqlProfileOptions Resolve(string? profileName = null);
 
     /// <summary>
-    /// Gets the current profile context: available profile names and descriptions,
-    /// and the name of the default profile.
+    /// Gets the current profile context: available profile names and descriptions.
     /// </summary>
     /// <returns>The profile context for tools and resources.</returns>
     ProfileContext GetContext();
