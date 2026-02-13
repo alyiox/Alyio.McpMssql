@@ -1,6 +1,5 @@
 // MIT License
 
-using System.Text.Json;
 using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 using ModelContextProtocol.Client;
 
@@ -27,7 +26,7 @@ public sealed class ServerPropertiesE2ETests(McpServerFixture fixture)
     public async Task ServerProperties_Resource_Template_Is_Discoverable()
     {
         Assert.True(
-            await _client.IsResourceTemplateRegisteredAsync("mssql://server-properties?{profile}"));
+            await _client.IsResourceTemplateRegisteredAsync("mssql://server-properties{?profile}"));
     }
 
     // ── Tool ──
@@ -59,10 +58,12 @@ public sealed class ServerPropertiesE2ETests(McpServerFixture fixture)
 
     // ── Resource ──
 
-    [Fact(Skip = "URI template matching needs investigation – mssql://server-properties?{profile} may not match bare URI.")]
-    public async Task ServerProperties_Resource_Returns_Server_Metadata()
+    [Theory]
+    [InlineData("mssql://server-properties")]
+    [InlineData("mssql://server-properties?profile=default")]
+    public async Task ServerProperties_Resource_Returns_Server_Metadata(string uri)
     {
-        var result = await _client.ReadResourceAsync("mssql://server-properties");
+        var result = await _client.ReadResourceAsync(uri);
         var root = result.ReadJsonRoot();
 
         Assert.True(root.TryGetPropertyIgnoreCase("product_version", out _));

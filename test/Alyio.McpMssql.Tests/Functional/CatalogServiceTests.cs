@@ -1,5 +1,7 @@
 // MIT License
 
+using Alyio.McpMssql.Features;
+using Alyio.McpMssql.Models;
 using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -182,6 +184,35 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
         Assert.Contains("GetUserById", names);
         Assert.Contains("GetUserEmail", names);
         Assert.Contains("GetTotalOrderAmount", names);
+    }
+
+    // -----------------------------
+    // GetObject – combined includes
+    // -----------------------------
+
+    [Fact]
+    public async Task GetObject_WithColumnsAndIndexes_Returns_Both_Sections()
+    {
+        var result = await ObjectTools.GetObjectAsync(
+            _service,
+            ObjectKind.Relation,
+            "Orders",
+            catalog: TestDatabaseName,
+            schema: "dbo",
+            includes: [ObjectInclude.Columns, ObjectInclude.Indexes]);
+
+        Assert.NotNull(result.Columns);
+        Assert.NotEmpty(result.Columns.Rows);
+        result.Columns.Columns.AssertHasColumns("name", "type", "is_nullable", "column_id");
+
+        Assert.NotNull(result.Indexes);
+        Assert.NotEmpty(result.Indexes.Rows);
+        result.Indexes.Columns.AssertHasColumns(
+            "index_name", "index_type", "is_unique", "is_disabled", "has_filter",
+            "filter_definition", "key_ordinal", "is_descending", "column_name", "is_included_column");
+
+        Assert.Null(result.Constraints);
+        Assert.Null(result.Definition);
     }
 
     // -----------------------------

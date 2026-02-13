@@ -22,11 +22,11 @@ public sealed class ProfilesE2ETests(McpServerFixture fixture) : IClassFixture<M
 
     // ── Resource discovery ──
 
-    [Fact(Skip = "mssql://profiles has no template variables – may register as static resource, not template.")]
+    [Fact]
     public async Task Profiles_Resource_Is_Discoverable()
     {
         Assert.True(
-            await _client.IsResourceTemplateRegisteredAsync("mssql://profiles"),
+            await _client.IsResourceRegisteredAsync("mssql://profiles"),
             "Profiles resource should be discoverable.");
     }
 

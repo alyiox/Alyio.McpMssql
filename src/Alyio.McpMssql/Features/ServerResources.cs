@@ -1,9 +1,7 @@
 // MIT License
 
 using System.ComponentModel;
-using Alyio.McpMssql;
 using Alyio.McpMssql.Internal;
-using Alyio.McpMssql.Models;
 using ModelContextProtocol.Server;
 
 namespace Alyio.McpMssql.Features;
@@ -36,7 +34,7 @@ public static class ServerResources
     /// </summary>
     [McpServerResource(
         Name = "server-properties",
-        UriTemplate = "mssql://server-properties?{profile}",
+        UriTemplate = "mssql://server-properties{?profile}",
         MimeType = "application/json")]
     [Description("[MSSQL] Get server properties and execution limits.")]
     public static async Task<string> GetServerPropertiesAsync(

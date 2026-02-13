@@ -1,6 +1,5 @@
 // MIT License
 
-using System.Text.Json;
 using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 using ModelContextProtocol.Client;
 
@@ -32,8 +31,7 @@ public sealed class ObjectE2ETests(McpServerFixture fixture) : IClassFixture<Mcp
     {
         Assert.True(
             await _client.IsResourceTemplateRegisteredAsync(
-                "mssql://objects?{kind,profile,catalog,schema}",
-                "mssql://object?{kind,name,profile,catalog,schema,includes}"),
+                "mssql://objects{?kind,profile,catalog,schema}"),
             "Object resource templates should be discoverable.");
     }
 
@@ -113,9 +111,9 @@ public sealed class ObjectE2ETests(McpServerFixture fixture) : IClassFixture<Mcp
         var result = await _client.CallToolAsync(ObjectToolName, new Dictionary<string, object?>
         {
             ["kind"] = "relation",
-            ["catalog"] = "McpMssqlTest",
+            ["catalog"] = "master",
             ["schema"] = "dbo",
-            ["name"] = "Orders",
+            ["name"] = "sysobjects",
             ["includes"] = IncludeIndexes
         });
         var root = result.ReadJsonRoot();
@@ -131,9 +129,9 @@ public sealed class ObjectE2ETests(McpServerFixture fixture) : IClassFixture<Mcp
         var result = await _client.CallToolAsync(ObjectToolName, new Dictionary<string, object?>
         {
             ["kind"] = "relation",
-            ["catalog"] = "McpMssqlTest",
+            ["catalog"] = "master",
             ["schema"] = "dbo",
-            ["name"] = "Orders",
+            ["name"] = "sysobjects",
             ["includes"] = IncludeConstraints
         });
         var root = result.ReadJsonRoot();
@@ -165,39 +163,56 @@ public sealed class ObjectE2ETests(McpServerFixture fixture) : IClassFixture<Mcp
 
     // ── mssql://objects (resource list) ──
 
-    [Fact(Skip = "URI template matching needs investigation – SDK may require {?var} (RFC 6570 query expansion) instead of ?{var}.")]
-    public async Task Catalogs_Resource_Returns_Expected_Columns()
+    [Theory]
+    [InlineData("mssql://objects?kind=Catalog")]
+    [InlineData("mssql://objects?kind=Catalog&profile=default")]
+    public async Task Catalogs_Resource_Returns_Expected_Columns(string uri)
     {
-        var result = await _client.ReadResourceAsync("mssql://objects?kind=catalog");
+        var result = await _client.ReadResourceAsync(uri);
         var root = result.ReadJsonRoot();
         var (columns, _) = root.ReadColumnRows();
         columns.AssertHasColumns("name", "state_desc", "is_read_only", "is_system_db");
     }
 
-    [Fact(Skip = "URI template matching needs investigation – SDK may require {?var} (RFC 6570 query expansion) instead of ?{var}.")]
-    public async Task Schemas_Resource_Returns_Expected_Columns()
+    [Theory]
+    [InlineData("mssql://objects?kind=Schema")]
+    [InlineData("mssql://objects?kind=Schema&catalog=master")]
+    [InlineData("mssql://objects?kind=Schema&profile=default&catalog=master")]
+    public async Task Schemas_Resource_Returns_Expected_Columns(string uri)
     {
-        var result = await _client.ReadResourceAsync("mssql://objects?kind=schema&catalog=master");
+        var result = await _client.ReadResourceAsync(uri);
         var root = result.ReadJsonRoot();
         var (columns, _) = root.ReadColumnRows();
         columns.AssertHasColumns("name");
     }
 
-    [Fact(Skip = "URI template matching needs investigation – SDK may require {?var} (RFC 6570 query expansion) instead of ?{var}.")]
-    public async Task Relations_Resource_Returns_Expected_Columns()
+    [Theory]
+    [InlineData("mssql://objects?kind=Relation")]
+    [InlineData("mssql://objects?kind=Relation&catalog=master")]
+    [InlineData("mssql://objects?kind=Relation&catalog=master&schema=dbo")]
+    [InlineData("mssql://objects?kind=Relation&profile=default&catalog=master&schema=dbo")]
+    public async Task Relations_Resource_Returns_Expected_Columns(string uri)
     {
-        var result = await _client.ReadResourceAsync("mssql://objects?kind=relation&catalog=master&schema=dbo");
+        var result = await _client.ReadResourceAsync(uri);
         var root = result.ReadJsonRoot();
         var (columns, _) = root.ReadColumnRows();
         columns.AssertHasColumns("name", "type");
     }
 
-    [Fact(Skip = "URI template matching needs investigation – SDK may require {?var} (RFC 6570 query expansion) instead of ?{var}.")]
-    public async Task Routines_Resource_Returns_Expected_Columns()
+    [Theory]
+    [InlineData("mssql://objects?kind=Routine")]
+    [InlineData("mssql://objects?kind=Routine&catalog=master")]
+    [InlineData("mssql://objects?kind=Routine&catalog=master&schema=dbo")]
+    [InlineData("mssql://objects?kind=Routine&profile=default&catalog=master&schema=dbo")]
+    public async Task Routines_Resource_Returns_Expected_Columns(string uri)
     {
-        var result = await _client.ReadResourceAsync("mssql://objects?kind=routine&catalog=master&schema=dbo");
+        var result = await _client.ReadResourceAsync(uri);
         var root = result.ReadJsonRoot();
         var (columns, _) = root.ReadColumnRows();
         columns.AssertHasColumns("name", "type");
     }
+
+
+    // NOTE: mssql://object resource is disabled – the .NET MCP SDK does not support
+    // list-type query parameters (includes). Use the db.object tool instead.
 }
