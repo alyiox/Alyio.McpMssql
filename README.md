@@ -118,7 +118,6 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 | `mssql://profiles` | List configured profiles. |
 | `mssql://server-properties?{profile}` | Get server properties and execution limits. |
 | `mssql://objects?{kind,profile,catalog,schema}` | List catalog metadata. |
-| `mssql://object?{kind,name,profile,catalog,schema,includes}` | Get metadata for one relation or routine. |
 
 Resources mirror their corresponding tools and return JSON.
 
