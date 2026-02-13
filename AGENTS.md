@@ -60,46 +60,9 @@ Follow existing project conventions.
 
 ## MCP metadata (normative)
 
-**Intro.** These requirements apply to all tool and resource metadata (names,
-titles, descriptions, parameter descriptions, URI templates) exposed by this
-server.
-They assume hosts use a unified tool/resource pool and shared context. Goal:
-unambiguous backend and scope so models select this server's tools correctly
-and avoid cross-server leakage.
+Normative, high-density metadata: enough for correct tool and parameter selection, minimal to reduce token cost.
 
-**Definitions.** *Backend*: Microsoft SQL Server or Azure SQL Database.
-*Metadata*: tool/resource names, titles, descriptions, params, URI templates.
-*Scope parameter*: narrows the target (e.g. profile, catalog, schema).
-*Name parameter*: identifies a specific object (e.g. relation name, table name, routine name).
-*This server*: Alyio.McpMssql.
-
-**Requirements.**
-
-1. **Backend identification.** Every tool and resource description MUST
-   identify the backend in plain language using at least one of: **Microsoft
-   SQL Server**, **Azure SQL Database**, **T-SQL**.
-
-2. **Locality.** MUST NOT describe anything as global or cross-server. Profiles
-   and scope parameters are scoped to this server only; state or imply where
-   relevant.
-
-3. **Scope and name parameters.** For each scope or name parameter, the
-   description MUST state where valid values come from (this server's tools or
-   `mssql://` resources) and that it is optional when optional. Name the
-   specific tool(s) or resource(s) that provide those values (e.g. for
-   profile: `list_profiles` or `mssql://context/profiles`).
-
-4. **SQL parameters.** Parameters that accept or describe SQL MUST state the
-   language is T-SQL. For read-only tools (e.g. SELECT only), MUST state
-   read-only T-SQL.
-
-5. **Resource URI scheme.** All resource URI templates MUST use `mssql://`.
-   MUST NOT use another scheme.
-
-6. **Cross-server isolation.** Metadata MUST make it unambiguous (a) which
-   server a tool or resource belongs to, and (b) which arguments apply to this
-   server—so the model does not pick another server's tool or pass this
-   server's arguments (e.g. profile names) to another.
-
-7. **Precedence.** In metadata, clarity and platform specificity over brevity.
+- **Description MUST start with [MSSQL], followed by a Verb-Object fragment specifying T-SQL and Read-only where applicable, e.g., `[MSSQL] Execute Read-only T-SQL`.**
+- **Use tag-based lineage (Src: <Name>) for all parameters.**
+    - **Define <Name> as the Target Entity (e.g., use `profiles` for `list_profiles` or `tables` for `.../tables` URIs).**
 
