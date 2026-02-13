@@ -24,8 +24,8 @@ public interface IProfileService
     McpMssqlProfileOptions Resolve(string? profileName = null);
 
     /// <summary>
-    /// Gets the current profile context: available profile names and descriptions.
+    /// Gets the available profiles: names and descriptions.
     /// </summary>
-    /// <returns>The profile context for tools and resources.</returns>
-    ProfileContext GetContext();
+    /// <returns>The list of configured profiles.</returns>
+    IReadOnlyList<Profile> GetProfiles();
 }

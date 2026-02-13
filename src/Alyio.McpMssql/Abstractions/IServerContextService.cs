@@ -27,7 +27,7 @@ public interface IServerContextService
     /// <param name="cancellationToken">
     /// Token used to cancel the operation.
     /// </param>
-    Task<ServerPropertiesContext> GetPropertiesAsync(
+    Task<ServerProperties> GetPropertiesAsync(
         string? profile = null,
         CancellationToken cancellationToken = default);
 

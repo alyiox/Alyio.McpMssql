@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 
 // MIT License
@@ -28,9 +28,9 @@ public sealed class McpMssqlProfileOptions
     public string ConnectionString { get; set; } = string.Empty;
 
     /// <summary>
-    /// Execution options for interactive SELECT operations.
+    /// Execution options for interactive read-only queries.
     /// </summary>
-    public SelectExecutionOptions Select { get; set; } = new();
+    public QueryOptions Query { get; set; } = new();
 
     /// <summary>
     /// The well-known name of the default MCP MSSQL profile.

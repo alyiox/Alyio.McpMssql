@@ -1,6 +1,6 @@
 // MIT License
 
-using ExecutionContext = Alyio.McpMssql.Models.ExecutionContext;
+using Alyio.McpMssql.Models;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Alyio.McpMssql;
@@ -13,7 +13,7 @@ namespace Alyio.McpMssql;
 public interface IExecutionContextService
 {
     /// <summary>
-    /// Returns the current execution context, including
+    /// Returns the current execution limits, including
     /// defaults and hard limits applied to SQL execution.
     /// </summary>
     /// <param name="profile">
@@ -22,8 +22,7 @@ public interface IExecutionContextService
     /// <param name="cancellationToken">
     /// Token used to cancel the operation.
     /// </param>
-    ValueTask<ExecutionContext> GetContextAsync(
+    ValueTask<ExecutionLimits> GetLimitsAsync(
         string? profile = null,
         CancellationToken cancellationToken = default);
 }
-

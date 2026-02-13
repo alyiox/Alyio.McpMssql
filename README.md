@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml)
 [![NuGet Version](https://img.shields.io/nuget/v/Alyio.McpMssql.svg)](https://www.nuget.org/packages/Alyio.McpMssql)
 
-A read-only MCP server for Microsoft SQL Server: metadata discovery and parameterized `SELECT` over stdio. Profile-based config, no DML/DDL; uses the official Model Context Protocol C# SDK.
+A read-only MCP server for Microsoft SQL Server: metadata discovery and parameterized `SELECT` queries over stdio. Profile-based config, no DML/DDL; uses the official Model Context Protocol C# SDK.
 
 **Requirements:** .NET 10.0 SDK, SQL Server, and a connection string.
 
@@ -33,26 +33,26 @@ All settings use the **MCPMSSQL** prefix: flat environment variables (e.g., `MCP
 **Single server / one connection:** Set the following as environment variables.
 
 ```bash
-# Connection string (required). 
+# Connection string (required).
 export MCPMSSQL_CONNECTION_STRING="Server=...;User ID=...;Password=...;"
 
-# Optional description for the default profile (tooling/AI discovery). 
+# Optional description for the default profile (tooling/AI discovery).
 export MCPMSSQL_DESCRIPTION="Primary connection"
 
-# Optional default row limit (default `100`). 
-export MCPMSSQL_SELECT_DEFAULT_MAX_ROWS="200"
+# Optional default row limit (default `100`).
+export MCPMSSQL_QUERY_DEFAULT_MAX_ROWS="200"
 
-# Optional max rows per SELECT (default `5000`).
-export MCPMSSQL_SELECT_MAX_ROWS="5000"
+# Optional max rows per query (default `5000`).
+export MCPMSSQL_QUERY_MAX_ROWS="5000"
 
-# Optional query timeout in seconds (default `30`). 
-export MCPMSSQL_SELECT_COMMAND_TIMEOUT_SECONDS="60"
+# Optional query timeout in seconds (default `30`).
+export MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS="60"
 ```
 
 **Multiple servers or connections:** Use environment variables or the same structure in `appsettings.json`.
 
 - Use environment variables with the **MCPMSSQL** prefix, then `__` for each level (e.g. `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`).
-- For each profile, set `MCPMSSQL__PROFILES__<name>__CONNECTIONSTRING`, and optionally add `__DESCRIPTION` and `__SELECT`.
+- For each profile, set `MCPMSSQL__PROFILES__<name>__CONNECTIONSTRING`, and optionally add `__DESCRIPTION` and `__QUERY`.
 - The default profile is the one named `default`. Define it with `MCPMSSQL__PROFILES__DEFAULT__...` or use the single-connection variables (`MCPMSSQL_CONNECTION_STRING`, etc.) to create or override the default profile when set.
 
 Example (environment variables):
@@ -61,21 +61,21 @@ Example (environment variables):
 # Default profile
 export MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING="Server=...;User ID=...;Password=...;"
 export MCPMSSQL__PROFILES__DEFAULT__DESCRIPTION="Primary connection"
-export MCPMSSQL__PROFILES__DEFAULT__SELECT__DEFAULTMAXROWS="200"
-export MCPMSSQL__PROFILES__DEFAULT__SELECT__MAXROWS="5000"
-export MCPMSSQL__PROFILES__DEFAULT__SELECT__COMMANDTIMEOUTSECONDS="60"
+export MCPMSSQL__PROFILES__DEFAULT__QUERY__DEFAULTMAXROWS="200"
+export MCPMSSQL__PROFILES__DEFAULT__QUERY__MAXROWS="5000"
+export MCPMSSQL__PROFILES__DEFAULT__QUERY__COMMANDTIMEOUTSECONDS="60"
 
 # Named profile
 export MCPMSSQL__PROFILES__WAREHOUSE__CONNECTIONSTRING="Server=warehouse.example.com;..."
-export MCPMSSQL__PROFILES__WAREHOUSE__SELECT__MAXROWS="10000"
-export MCPMSSQL__PROFILES__WAREHOUSE__SELECT__COMMANDTIMEOUTSECONDS="120"
+export MCPMSSQL__PROFILES__WAREHOUSE__QUERY__MAXROWS="10000"
+export MCPMSSQL__PROFILES__WAREHOUSE__QUERY__COMMANDTIMEOUTSECONDS="120"
 
 # Single-connection (flat) keys create or override the default profile:
 export MCPMSSQL_CONNECTION_STRING="Server=...;User ID=...;Password=...;"
 export MCPMSSQL_DESCRIPTION="Primary connection"
-export MCPMSSQL_SELECT_DEFAULT_MAX_ROWS="200"
-export MCPMSSQL_SELECT_MAX_ROWS="5000"
-export MCPMSSQL_SELECT_COMMAND_TIMEOUT_SECONDS="60"
+export MCPMSSQL_QUERY_DEFAULT_MAX_ROWS="200"
+export MCPMSSQL_QUERY_MAX_ROWS="5000"
+export MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS="60"
 ```
 
 **Local development:** Set the connection string, then run with that environment:
@@ -96,22 +96,31 @@ npx -y @modelcontextprotocol/inspector -e DOTNET_ENVIRONMENT=Development dotnet 
 
 ## Tools and resources
 
-All tools accept an optional `profile`; when omitted, the default profile is used. Discover profiles via the `list_profiles` tool or the **Profile context** resource `mssql://context/profiles`.
+All tools accept an optional `profile`; when omitted, the default profile is used.
 
-- **Profile context:** Tool `list_profiles`; resource `mssql://context/profiles` — configured profiles.
-- **Query:** `select` — parameterized `SELECT`; optional `profile`, `catalog`, `parameters`, `maxRows`.
-- **Catalog:** `list_catalogs`, `list_schemas`, `list_relations`, `list_routines`, `describe_columns`, `describe_indexes`, `describe_constraints`, `get_routine_definition` — optional `profile` and other args.
-- **Context:** Tool `get_execution_context` (optional `profile`). Resources (use `{profile}` in path, e.g. `default`):
-  - `mssql://{profile}/context/server/properties` — server properties, such as product version, and edition
-  - `mssql://{profile}/context/execution` — execution context, such as row limits and command timeout
-  - `mssql://{profile}/catalogs` — list databases
-  - `mssql://{profile}/catalogs/{catalog}/schemas` — list schemas
-  - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations` — list relations
-  - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/columns` — describe columns
-  - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/indexes` — describe indexes
-  - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/relations/{name}/constraints` — describe constraints (PK, UQ, FK, CHECK, DEFAULT; tables only)
-  - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines` — list routines
-  - `mssql://{profile}/catalogs/{catalog}/schemas/{schema}/routines/{name}/definition` — routine T-SQL body
+**Tools**
+
+| Tool | Description | Key params |
+|---|---|---|
+| **`db.profiles`** | List configured profiles. | — |
+| **`db.server.properties`** | Get server properties and execution limits. | `profile` |
+| **`db.objects`** | List catalog metadata (catalogs, schemas, relations, routines). | `kind`, `profile`, `catalog`, `schema` |
+| **`db.object`** | Get metadata for one relation or routine (columns, indexes, constraints, definition). | `kind`, `name`, `profile`, `catalog`, `schema`, `includes` |
+| **`db.query`** | Execute read-only T-SQL SELECT. | `sql`, `profile`, `catalog`, `parameters`, `maxRows` |
+
+- **`kind`** — `catalog`, `schema`, `relation`, or `routine`. For `db.object`, only `relation` or `routine`.
+- **`includes`** — Array of detail sections: `columns`, `indexes`, `constraints` (relation only), `definition` (routine only).
+
+**Resources**
+
+| URI template | Description |
+|---|---|
+| `mssql://profiles` | List configured profiles. |
+| `mssql://server-properties?{profile}` | Get server properties and execution limits. |
+| `mssql://objects?{kind,profile,catalog,schema}` | List catalog metadata. |
+| `mssql://object?{kind,name,profile,catalog,schema,includes}` | Get metadata for one relation or routine. |
+
+Resources mirror their corresponding tools and return JSON.
 
 ## Security
 

@@ -2,7 +2,6 @@
 
 using Alyio.McpMssql.Configuration;
 using Alyio.McpMssql.Models;
-using ExecutionContext = Alyio.McpMssql.Models.ExecutionContext;
 
 #pragma warning disable IDE0130
 namespace Alyio.McpMssql.Services;
@@ -10,47 +9,46 @@ namespace Alyio.McpMssql.Services;
 
 internal sealed class ExecutionContextService(IProfileService profileService) : IExecutionContextService
 {
-    public ValueTask<ExecutionContext> GetContextAsync(
+    public ValueTask<ExecutionLimits> GetLimitsAsync(
         string? profile = null,
         CancellationToken cancellationToken = default)
     {
         var resolved = profileService.Resolve(profile);
-        var context = new ExecutionContext
+        var limits = new ExecutionLimits
         {
-            Select = new SelectExecutionContext
+            Query = new QueryLimits
             {
                 DefaultMaxRows = new OptionDescriptor<int>
                 {
-                    Value = resolved.Select.DefaultMaxRows,
+                    Value = resolved.Query.DefaultMaxRows,
                     Description =
-                        "Used when an inspection query does not explicitly specify a row limit, " +
+                        "Used when a query does not explicitly specify a row limit, " +
                         "to prevent accidental large result sets.",
                     IsOverridable = true,
-                    Scope = "select",
+                    Scope = "query",
                 },
 
                 HardRowLimit = new OptionDescriptor<int>
                 {
-                    Value = SelectExecutionOptions.HardRowLimit,
+                    Value = QueryOptions.HardRowLimit,
                     Description =
-                        "Absolute maximum number of rows that may be returned for any inspection query, " +
+                        "Absolute maximum number of rows that may be returned for any query, " +
                         "regardless of request.",
                     IsOverridable = false,
-                    Scope = "select",
+                    Scope = "query",
                 },
 
                 CommandTimeoutSeconds = new OptionDescriptor<int>
                 {
-                    Value = resolved.Select.CommandTimeoutSeconds,
+                    Value = resolved.Query.CommandTimeoutSeconds,
                     Description =
-                        "Maximum execution time allowed for an interactive inspection query before it is terminated.",
+                        "Maximum execution time allowed for an interactive query before it is terminated.",
                     IsOverridable = false,
-                    Scope = "select",
+                    Scope = "query",
                 }
             }
         };
 
-        return ValueTask.FromResult(context);
+        return ValueTask.FromResult(limits);
     }
 }
-

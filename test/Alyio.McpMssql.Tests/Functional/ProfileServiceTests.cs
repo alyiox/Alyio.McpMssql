@@ -42,15 +42,15 @@ public sealed class ProfileServiceTests
         Assert.NotNull(profile);
         Assert.Contains("FlatOnly", profile.ConnectionString);
 
-        var context = profileService.GetContext();
+        var profiles = profileService.GetProfiles();
 
-        Assert.NotNull(context);
-        Assert.NotEmpty(context.Profiles);
+        Assert.NotNull(profiles);
+        Assert.NotEmpty(profiles);
 
-        var defaultContext = context.Profiles.FirstOrDefault(p => p.Name.Equals(McpMssqlProfileOptions.DefaultProfileName, StringComparison.OrdinalIgnoreCase));
+        var defaultProfile = profiles.FirstOrDefault(p => p.Name.Equals(McpMssqlProfileOptions.DefaultProfileName, StringComparison.OrdinalIgnoreCase));
 
-        Assert.NotNull(defaultContext);
-        Assert.Contains(envVars[1].Item2, defaultContext.Description);
+        Assert.NotNull(defaultProfile);
+        Assert.Contains(envVars[1].Item2, defaultProfile.Description);
 
     }
 
@@ -66,14 +66,14 @@ public sealed class ProfileServiceTests
         };
         var profileService = BuildProfileService(envVars);
 
-        var context = profileService.GetContext();
+        var profiles = profileService.GetProfiles();
 
-        Assert.NotNull(context);
-        Assert.Equal(2, context.Profiles.Count);
-        var defaultProfile = context.Profiles.FirstOrDefault(p => p.Name.Equals(McpMssqlOptions.DefaultProfileName, StringComparison.OrdinalIgnoreCase));
+        Assert.NotNull(profiles);
+        Assert.Equal(2, profiles.Count);
+        var defaultProfile = profiles.FirstOrDefault(p => p.Name.Equals(McpMssqlOptions.DefaultProfileName, StringComparison.OrdinalIgnoreCase));
         Assert.NotNull(defaultProfile);
         Assert.Equal("Default database", defaultProfile.Description);
-        var warehouse = context.Profiles.FirstOrDefault(p => p.Name.Equals("warehouse", StringComparison.OrdinalIgnoreCase));
+        var warehouse = profiles.FirstOrDefault(p => p.Name.Equals("warehouse", StringComparison.OrdinalIgnoreCase));
         Assert.NotNull(warehouse);
         Assert.Equal("Warehouse read-only", warehouse.Description);
     }
@@ -84,13 +84,13 @@ public sealed class ProfileServiceTests
         var envVars = new[]
         {
             ("MCPMSSQL_CONNECTION_STRING", "Server=.;TrustServerCertificate=True;"),
-            ("MCPMSSQL_SELECT_MAX_ROWS", "2000"),
+            ("MCPMSSQL_QUERY_MAX_ROWS", "2000"),
         };
         var profileService = BuildProfileService(envVars);
 
         var profile = profileService.Resolve(null);
 
-        Assert.Equal(2000, profile.Select.MaxRows);
+        Assert.Equal(2000, profile.Query.MaxRows);
     }
 
     [Fact]

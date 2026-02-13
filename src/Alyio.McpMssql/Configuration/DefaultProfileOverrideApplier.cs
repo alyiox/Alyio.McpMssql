@@ -31,22 +31,22 @@ internal static class DefaultProfileOverrideApplier
             profile.Description = description;
         }
 
-        var select = profile.Select;
+        var query = profile.Query;
 
         ApplyInt(
             configuration,
-            DefaultProfileKeys.SelectDefaultMaxRows,
-            v => select.DefaultMaxRows = v);
+            DefaultProfileKeys.QueryDefaultMaxRows,
+            v => query.DefaultMaxRows = v);
 
         ApplyInt(
             configuration,
-            DefaultProfileKeys.SelectMaxRows,
-            v => select.MaxRows = v);
+            DefaultProfileKeys.QueryMaxRows,
+            v => query.MaxRows = v);
 
         ApplyInt(
             configuration,
-            DefaultProfileKeys.SelectCommandTimeoutSeconds,
-            v => select.CommandTimeoutSeconds = v);
+            DefaultProfileKeys.QueryCommandTimeoutSeconds,
+            v => query.CommandTimeoutSeconds = v);
     }
 
     private static void ApplyInt(IConfiguration configuration, string key, Action<int> apply)

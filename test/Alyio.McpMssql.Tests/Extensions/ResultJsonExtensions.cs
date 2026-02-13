@@ -42,6 +42,13 @@ internal static class ResultJsonExtensions
         );
     }
 
+    /// <summary>Reads columns and rows from a nested table (e.g. SchemaResult.columns).</summary>
+    public static (JsonElement columns, JsonElement rows) ReadColumnRowsFrom(this JsonElement root, string tableKey)
+    {
+        var table = root.TryGetProperty(tableKey, out var t) ? t : root.GetProperty(tableKey);
+        return (table.GetProperty("columns"), table.GetProperty("rows"));
+    }
+
     public static (bool truncated, int rowLimit) ReadMeta(this JsonElement root)
     {
         return (

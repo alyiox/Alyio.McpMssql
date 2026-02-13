@@ -25,20 +25,15 @@ internal sealed class ProfileService(IOptions<McpMssqlOptions> options) : IProfi
     }
 
     /// <inheritdoc />
-    public ProfileContext GetContext()
+    public IReadOnlyList<Profile> GetProfiles()
     {
-        var list = options.Value.Profiles
+        return options.Value.Profiles
             .Select(p => new Profile
             {
                 Name = p.Key,
                 Description = string.IsNullOrWhiteSpace(p.Value.Description) ? null : p.Value.Description.Trim(),
             })
             .ToList();
-
-        return new ProfileContext
-        {
-            Profiles = list,
-        };
     }
 }
 

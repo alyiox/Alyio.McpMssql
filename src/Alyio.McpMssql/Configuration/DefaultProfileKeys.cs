@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 namespace Alyio.McpMssql.Configuration;
 
@@ -24,21 +24,21 @@ internal static class DefaultProfileKeys
     public const string Description = "MCPMSSQL_DESCRIPTION";
 
     /// <summary>
-    /// Overrides the maximum number of rows returned by SELECT
+    /// Overrides the maximum number of rows returned by query
     /// operations on the default profile.
     /// </summary>
-    public const string SelectMaxRows = "MCPMSSQL_SELECT_MAX_ROWS";
+    public const string QueryMaxRows = "MCPMSSQL_QUERY_MAX_ROWS";
 
     /// <summary>
-    /// Overrides the SQL command timeout (in seconds) for SELECT
+    /// Overrides the SQL command timeout (in seconds) for query
     /// operations on the default profile.
     /// </summary>
-    public const string SelectCommandTimeoutSeconds = "MCPMSSQL_SELECT_COMMAND_TIMEOUT_SECONDS";
+    public const string QueryCommandTimeoutSeconds = "MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS";
 
     /// <summary>
-    /// Overrides the default maximum number of rows used by SELECT
+    /// Overrides the default maximum number of rows used by query
     /// operations when no explicit limit is configured on the
     /// default profile.
     /// </summary>
-    public const string SelectDefaultMaxRows = "MCPMSSQL_SELECT_DEFAULT_MAX_ROWS";
+    public const string QueryDefaultMaxRows = "MCPMSSQL_QUERY_DEFAULT_MAX_ROWS";
 }

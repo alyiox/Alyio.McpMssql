@@ -101,7 +101,7 @@ public class ProfileServiceTests
     }
 
     [Fact]
-    public void GetContext_Returns_Profiles()
+    public void GetProfiles_Returns_Profiles()
     {
         var options = new McpMssqlOptions
         {
@@ -113,18 +113,18 @@ public class ProfileServiceTests
         };
         var profileService = new ProfileService(Options.Create(options));
 
-        var context = profileService.GetContext();
+        var profiles = profileService.GetProfiles();
 
-        Assert.NotNull(context);
-        Assert.Equal(2, context.Profiles.Count);
-        var names = context.Profiles.Select(p => p.Name).OrderBy(n => n, StringComparer.Ordinal).ToList();
+        Assert.NotNull(profiles);
+        Assert.Equal(2, profiles.Count);
+        var names = profiles.Select(p => p.Name).OrderBy(n => n, StringComparer.Ordinal).ToList();
         Assert.Equal(["default", "warehouse"], names);
-        Assert.Equal("Default instance", context.Profiles.Single(p => p.Name == "default").Description);
-        Assert.Equal("Warehouse DB", context.Profiles.Single(p => p.Name == "warehouse").Description);
+        Assert.Equal("Default instance", profiles.Single(p => p.Name == "default").Description);
+        Assert.Equal("Warehouse DB", profiles.Single(p => p.Name == "warehouse").Description);
     }
 
     [Fact]
-    public void GetContext_Returns_Null_Description_When_Profile_Description_Is_Null_Or_Whitespace()
+    public void GetProfiles_Returns_Null_Description_When_Profile_Description_Is_Null_Or_Whitespace()
     {
         var options = new McpMssqlOptions
         {
@@ -137,15 +137,15 @@ public class ProfileServiceTests
         };
         var profileService = new ProfileService(Options.Create(options));
 
-        var context = profileService.GetContext();
+        var profiles = profileService.GetProfiles();
 
-        Assert.Null(context.Profiles.Single(p => p.Name == McpMssqlOptions.DefaultProfileName).Description);
-        Assert.Null(context.Profiles.Single(p => p.Name == "other").Description);
-        Assert.Null(context.Profiles.Single(p => p.Name == "empty").Description);
+        Assert.Null(profiles.Single(p => p.Name == McpMssqlOptions.DefaultProfileName).Description);
+        Assert.Null(profiles.Single(p => p.Name == "other").Description);
+        Assert.Null(profiles.Single(p => p.Name == "empty").Description);
     }
 
     [Fact]
-    public void GetContext_Trims_Profile_Description()
+    public void GetProfiles_Trims_Profile_Description()
     {
         var options = new McpMssqlOptions
         {
@@ -156,13 +156,13 @@ public class ProfileServiceTests
         };
         var profileService = new ProfileService(Options.Create(options));
 
-        var context = profileService.GetContext();
+        var profiles = profileService.GetProfiles();
 
-        Assert.Equal("dev server", context.Profiles.Single().Description);
+        Assert.Equal("dev server", profiles.Single().Description);
     }
 
     [Fact]
-    public void GetContext_Returns_Empty_Profiles_When_No_Profiles_Configured()
+    public void GetProfiles_Returns_Empty_When_No_Profiles_Configured()
     {
         var options = new McpMssqlOptions
         {
@@ -170,10 +170,10 @@ public class ProfileServiceTests
         };
         var profileService = new ProfileService(Options.Create(options));
 
-        var context = profileService.GetContext();
+        var profiles = profileService.GetProfiles();
 
-        Assert.NotNull(context);
-        Assert.Empty(context.Profiles);
+        Assert.NotNull(profiles);
+        Assert.Empty(profiles);
     }
 
     [Fact]

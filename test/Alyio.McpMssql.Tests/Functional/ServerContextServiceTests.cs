@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using Alyio.McpMssql.Models;
 using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
@@ -13,26 +13,36 @@ public sealed class ServerContextServiceTests(SqlServerFixture fixture) : SqlSer
     [Fact]
     public async Task GetServerProperties_Returns_Server_Metadata()
     {
-        ServerPropertiesContext context =
-            await _service.GetPropertiesAsync();
+        ServerProperties props = await _service.GetPropertiesAsync();
 
-        Assert.NotNull(context);
+        Assert.NotNull(props);
 
-        Assert.False(string.IsNullOrWhiteSpace(context.ProductVersion));
-        Assert.False(string.IsNullOrWhiteSpace(context.ProductLevel));
-        Assert.False(string.IsNullOrWhiteSpace(context.Edition));
+        Assert.False(string.IsNullOrWhiteSpace(props.ProductVersion));
+        Assert.False(string.IsNullOrWhiteSpace(props.ProductLevel));
+        Assert.False(string.IsNullOrWhiteSpace(props.Edition));
 
-        Assert.True(context.EngineEdition > 0);
-        Assert.False(string.IsNullOrWhiteSpace(context.EngineEditionName));
+        Assert.True(props.EngineEdition > 0);
+        Assert.False(string.IsNullOrWhiteSpace(props.EngineEditionName));
+    }
+
+    [Fact]
+    public async Task GetServerProperties_Returns_Execution_Limits()
+    {
+        var props = await _service.GetPropertiesAsync();
+
+        Assert.NotNull(props.Limits);
+        Assert.NotNull(props.Limits.Query);
+        Assert.True(props.Limits.Query.DefaultMaxRows.Value > 0);
+        Assert.True(props.Limits.Query.HardRowLimit.Value > 0);
+        Assert.True(props.Limits.Query.CommandTimeoutSeconds.Value > 0);
     }
 
     [Fact]
     public async Task EngineEdition_Name_Is_Consistent_With_EngineEdition()
     {
-        var context = await _service.GetPropertiesAsync();
+        var props = await _service.GetPropertiesAsync();
 
-        // Defensive sanity check: numeric + textual mapping both populated
-        Assert.True(context.EngineEdition > 0);
-        Assert.False(string.IsNullOrWhiteSpace(context.EngineEditionName));
+        Assert.True(props.EngineEdition > 0);
+        Assert.False(string.IsNullOrWhiteSpace(props.EngineEditionName));
     }
 }

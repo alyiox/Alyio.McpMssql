@@ -62,7 +62,6 @@ Follow existing project conventions.
 
 Normative, high-density metadata: enough for correct tool and parameter selection, minimal to reduce token cost.
 
-- **Description MUST start with [MSSQL], followed by a Verb-Object fragment specifying T-SQL and Read-only where applicable, e.g., `[MSSQL] Execute Read-only T-SQL`.**
-- **Use tag-based lineage (Src: <Name>) for all parameters.**
-    - **Define <Name> as the Target Entity (e.g., use `profiles` for `list_profiles` or `tables` for `.../tables` URIs).**
+- **The `DescriptionAttribute` statement MUST start with [MSSQL], followed by a Verb-Object fragment, e.g., `[MSSQL] Execute Read-only T-SQL`.**
+- **Use tag-based lineage (Src: <Entity>) for parameters that refer to server or database entities** (e.g. profile name → Src: profiles, catalog → Src: catalogs).
 

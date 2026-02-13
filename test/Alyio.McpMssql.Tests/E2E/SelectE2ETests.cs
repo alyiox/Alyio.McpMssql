@@ -1,4 +1,4 @@
-﻿// MIT License
+// MIT License
 
 using System.Text.Json;
 using Alyio.McpMssql.Tests.Infrastructure.Fixtures;
@@ -9,7 +9,7 @@ namespace Alyio.McpMssql.Tests.E2E;
 
 public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerFixture>
 {
-    private const string ToolName = "select";
+    private const string ToolName = "db.query";
     private readonly McpClient _client = fixture.Client;
 
     [Fact]
@@ -21,7 +21,7 @@ public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerF
     [Fact]
     public async Task Select_Returns_Tabular_Result()
     {
-        var result = await CallSelectAsync("SELECT 1 AS Value");
+        var result = await CallQueryAsync("SELECT 1 AS Value");
 
         var root = result.ReadJsonRoot();
         var (columns, rows) = root.ReadColumnRows();
@@ -36,7 +36,7 @@ public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerF
     [Fact]
     public async Task Select_Supports_Parameters()
     {
-        var result = await CallSelectAsync(
+        var result = await CallQueryAsync(
             "SELECT @value AS Value",
             parameters: new Dictionary<string, object?>
             {
@@ -53,7 +53,7 @@ public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerF
     [Fact]
     public async Task Select_Respects_MaxRows()
     {
-        var result = await CallSelectAsync(
+        var result = await CallQueryAsync(
             "SELECT name FROM sys.objects",
             maxRows: 5);
 
@@ -66,7 +66,7 @@ public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerF
     [Fact]
     public async Task Select_Can_Use_Explicit_Catalog()
     {
-        var result = await CallSelectAsync(
+        var result = await CallQueryAsync(
             "SELECT DB_NAME() AS DbName",
             catalog: "master");
 
@@ -80,7 +80,7 @@ public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerF
     [Fact]
     public async Task Select_Rejects_NonSelect_Statements()
     {
-        var result = await CallSelectAsync("DELETE FROM sys.objects");
+        var result = await CallQueryAsync("DELETE FROM sys.objects");
 
         Assert.True(result.IsError);
 
@@ -92,7 +92,7 @@ public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerF
         Assert.Contains("read-only", message, StringComparison.OrdinalIgnoreCase);
     }
 
-    private ValueTask<CallToolResult> CallSelectAsync(
+    private ValueTask<CallToolResult> CallQueryAsync(
         string sql,
         string? catalog = null,
         IReadOnlyDictionary<string, object?>? parameters = null,
@@ -115,4 +115,3 @@ public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerF
         return _client.CallToolAsync(ToolName, args);
     }
 }
-

@@ -73,7 +73,7 @@ public static class McpMssqlOptionsExtensions
 
             }
 
-            ClampSelectOptions(profile.Select);
+            ClampQueryOptions(profile.Query);
             NormalizeConnectionString(profile);
         }
     }
@@ -82,22 +82,22 @@ public static class McpMssqlOptionsExtensions
     // Normalization helpers
     // -------------------------
 
-    private static void ClampSelectOptions(SelectExecutionOptions select)
+    private static void ClampQueryOptions(QueryOptions query)
     {
-        select.MaxRows = Math.Clamp(
-            select.MaxRows,
+        query.MaxRows = Math.Clamp(
+            query.MaxRows,
             min: 1,
-            max: SelectExecutionOptions.HardRowLimit);
+            max: QueryOptions.HardRowLimit);
 
-        select.DefaultMaxRows = Math.Clamp(
-            select.DefaultMaxRows,
+        query.DefaultMaxRows = Math.Clamp(
+            query.DefaultMaxRows,
             min: 1,
-            max: select.MaxRows);
+            max: query.MaxRows);
 
-        select.CommandTimeoutSeconds = Math.Clamp(
-            select.CommandTimeoutSeconds,
+        query.CommandTimeoutSeconds = Math.Clamp(
+            query.CommandTimeoutSeconds,
             min: 1,
-            max: SelectExecutionOptions.HardCommandTimeoutSeconds);
+            max: QueryOptions.HardCommandTimeoutSeconds);
     }
 
     private static void NormalizeConnectionString(
@@ -105,7 +105,7 @@ public static class McpMssqlOptionsExtensions
     {
         var builder = new SqlConnectionStringBuilder(profile.ConnectionString!)
         {
-            CommandTimeout = profile.Select.CommandTimeoutSeconds
+            CommandTimeout = profile.Query.CommandTimeoutSeconds
         };
 
         profile.ConnectionString = builder.ConnectionString;

@@ -8,7 +8,7 @@ namespace Alyio.McpMssql.Tests.Functional;
 
 public sealed class SelectServiceTests(SqlServerFixture fixture) : SqlServerFunctionalTest(fixture)
 {
-    private readonly ISelectService _select = fixture.Services.GetRequiredService<ISelectService>();
+    private readonly IQueryService _select = fixture.Services.GetRequiredService<IQueryService>();
 
     [Fact]
     public async Task Select_From_Users_Returns_Seeded_Data()

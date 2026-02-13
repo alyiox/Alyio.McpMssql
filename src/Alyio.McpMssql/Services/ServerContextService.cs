@@ -5,9 +5,11 @@ using Microsoft.Data.SqlClient;
 
 namespace Alyio.McpMssql.Services;
 
-internal sealed class ServerContextService(IProfileService profileService) : IServerContextService
+internal sealed class ServerContextService(
+    IProfileService profileService,
+    IExecutionContextService executionContextService) : IServerContextService
 {
-    public async Task<ServerPropertiesContext> GetPropertiesAsync(
+    public async Task<ServerProperties> GetPropertiesAsync(
         string? profile = null,
         CancellationToken cancellationToken = default)
     {
@@ -42,14 +44,17 @@ SELECT
 
         await reader.ReadAsync(cancellationToken);
 
-        return new ServerPropertiesContext
+        var limits = await executionContextService.GetLimitsAsync(profile, cancellationToken);
+
+        return new ServerProperties
         {
             ProductVersion = reader.GetString(0),
             ProductLevel = reader.GetString(1),
             ProductUpdateLevel = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
             Edition = reader.GetString(3),
             EngineEdition = reader.GetInt32(4),
-            EngineEditionName = reader.GetString(5)
+            EngineEditionName = reader.GetString(5),
+            Limits = limits,
         };
     }
 }
