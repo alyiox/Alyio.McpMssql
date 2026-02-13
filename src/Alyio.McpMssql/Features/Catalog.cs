@@ -173,7 +173,7 @@ public static class Catalogs
     /// <summary>
     /// Tool that lists all catalogs.
     /// </summary>
-    [McpServerTool(UseStructuredContent = true)]
+    [McpServerTool]
     [Description("List catalogs (databases) for Microsoft SQL Server / Azure SQL Database. Scoped to this MCP server's profile only.")]
     public static Task<TabularResult> ListCatalogsAsync(
         ICatalogService catalogService,
@@ -185,7 +185,7 @@ public static class Catalogs
     /// <summary>
     /// Tool that lists schemas.
     /// </summary>
-    [McpServerTool(UseStructuredContent = true)]
+    [McpServerTool]
     [Description("List schemas for Microsoft SQL Server / Azure SQL Database. Scoped to this MCP server only.")]
     public static Task<TabularResult> ListSchemasAsync(
         ICatalogService catalogService,
@@ -199,7 +199,7 @@ public static class Catalogs
     /// <summary>
     /// Tool that lists relations.
     /// </summary>
-    [McpServerTool(UseStructuredContent = true)]
+    [McpServerTool]
     [Description("List relations (tables and views) for Microsoft SQL Server / Azure SQL Database. Scoped to this MCP server only.")]
     public static Task<TabularResult> ListRelationsAsync(
         ICatalogService catalogService,
@@ -215,7 +215,7 @@ public static class Catalogs
     /// <summary>
     /// Tool that lists routines.
     /// </summary>
-    [McpServerTool(UseStructuredContent = true)]
+    [McpServerTool]
     [Description("List routines (procedures and functions) for Microsoft SQL Server / Azure SQL Database. Scoped to this MCP server only.")]
     public static Task<TabularResult> ListRoutinesAsync(
         ICatalogService catalogService,
@@ -233,7 +233,7 @@ public static class Catalogs
     /// <summary>
     /// Tool that gets the T-SQL definition of a routine (procedure or function). Tabular: one column "definition", one row when found.
     /// </summary>
-    [McpServerTool(UseStructuredContent = true)]
+    [McpServerTool]
     [Description("Get T-SQL routine definition (procedure or function body) for Microsoft SQL Server / Azure SQL Database. Scoped to this MCP server only.")]
     public static Task<TabularResult> GetRoutineDefinitionAsync(
         ICatalogService catalogService,
@@ -251,7 +251,7 @@ public static class Catalogs
     /// <summary>
     /// Tool that describes columns of a relation (table or view).
     /// </summary>
-    [McpServerTool(UseStructuredContent = true)]
+    [McpServerTool]
     [Description("Describe columns of a relation (table or view) for Microsoft SQL Server / Azure SQL Database. Scoped to this MCP server only.")]
     public static Task<TabularResult> DescribeColumnsAsync(
         ICatalogService catalogService,
@@ -269,7 +269,7 @@ public static class Catalogs
     /// <summary>
     /// Tool that describes indexes of a relation (table or view).
     /// </summary>
-    [McpServerTool(UseStructuredContent = true)]
+    [McpServerTool]
     [Description("Describe indexes of a relation (table or view) for Microsoft SQL Server / Azure SQL Database. Scoped to this MCP server only.")]
     public static Task<TabularResult> DescribeIndexesAsync(
         ICatalogService catalogService,
@@ -287,7 +287,7 @@ public static class Catalogs
     /// <summary>
     /// Tool that describes constraints of a table (PK, UQ, FK, CHECK, DEFAULT). Tables only.
     /// </summary>
-    [McpServerTool(UseStructuredContent = true)]
+    [McpServerTool]
     [Description("Describe constraints of a table (primary key, unique, foreign key, check, default) for Microsoft SQL Server / Azure SQL Database. Scoped to this MCP server only.")]
     public static Task<TableConstraints> DescribeConstraintsAsync(
         ICatalogService catalogService,

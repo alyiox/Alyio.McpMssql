@@ -39,7 +39,7 @@ public static class ProfileContext
     /// <summary>
     /// Tool that returns available profiles.
     /// </summary>
-    [McpServerTool(UseStructuredContent = true)]
+    [McpServerTool]
     [Description(
         "List configured Microsoft SQL Server / Azure SQL Database connection profiles for this MCP server only. " +
         "Use to discover valid profile names for this server's tools and resources (e.g. default, warehouse). " +

@@ -41,7 +41,7 @@ public static class ExecutionContext
     /// Tool that returns the execution context (row limits, timeouts, etc.)
     /// for the given profile.
     /// </summary>
-    [McpServerTool(UseStructuredContent = true)]
+    [McpServerTool]
     [Description(
         "Returns execution rules and defaults for this MCP server's Microsoft SQL Server / Azure SQL Database operations. " +
         "Includes SELECT row limits, hard caps, and command timeouts. Use to reason about limits before running T-SQL SELECTs.")]

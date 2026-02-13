@@ -18,7 +18,7 @@ public static class SelectTool
     /// <summary>
     /// Executes a read-only SELECT statement and returns a bounded tabular result.
     /// </summary>
-    [McpServerTool(UseStructuredContent = true)]
+    [McpServerTool]
     [Description(
         "Executes a read-only T-SQL SELECT statement against Microsoft SQL Server or Azure SQL Database and returns tabular results. " +
         "Results are bounded by this server's enforced limits. Use only for this MCP server's profiles.")]
