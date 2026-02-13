@@ -202,8 +202,8 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
         result.Columns.AssertHasColumns(
             "name",
             "type",
-            "nullable",
-            "position");
+            "is_nullable",
+            "column_id");
 
         var nameIndex =
             result.Columns

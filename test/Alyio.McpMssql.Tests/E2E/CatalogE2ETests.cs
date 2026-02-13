@@ -147,8 +147,8 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
         columns.AssertHasColumns(
             "name",
             "type",
-            "nullable",
-            "position");
+            "is_nullable",
+            "column_id");
     }
 
     [Fact]
@@ -250,8 +250,8 @@ public sealed class CatalogE2ETests(McpServerFixture fixture) : IClassFixture<Mc
         columns.AssertHasColumns(
             "name",
             "type",
-            "nullable",
-            "position");
+            "is_nullable",
+            "column_id");
     }
 
     [Fact]

@@ -13,7 +13,7 @@ internal static class Loader
     /// <summary>
     /// Reads the contents of an embedded SQL script by file name. Result is cached per file.
     /// </summary>
-    /// <param name="fileName">Script file name (e.g. "describe_constraints.sql").</param>
+    /// <param name="fileName">Script file name (e.g. "constraints.sql").</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The script text.</returns>
     /// <exception cref="FileNotFoundException">The embedded resource was not found.</exception>
