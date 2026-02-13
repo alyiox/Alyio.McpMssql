@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Alyio.McpMssql.Models;
 
 /// <summary>
-/// Scope for db.objects and db.object: catalog (databases), schema (namespaces), relation (tables/views), or routine (procedures/functions).
+/// Scope for list_objects and get_object: catalog (databases), schema (namespaces), relation (tables/views), or routine (procedures/functions).
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ObjectKind

@@ -9,8 +9,8 @@ public sealed class ObjectE2ETests(McpServerFixture fixture) : IClassFixture<Mcp
 {
     private readonly McpClient _client = fixture.Client;
 
-    private const string ObjectsToolName = "db.objects";
-    private const string ObjectToolName = "db.object";
+    private const string ObjectsToolName = "list_objects";
+    private const string ObjectToolName = "get_object";
     private static readonly string[] IncludeColumns = ["columns"];
     private static readonly string[] IncludeIndexes = ["indexes"];
     private static readonly string[] IncludeConstraints = ["constraints"];
@@ -35,7 +35,7 @@ public sealed class ObjectE2ETests(McpServerFixture fixture) : IClassFixture<Mcp
             "Object resource templates should be discoverable.");
     }
 
-    // ── db.objects (list) ──
+    // ── list_objects ──
 
     [Fact]
     public async Task ListCatalogs_Tool_Returns_Expected_Columns()
@@ -87,7 +87,7 @@ public sealed class ObjectE2ETests(McpServerFixture fixture) : IClassFixture<Mcp
         columns.AssertHasColumns("name", "type");
     }
 
-    // ── db.object (detail) ──
+    // ── get_object ──
 
     [Fact]
     public async Task DescribeColumns_Tool_Returns_Expected_Columns()
@@ -214,5 +214,5 @@ public sealed class ObjectE2ETests(McpServerFixture fixture) : IClassFixture<Mcp
 
 
     // NOTE: mssql://object resource is disabled – the .NET MCP SDK does not support
-    // list-type query parameters (includes). Use the db.object tool instead.
+    // list-type query parameters (includes). Use the get_object tool instead.
 }

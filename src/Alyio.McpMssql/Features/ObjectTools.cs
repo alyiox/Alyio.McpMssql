@@ -18,7 +18,7 @@ public static class ObjectTools
     /// <summary>
     /// List catalog metadata.
     /// </summary>
-    [McpServerTool(Name = "db.objects")]
+    [McpServerTool]
     [Description("[MSSQL] List catalog metadata (catalogs, schemas, relations, routines).")]
     public static async Task<TabularResult> ListObjectsAsync(
         ICatalogService catalogService,
@@ -48,7 +48,7 @@ public static class ObjectTools
     /// <summary>
     /// Get metadata for one relation or routine.
     /// </summary>
-    [McpServerTool(Name = "db.object")]
+    [McpServerTool]
     [Description("[MSSQL] Get metadata for one relation or routine (columns, indexes, constraints, definition).")]
     public static async Task<ObjectResult> GetObjectAsync(
         ICatalogService catalogService,
@@ -68,7 +68,7 @@ public static class ObjectTools
     {
         if (kind is not ObjectKind.Relation and not ObjectKind.Routine)
         {
-            throw new McpException("kind must be relation or routine for db.object.");
+            throw new McpException("kind must be relation or routine for get_object.");
         }
 
         if (string.IsNullOrWhiteSpace(name))

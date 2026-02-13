@@ -10,7 +10,7 @@ public sealed class ProfilesE2ETests(McpServerFixture fixture) : IClassFixture<M
 {
     private readonly McpClient _client = fixture.Client;
 
-    private const string ToolName = "db.profiles";
+    private const string ToolName = "list_profiles";
 
     // ── Tool discovery ──
 

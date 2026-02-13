@@ -10,7 +10,7 @@ public sealed class ServerPropertiesE2ETests(McpServerFixture fixture)
 {
     private readonly McpClient _client = fixture.Client;
 
-    private const string ToolName = "db.server.properties";
+    private const string ToolName = "get_server_properties";
 
     // ── Tool discovery ──
 

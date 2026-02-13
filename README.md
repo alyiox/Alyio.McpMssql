@@ -102,13 +102,13 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 
 | Tool | Description | Key params |
 |---|---|---|
-| **`db.profiles`** | List configured profiles. | — |
-| **`db.server.properties`** | Get server properties and execution limits. | `profile` |
-| **`db.objects`** | List catalog metadata (catalogs, schemas, relations, routines). | `kind`, `profile`, `catalog`, `schema` |
-| **`db.object`** | Get metadata for one relation or routine (columns, indexes, constraints, definition). | `kind`, `name`, `profile`, `catalog`, `schema`, `includes` |
-| **`db.query`** | Execute read-only T-SQL SELECT. | `sql`, `profile`, `catalog`, `parameters`, `maxRows` |
+| **`list_profiles`** | List configured profiles. | — |
+| **`get_server_properties`** | Get server properties and execution limits. | `profile` |
+| **`list_objects`** | List catalog metadata (catalogs, schemas, relations, routines). | `kind`, `profile`, `catalog`, `schema` |
+| **`get_object`** | Get metadata for one relation or routine (columns, indexes, constraints, definition). | `kind`, `name`, `profile`, `catalog`, `schema`, `includes` |
+| **`query`** | Execute read-only T-SQL SELECT. | `sql`, `profile`, `catalog`, `parameters`, `maxRows` |
 
-- **`kind`** — `catalog`, `schema`, `relation`, or `routine`. For `db.object`, only `relation` or `routine`.
+- **`kind`** — `catalog`, `schema`, `relation`, or `routine`. For `get_object`, only `relation` or `routine`.
 - **`includes`** — Array of detail sections: `columns`, `indexes`, `constraints` (relation only), `definition` (routine only).
 
 **Resources**

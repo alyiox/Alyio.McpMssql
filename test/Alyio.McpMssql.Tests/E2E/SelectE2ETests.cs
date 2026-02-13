@@ -9,7 +9,7 @@ namespace Alyio.McpMssql.Tests.E2E;
 
 public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerFixture>
 {
-    private const string ToolName = "db.query";
+    private const string ToolName = "query";
     private readonly McpClient _client = fixture.Client;
 
     [Fact]

@@ -17,7 +17,7 @@ public static class QueryTool
     /// <summary>
     /// Execute read-only T-SQL SELECT.
     /// </summary>
-    [McpServerTool(Name = "db.query")]
+    [McpServerTool]
     [Description(
         "[MSSQL] Execute Read-only T-SQL SELECT and return tabular results. " +
         "Results are bounded by server-enforced limits. Only SELECT is allowed.")]

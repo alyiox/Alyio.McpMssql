@@ -17,9 +17,9 @@ public static class ServerTools
     /// <summary>
     /// List configured profiles.
     /// </summary>
-    [McpServerTool(Name = "db.profiles")]
+    [McpServerTool]
     [Description("[MSSQL] List configured profiles for this MCP server.")]
-    public static IReadOnlyList<Profile> GetProfiles(
+    public static IReadOnlyList<Profile> ListProfiles(
         IProfileService profileService)
     {
         return profileService.GetProfiles();
@@ -28,7 +28,7 @@ public static class ServerTools
     /// <summary>
     /// Get server properties and execution limits.
     /// </summary>
-    [McpServerTool(Name = "db.server.properties")]
+    [McpServerTool]
     [Description("[MSSQL] Get server properties and execution limits.")]
     public static async Task<ServerProperties> GetServerPropertiesAsync(
         IServerContextService serverContextService,

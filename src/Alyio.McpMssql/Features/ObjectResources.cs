@@ -8,7 +8,7 @@ using ModelContextProtocol.Server;
 namespace Alyio.McpMssql.Features;
 
 /// <summary>
-/// Resources for catalog metadata: list objects (mssql://objects) or one object detail (mssql://object). Mirror db.objects and db.object tools.
+/// Resources for catalog metadata: list objects (mssql://objects) or one object detail (mssql://object). Mirror list_objects and get_object tools.
 /// </summary>
 [McpServerResourceType]
 public static class ObjectResources
@@ -45,7 +45,7 @@ public static class ObjectResources
 
     // NOTE: Disabled – the .NET MCP SDK does not support list-type query parameters
     // (e.g. ?includes=columns&includes=indexes) in URI templates, so the `includes`
-    // parameter cannot be exposed as a resource. Use the db.object tool instead.
+    // parameter cannot be exposed as a resource. Use the get_object tool instead.
     //
     // /// <summary>
     // /// Get metadata for one relation or routine.

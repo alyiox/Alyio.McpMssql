@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Alyio.McpMssql.Models;
 
 /// <summary>
-/// What to include when db.object is used for a single relation or routine: columns, indexes, constraints, or T-SQL definition.
+/// What to include when get_object is used for a single relation or routine: columns, indexes, constraints, or T-SQL definition.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ObjectInclude

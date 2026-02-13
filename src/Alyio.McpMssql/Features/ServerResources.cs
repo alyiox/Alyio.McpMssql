@@ -7,7 +7,7 @@ using ModelContextProtocol.Server;
 namespace Alyio.McpMssql.Features;
 
 /// <summary>
-/// Resources for server metadata: list profiles (mssql://profiles) and server properties (mssql://server-properties). Mirror db.profiles and db.server.properties tools.
+/// Resources for server metadata: list profiles (mssql://profiles) and server properties (mssql://server-properties). Mirror list_profiles and get_server_properties tools.
 /// </summary>
 [McpServerResourceType]
 public static class ServerResources

@@ -3,7 +3,7 @@
 namespace Alyio.McpMssql.Models;
 
 /// <summary>
-/// Response shape for db.object (single object detail).
+/// Response shape for get_object (single object detail).
 /// Identity plus optional detail parts (columns, indexes, constraints, definition) per include request.
 /// </summary>
 public sealed class ObjectResult
