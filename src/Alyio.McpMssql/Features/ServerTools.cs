@@ -18,7 +18,7 @@ public static class ServerTools
     /// List configured profiles.
     /// </summary>
     [McpServerTool(Name = "db.profiles")]
-    [Description("[MSSQL] List configured profiles for this MCP server.")]
+    [Description("List configured SQL Server or Azure SQL Database connection profiles.")]
     public static IReadOnlyList<Profile> GetProfiles(
         IProfileService profileService)
     {
@@ -29,7 +29,7 @@ public static class ServerTools
     /// Get server properties and execution limits.
     /// </summary>
     [McpServerTool(Name = "db.server.properties")]
-    [Description("[MSSQL] Get server properties and execution limits.")]
+    [Description("Get SQL Server or Azure SQL Database server properties and execution limits.")]
     public static async Task<ServerProperties> GetServerPropertiesAsync(
         IServerContextService serverContextService,
         [Description("Optional. Profile name. Src: profiles.")]

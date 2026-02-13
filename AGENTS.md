@@ -62,6 +62,6 @@ Follow existing project conventions.
 
 Normative, high-density metadata: enough for correct tool and parameter selection, minimal to reduce token cost.
 
-- **The `DescriptionAttribute` statement MUST start with [MSSQL], followed by a Verb-Object fragment, e.g., `[MSSQL] Execute Read-only T-SQL`.**
+- **The `DescriptionAttribute` statement MUST be a Verb-Object fragment that naturally includes the target platform (SQL Server or Azure SQL Database), e.g., `Execute read-only T-SQL SELECT against SQL Server or Azure SQL Database.`**
 - **Use tag-based lineage (Src: <Entity>) for parameters that refer to server or database entities** (e.g. profile name → Src: profiles, catalog → Src: catalogs).
 

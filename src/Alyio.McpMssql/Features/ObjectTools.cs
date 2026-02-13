@@ -19,7 +19,7 @@ public static class ObjectTools
     /// List catalog metadata.
     /// </summary>
     [McpServerTool(Name = "db.objects")]
-    [Description("[MSSQL] List catalog metadata (catalogs, schemas, relations, routines).")]
+    [Description("List catalog metadata from SQL Server or Azure SQL Database (catalogs, schemas, relations, routines).")]
     public static async Task<TabularResult> ListObjectsAsync(
         ICatalogService catalogService,
         [Description("Kind: catalog | schema | relation | routine.")]
@@ -49,7 +49,7 @@ public static class ObjectTools
     /// Get metadata for one relation or routine.
     /// </summary>
     [McpServerTool(Name = "db.object")]
-    [Description("[MSSQL] Get metadata for one relation or routine (columns, indexes, constraints, definition).")]
+    [Description("Get relation or routine metadata from SQL Server or Azure SQL Database (columns, indexes, constraints, definition).")]
     public static async Task<ObjectResult> GetObjectAsync(
         ICatalogService catalogService,
         [Description("Kind: relation | routine.")]
