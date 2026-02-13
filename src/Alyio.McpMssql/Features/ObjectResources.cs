@@ -20,7 +20,7 @@ public static class ObjectResources
         Name = "objects",
         UriTemplate = "mssql://objects{?kind,profile,catalog,schema}",
         MimeType = "application/json")]
-    [Description("List catalog metadata from SQL Server or Azure SQL Database (catalogs, schemas, relations, routines).")]
+    [Description("[MSSQL] List catalog metadata (catalogs, schemas, relations, routines).")]
     public static async Task<string> ListAsync(
         ICatalogService catalogService,
         [Description("Kind: Catalog | Schema | Relation | Routine.")]

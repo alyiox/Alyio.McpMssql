@@ -19,8 +19,8 @@ public static class QueryTool
     /// </summary>
     [McpServerTool(Name = "db.query")]
     [Description(
-        "Execute read-only T-SQL SELECT against SQL Server or Azure SQL Database. " +
-        "Only SELECT is allowed; results are bounded by server-enforced limits.")]
+        "[MSSQL] Execute Read-only T-SQL SELECT and return tabular results. " +
+        "Results are bounded by server-enforced limits. Only SELECT is allowed.")]
     public static Task<QueryResult> QueryAsync(
         IQueryService queryService,
         [Description("Read-only T-SQL SELECT statement. Use @paramName syntax for parameters. For IN/NOT IN, use numbered params (e.g. @id_0, @id_1).")]
