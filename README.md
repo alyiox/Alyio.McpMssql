@@ -129,7 +129,7 @@ Read-only (`SELECT` only); parameterized `@paramName`. Use environment variables
 
 Snippets for common MCP clients. Copy one and replace the connection string; ensure `dotnet` is on your PATH.
 
-### Cursor / Gemini / Codex
+### Cursor / Gemini
 
 ```json
 {
@@ -143,6 +143,16 @@ Snippets for common MCP clients. Copy one and replace the connection string; ens
     }
   }
 }
+```
+
+### Codex
+
+```toml
+[mcp_servers.mssql]
+command = "dotnet"
+args = ["dnx", "Alyio.McpMssql", "--prerelease", "--yes"]
+[mcp_servers.mssql.env]
+MCPMSSQL_CONNECTION_STRING = "Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;"
 ```
 
 ### OpenCode
