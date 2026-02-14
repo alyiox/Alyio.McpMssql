@@ -1,7 +1,6 @@
 // MIT License
 
 using System.ComponentModel;
-using Alyio.McpMssql;
 using Alyio.McpMssql.Internal;
 using Alyio.McpMssql.Models;
 using ModelContextProtocol;

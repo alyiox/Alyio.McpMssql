@@ -1,7 +1,5 @@
 // MIT License
 
-// IProfileService and profile-based config (default profile for tests)
-using Alyio.McpMssql;
 using Alyio.McpMssql.Tests.Infrastructure.Database;
 using Alyio.McpMssql.Tests.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;

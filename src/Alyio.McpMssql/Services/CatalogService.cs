@@ -268,7 +268,7 @@ internal sealed class CatalogService(IProfileService profileService) : ICatalogS
         return new TabularResult
         {
             Columns = ["definition"],
-            Rows = [new object?[] { definition }]
+            Rows = [[definition]],
         };
     }
 }
