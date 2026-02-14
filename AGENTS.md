@@ -56,6 +56,10 @@ Follow existing project conventions.
 * Do not disable lint rules without justification
 * Prefer explicit, readable code over clever abstractions
 
+### C#
+
+* Use trailing commas in multi-line collections, object initializers, and enums
+
 ---
 
 ## MCP metadata (normative)
