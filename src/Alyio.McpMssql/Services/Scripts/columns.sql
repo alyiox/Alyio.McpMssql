@@ -12,7 +12,6 @@ JOIN sys.schemas s
     ON s.schema_id = o.schema_id
 WHERE
     o.type IN ('U','V')
-    AND (@is_ms_shipped IS NULL OR o.is_ms_shipped = @is_ms_shipped)
     AND o.name = @name
     AND (@schema IS NULL OR s.name = @schema)
 ORDER BY
