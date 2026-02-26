@@ -9,14 +9,12 @@ namespace Alyio.McpMssql.Models;
 public sealed class QueryLimits
 {
     /// <summary>
-    /// Default number of rows returned when an inspection query
-    /// does not explicitly specify a limit.
+    /// Maximum number of rows that may be returned by any query.
     /// </summary>
-    public required OptionDescriptor<int> DefaultMaxRows { get; init; }
+    public required OptionDescriptor<int> MaxRows { get; init; }
 
     /// <summary>
-    /// Absolute maximum number of rows that may be returned
-    /// by any inspection query.
+    /// Absolute, non-configurable hard limit for query row counts.
     /// </summary>
     public required OptionDescriptor<int> HardRowLimit { get; init; }
 

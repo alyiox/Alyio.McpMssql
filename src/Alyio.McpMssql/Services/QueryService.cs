@@ -13,7 +13,6 @@ internal sealed class QueryService(IProfileService profileService) : IQueryServi
         string sql,
         string? catalog = null,
         IReadOnlyDictionary<string, object>? parameters = null,
-        int? maxRows = null,
         string? profile = null,
         CancellationToken cancellationToken = default)
     {
@@ -44,8 +43,7 @@ internal sealed class QueryService(IProfileService profileService) : IQueryServi
             sqlParameters = list;
         }
 
-        var rowLimit = maxRows ?? resolved.Query.DefaultMaxRows;
-        rowLimit = Math.Clamp(rowLimit, 1, resolved.Query.MaxRows);
+        var rowLimit = resolved.Query.MaxRows;
 
         var result = await conn.ExecuteAsQueryResultAsync(
             sql,

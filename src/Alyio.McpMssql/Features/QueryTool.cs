@@ -19,7 +19,8 @@ public static class QueryTool
     [McpServerTool]
     [Description(
         "[MSSQL] Execute Read-only T-SQL SELECT and return tabular results. " +
-        "Results are bounded by server-enforced limits. Only SELECT is allowed.")]
+        "Results are bounded by server-enforced limits. Only SELECT is allowed. " +
+        "Use TOP or OFFSET-FETCH in the query for pagination.")]
     public static Task<QueryResult> QueryAsync(
         IQueryService queryService,
         [Description("Read-only T-SQL SELECT statement. Use @paramName syntax for parameters. For IN/NOT IN, use numbered params (e.g. @id_0, @id_1).")]
@@ -30,12 +31,10 @@ public static class QueryTool
         string? catalog = null,
         [Description("Optional parameter values keyed by name (without '@').")]
         IReadOnlyDictionary<string, object>? parameters = null,
-        [Description("Optional max rows (clamped to server limits).")]
-        int? maxRows = null,
         CancellationToken cancellationToken = default)
     {
         return McpExecutor.RunAsync(
-            ct => queryService.ExecuteAsync(sql, catalog, parameters, maxRows, profile, ct),
+            ct => queryService.ExecuteAsync(sql, catalog, parameters, profile, ct),
             cancellationToken);
     }
 }

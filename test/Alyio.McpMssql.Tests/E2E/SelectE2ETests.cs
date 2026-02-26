@@ -51,19 +51,6 @@ public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerF
     }
 
     [Fact]
-    public async Task Select_Respects_MaxRows()
-    {
-        var result = await CallQueryAsync(
-            "SELECT name FROM sys.objects",
-            maxRows: 5);
-
-        var root = result.ReadJsonRoot();
-        var (_, rows) = root.ReadColumnRows();
-
-        Assert.True(rows.GetArrayLength() <= 5);
-    }
-
-    [Fact]
     public async Task Select_Can_Use_Explicit_Catalog()
     {
         var result = await CallQueryAsync(
@@ -95,12 +82,11 @@ public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerF
     private ValueTask<CallToolResult> CallQueryAsync(
         string sql,
         string? catalog = null,
-        IReadOnlyDictionary<string, object?>? parameters = null,
-        int? maxRows = null)
+        IReadOnlyDictionary<string, object?>? parameters = null)
     {
         var args = new Dictionary<string, object?>
         {
-            ["sql"] = sql
+            ["sql"] = sql,
         };
 
         if (catalog is not null)
@@ -108,9 +94,6 @@ public class SelectE2ETests(McpServerFixture fixture) : IClassFixture<McpServerF
 
         if (parameters is not null)
             args["parameters"] = parameters;
-
-        if (maxRows is not null)
-            args["maxRows"] = maxRows;
 
         return _client.CallToolAsync(ToolName, args);
     }

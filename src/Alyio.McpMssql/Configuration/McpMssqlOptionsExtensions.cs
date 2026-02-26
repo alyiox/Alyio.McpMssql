@@ -89,11 +89,6 @@ public static class McpMssqlOptionsExtensions
             min: 1,
             max: QueryOptions.HardRowLimit);
 
-        query.DefaultMaxRows = Math.Clamp(
-            query.DefaultMaxRows,
-            min: 1,
-            max: query.MaxRows);
-
         query.CommandTimeoutSeconds = Math.Clamp(
             query.CommandTimeoutSeconds,
             min: 1,

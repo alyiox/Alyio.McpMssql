@@ -35,10 +35,4 @@ internal static class DefaultProfileKeys
     /// </summary>
     public const string QueryCommandTimeoutSeconds = "MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS";
 
-    /// <summary>
-    /// Overrides the default maximum number of rows used by query
-    /// operations when no explicit limit is configured on the
-    /// default profile.
-    /// </summary>
-    public const string QueryDefaultMaxRows = "MCPMSSQL_QUERY_DEFAULT_MAX_ROWS";
 }

@@ -18,7 +18,6 @@ public interface IQueryService
     /// <param name="sql">The read-only SELECT statement to execute.</param>
     /// <param name="catalog">Optional catalog (database) name.</param>
     /// <param name="parameters">Optional parameter values keyed by name.</param>
-    /// <param name="maxRows">Optional maximum rows; clamped to server limits.</param>
     /// <param name="profile">
     /// Optional profile name. If null or empty, the default profile is used.
     /// </param>
@@ -27,7 +26,6 @@ public interface IQueryService
         string sql,
         string? catalog = null,
         IReadOnlyDictionary<string, object>? parameters = null,
-        int? maxRows = null,
         string? profile = null,
         CancellationToken cancellationToken = default);
 }

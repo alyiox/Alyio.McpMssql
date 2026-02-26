@@ -32,7 +32,7 @@ public sealed class ServerContextServiceTests(SqlServerFixture fixture) : SqlSer
 
         Assert.NotNull(props.Limits);
         Assert.NotNull(props.Limits.Query);
-        Assert.True(props.Limits.Query.DefaultMaxRows.Value > 0);
+        Assert.True(props.Limits.Query.MaxRows.Value > 0);
         Assert.True(props.Limits.Query.HardRowLimit.Value > 0);
         Assert.True(props.Limits.Query.CommandTimeoutSeconds.Value > 0);
     }

@@ -64,19 +64,6 @@ public sealed class SelectServiceTests(SqlServerFixture fixture) : SqlServerFunc
     }
 
     [Fact]
-    public async Task Select_Respects_MaxRows_On_Seeded_Data()
-    {
-        var result = await _select.ExecuteAsync(
-            "select OrderId from dbo.Orders order by OrderId",
-            catalog: TestDatabaseName,
-            maxRows: 2);
-
-        Assert.Equal(2, result.Rows.Count);
-        Assert.Equal(101, result.Rows[0][0]);
-        Assert.Equal(102, result.Rows[1][0]);
-    }
-
-    [Fact]
     public async Task Select_In_With_Integer_Parameters()
     {
         var result = await _select.ExecuteAsync(

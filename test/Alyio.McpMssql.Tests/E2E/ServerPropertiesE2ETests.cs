@@ -51,7 +51,7 @@ public sealed class ServerPropertiesE2ETests(McpServerFixture fixture)
 
         Assert.True(root.TryGetPropertyIgnoreCase("limits", out var limits));
         Assert.True(limits.TryGetPropertyIgnoreCase("query", out var query));
-        Assert.True(query.TryGetPropertyIgnoreCase("default_max_rows", out _));
+        Assert.True(query.TryGetPropertyIgnoreCase("max_rows", out _));
         Assert.True(query.TryGetPropertyIgnoreCase("hard_row_limit", out _));
         Assert.True(query.TryGetPropertyIgnoreCase("command_timeout_seconds", out _));
     }

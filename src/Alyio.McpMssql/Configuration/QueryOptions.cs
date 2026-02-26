@@ -9,11 +9,6 @@ namespace Alyio.McpMssql.Configuration;
 public sealed class QueryOptions
 {
     /// <summary>
-    /// Default number of rows returned when no explicit limit is specified.
-    /// </summary>
-    public int DefaultMaxRows { get; set; } = 100;
-
-    /// <summary>
     /// Maximum number of rows that may be returned for a single query.
     /// Clamped to <see cref="HardRowLimit"/>.
     /// </summary>

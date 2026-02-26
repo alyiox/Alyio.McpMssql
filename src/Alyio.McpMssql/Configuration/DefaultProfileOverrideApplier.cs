@@ -35,11 +35,6 @@ internal static class DefaultProfileOverrideApplier
 
         ApplyInt(
             configuration,
-            DefaultProfileKeys.QueryDefaultMaxRows,
-            v => query.DefaultMaxRows = v);
-
-        ApplyInt(
-            configuration,
             DefaultProfileKeys.QueryMaxRows,
             v => query.MaxRows = v);
 

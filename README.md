@@ -39,9 +39,6 @@ export MCPMSSQL_CONNECTION_STRING="Server=...;User ID=...;Password=...;"
 # Optional description for the default profile (tooling/AI discovery).
 export MCPMSSQL_DESCRIPTION="Primary connection"
 
-# Optional default row limit (default `100`).
-export MCPMSSQL_QUERY_DEFAULT_MAX_ROWS="200"
-
 # Optional max rows per query (default `5000`).
 export MCPMSSQL_QUERY_MAX_ROWS="5000"
 
@@ -61,7 +58,6 @@ Example (environment variables):
 # Default profile
 export MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING="Server=...;User ID=...;Password=...;"
 export MCPMSSQL__PROFILES__DEFAULT__DESCRIPTION="Primary connection"
-export MCPMSSQL__PROFILES__DEFAULT__QUERY__DEFAULTMAXROWS="200"
 export MCPMSSQL__PROFILES__DEFAULT__QUERY__MAXROWS="5000"
 export MCPMSSQL__PROFILES__DEFAULT__QUERY__COMMANDTIMEOUTSECONDS="60"
 
@@ -73,7 +69,6 @@ export MCPMSSQL__PROFILES__WAREHOUSE__QUERY__COMMANDTIMEOUTSECONDS="120"
 # Single-connection (flat) keys create or override the default profile:
 export MCPMSSQL_CONNECTION_STRING="Server=...;User ID=...;Password=...;"
 export MCPMSSQL_DESCRIPTION="Primary connection"
-export MCPMSSQL_QUERY_DEFAULT_MAX_ROWS="200"
 export MCPMSSQL_QUERY_MAX_ROWS="5000"
 export MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS="60"
 ```
@@ -106,7 +101,7 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 | **`get_server_properties`** | Get server properties and execution limits. | `profile` |
 | **`list_objects`** | List catalog metadata (catalogs, schemas, relations, routines). | `kind`, `profile`, `catalog`, `schema` |
 | **`get_object`** | Get metadata for one relation or routine (columns, indexes, constraints, definition). | `kind`, `name`, `profile`, `catalog`, `schema`, `includes` |
-| **`query`** | Execute read-only T-SQL SELECT. | `sql`, `profile`, `catalog`, `parameters`, `maxRows` |
+| **`query`** | Execute read-only T-SQL SELECT. | `sql`, `profile`, `catalog`, `parameters` |
 
 - **`kind`** — `catalog`, `schema`, `relation`, or `routine`. For `get_object`, only `relation` or `routine`.
 - **`includes`** — Array of detail sections: `columns`, `indexes`, `constraints` (relation only), `definition` (routine only).
@@ -118,6 +113,7 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 | `mssql://profiles` | List configured profiles. |
 | `mssql://server-properties?{profile}` | Get server properties and execution limits. |
 | `mssql://objects?{kind,profile,catalog,schema}` | List catalog metadata. |
+| `mssql://objects/{kind}/{name}{?profile,catalog,schema,includes}` | Get metadata for one relation or routine. |
 
 Resources mirror their corresponding tools and return JSON.
 

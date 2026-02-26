@@ -18,13 +18,12 @@ internal sealed class ExecutionContextService(IProfileService profileService) : 
         {
             Query = new QueryLimits
             {
-                DefaultMaxRows = new OptionDescriptor<int>
+                MaxRows = new OptionDescriptor<int>
                 {
-                    Value = resolved.Query.DefaultMaxRows,
+                    Value = resolved.Query.MaxRows,
                     Description =
-                        "Used when a query does not explicitly specify a row limit, " +
-                        "to prevent accidental large result sets.",
-                    IsOverridable = true,
+                        "Row cap applied to every query. Use TOP or OFFSET-FETCH for pagination.",
+                    IsOverridable = false,
                     Scope = "query",
                 },
 
@@ -32,8 +31,7 @@ internal sealed class ExecutionContextService(IProfileService profileService) : 
                 {
                     Value = QueryOptions.HardRowLimit,
                     Description =
-                        "Absolute maximum number of rows that may be returned for any query, " +
-                        "regardless of request.",
+                        "Absolute row ceiling; MaxRows is clamped to this value.",
                     IsOverridable = false,
                     Scope = "query",
                 },
