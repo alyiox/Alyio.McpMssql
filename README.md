@@ -3,32 +3,38 @@
 [![Build Status](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml)
 [![NuGet Version](https://img.shields.io/nuget/v/Alyio.McpMssql.svg)](https://www.nuget.org/packages/Alyio.McpMssql)
 
-A read-only MCP server for Microsoft SQL Server: metadata discovery, parameterized `SELECT` queries, and execution plan analysis over stdio. Profile-based config, no DML/DDL.
+A read-only [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for Microsoft SQL Server: metadata discovery, parameterized queries, and execution plan analysis over stdio. Profile-based config, no DML/DDL.
 
 **Requirements:** .NET 10.0 SDK, SQL Server, and a connection string.
 
 ## Quick start
 
-Set `MCPMSSQL_CONNECTION_STRING` and run the server (direct or as a global tool).
+Set `MCPMSSQL_CONNECTION_STRING` and run the server in one of these ways:
 
 ```bash
-# Run directly (e.g. with MCP Inspector)
+# Option 1: Run from NuGet package (e.g. with MCP Inspector)
 npx -y @modelcontextprotocol/inspector \
   -e MCPMSSQL_CONNECTION_STRING="Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;" \
   dotnet dnx Alyio.McpMssql --prerelease
 ```
 
 ```bash
-# Or install and run as a tool
+# Option 2: Install and run as a global tool
 dotnet tool install --global Alyio.McpMssql --prerelease
 npx -y @modelcontextprotocol/inspector -e MCPMSSQL_CONNECTION_STRING="..." mcp-mssql
 ```
 
-Use `--prerelease` for pre-release builds. The tool entrypoint is `dotnet dnx Alyio.McpMssql`; the installed command is `mcp-mssql`.
+```bash
+# Option 3: Run from source (clone repo, then)
+dotnet run --project src/Alyio.McpMssql
+# Or with MCP Inspector: npx -y @modelcontextprotocol/inspector -e MCPMSSQL_CONNECTION_STRING="..." dotnet run --project src/Alyio.McpMssql
+```
+
+Use `--prerelease` for pre-release builds. When using the package: entrypoint `dotnet dnx Alyio.McpMssql`; when installed as a tool: command `mcp-mssql`.
 
 ## Configuration
 
-All settings use the **MCPMSSQL** prefix: flat environment variables (e.g., `MCPMSSQL_CONNECTION_STRING`) for a single connection, or the environment variable (e.g., `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`) for profile-based config.
+All settings use the **MCPMSSQL** prefix: flat environment variables (e.g. `MCPMSSQL_CONNECTION_STRING`) for a single connection, or hierarchical env vars (e.g. `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`) for profile-based config. The same structure under key `MCPMSSQL` in `appsettings.json` is also supported.
 
 **Single server / one connection:** Set the following as environment variables.
 
@@ -195,7 +201,7 @@ MCPMSSQL_CONNECTION_STRING = "Server=127.0.0.1;User ID=sa;Password=<YourStrong@P
 }
 ```
 
-Config file location depends on the client (e.g. Cursor: `.cursor/mcp.json`).
+**Config file locations:** Cursor `.cursor/mcp.json`, Codex/Copilot/OpenCode vary by client; see your client’s MCP docs.
 
 ## Integration tests
 
