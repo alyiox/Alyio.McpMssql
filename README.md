@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml)
 [![NuGet Version](https://img.shields.io/nuget/v/Alyio.McpMssql.svg)](https://www.nuget.org/packages/Alyio.McpMssql)
 
-A read-only MCP server for Microsoft SQL Server: metadata discovery and parameterized `SELECT` queries over stdio. Profile-based config, no DML/DDL; uses the official Model Context Protocol C# SDK.
+A read-only MCP server for Microsoft SQL Server: metadata discovery, parameterized `SELECT` queries, and execution plan analysis over stdio. Profile-based config, no DML/DDL.
 
 **Requirements:** .NET 10.0 SDK, SQL Server, and a connection string.
 
@@ -44,6 +44,9 @@ export MCPMSSQL_QUERY_MAX_ROWS="5000"
 
 # Optional query timeout in seconds (default `30`).
 export MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS="60"
+
+# Optional analyze timeout in seconds (default `300`).
+export MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS="300"
 ```
 
 **Multiple servers or connections:** Use environment variables or the same structure in `appsettings.json`.
@@ -60,17 +63,20 @@ export MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING="Server=...;User ID=...;Pas
 export MCPMSSQL__PROFILES__DEFAULT__DESCRIPTION="Primary connection"
 export MCPMSSQL__PROFILES__DEFAULT__QUERY__MAXROWS="5000"
 export MCPMSSQL__PROFILES__DEFAULT__QUERY__COMMANDTIMEOUTSECONDS="60"
+export MCPMSSQL__PROFILES__DEFAULT__ANALYZE__COMMANDTIMEOUTSECONDS="300"
 
 # Named profile
 export MCPMSSQL__PROFILES__WAREHOUSE__CONNECTIONSTRING="Server=warehouse.example.com;..."
 export MCPMSSQL__PROFILES__WAREHOUSE__QUERY__MAXROWS="10000"
 export MCPMSSQL__PROFILES__WAREHOUSE__QUERY__COMMANDTIMEOUTSECONDS="120"
+export MCPMSSQL__PROFILES__WAREHOUSE__ANALYZE__COMMANDTIMEOUTSECONDS="600"
 
 # Single-connection (flat) keys create or override the default profile:
 export MCPMSSQL_CONNECTION_STRING="Server=...;User ID=...;Password=...;"
 export MCPMSSQL_DESCRIPTION="Primary connection"
 export MCPMSSQL_QUERY_MAX_ROWS="5000"
 export MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS="60"
+export MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS="300"
 ```
 
 **Local development:** Set the connection string, then run with that environment:
@@ -102,6 +108,7 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 | **`list_objects`** | List catalog metadata (catalogs, schemas, relations, routines). | `kind`, `profile`, `catalog`, `schema` |
 | **`get_object`** | Get metadata for one relation or routine (columns, indexes, constraints, definition). | `kind`, `name`, `profile`, `catalog`, `schema`, `includes` |
 | **`query`** | Execute read-only T-SQL SELECT. | `sql`, `profile`, `catalog`, `parameters` |
+| **`analyze_query`** | Analyze execution plan for a read-only SELECT. Returns a compact JSON summary of cost, top operators, cardinality issues, warnings, missing indexes, wait stats, and statistics. Full XML plan available via the returned `plan_uri`. | `sql`, `profile`, `catalog`, `parameters`, `estimated` |
 
 - **`kind`** — `catalog`, `schema`, `relation`, or `routine`. For `get_object`, only `relation` or `routine`.
 - **`includes`** — Array of detail sections: `columns`, `indexes`, `constraints` (relation only), `definition` (routine only).
@@ -114,8 +121,9 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 | `mssql://server-properties?{profile}` | Get server properties and execution limits. |
 | `mssql://objects?{kind,profile,catalog,schema}` | List catalog metadata. |
 | `mssql://objects/{kind}/{name}{?profile,catalog,schema,includes}` | Get metadata for one relation or routine. |
+| `mssql://plans/{id}` | Retrieve full XML execution plan by ID (returned by `analyze_query`). |
 
-Resources mirror their corresponding tools and return JSON.
+Resources mirror their corresponding tools and return JSON (except `mssql://plans/{id}` which returns XML).
 
 ## Security
 
