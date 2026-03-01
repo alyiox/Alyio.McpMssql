@@ -1,7 +1,7 @@
 // MIT License
 
 using System.ComponentModel;
-using ModelContextProtocol;
+using Alyio.McpMssql.Internal;
 using ModelContextProtocol.Server;
 
 namespace Alyio.McpMssql.Features;
@@ -20,18 +20,18 @@ public static class PlanResources
         UriTemplate = "mssql://plans/{id}",
         MimeType = "application/xml")]
     [Description("[MSSQL] Retrieve full XML execution plan by ID. Src: analyze_query.")]
-    public static Task<string> GetPlanAsync(
+    public static async Task<string> GetPlanAsync(
         IPlanStore planStore,
         [Description("Plan identifier returned by analyze_query.")]
         string id,
         CancellationToken cancellationToken = default)
     {
-        _ = cancellationToken;
+        return await McpExecutor.RunAsTextAsync(ct =>
+        {
+            var xml = planStore.TryGet(id)
+                ?? throw new InvalidOperationException($"Plan '{id}' not found or has expired.");
 
-        var xml = planStore.TryGet(id);
-
-        return xml is not null
-            ? Task.FromResult(xml)
-            : throw new McpException($"Plan '{id}' not found or has expired.");
+            return Task.FromResult(xml);
+        }, cancellationToken).ConfigureAwait(false);
     }
 }
