@@ -107,7 +107,7 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 | **`get_server_properties`** | Get server properties and execution limits. | `profile` |
 | **`list_objects`** | List catalog metadata (catalogs, schemas, relations, routines). | `kind`, `profile`, `catalog`, `schema` |
 | **`get_object`** | Get metadata for one relation or routine (columns, indexes, constraints, definition). | `kind`, `name`, `profile`, `catalog`, `schema`, `includes` |
-| **`query`** | Execute read-only T-SQL SELECT. | `sql`, `profile`, `catalog`, `parameters` |
+| **`run_query`** | Execute read-only T-SQL SELECT. | `sql`, `profile`, `catalog`, `parameters` |
 | **`analyze_query`** | Analyze execution plan for a read-only SELECT. Returns a compact JSON summary of cost, top operators, cardinality issues, warnings, missing indexes, wait stats, and statistics. Full XML plan available via the returned `plan_uri`. | `sql`, `profile`, `catalog`, `parameters`, `estimated` |
 
 - **`kind`** — `catalog`, `schema`, `relation`, or `routine`. For `get_object`, only `relation` or `routine`.
