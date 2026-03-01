@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ShowPlanXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.6" Build="16.0.4125.3" xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan">
+  <BatchSequence>
+    <Batch>
+      <Statements>
+        <StmtSimple StatementCompId="1" StatementEstRows="3" StatementId="1" StatementOptmLevel="FULL" CardinalityEstimationModelVersion="170" StatementSubTreeCost="12.458" StatementText="SELECT u.UserName, u.Email, COUNT(o.OrderId) AS OrderCount, SUM(o.TotalAmount) AS TotalSpent FROM dbo.Users u JOIN dbo.Orders o ON o.UserId = u.UserId WHERE u.UserName = 'Charlie' GROUP BY u.UserName, u.Email ORDER BY TotalSpent DESC" StatementType="SELECT" QueryHash="0xA1B2C3D4E5F60718" QueryPlanHash="0x18F6E5D4C3B2A100" RetrievedFromCache="true" BatchModeOnRowStoreUsed="true">
+          <StatementSetOptions ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" NUMERIC_ROUNDABORT="false" QUOTED_IDENTIFIER="true" />
+          <QueryPlan DegreeOfParallelism="4" CachedPlanSize="48" CompileTime="8" CompileCPU="8" CompileMemory="384">
+            <MissingIndexes>
+              <MissingIndexGroup Impact="78.32">
+                <MissingIndex Database="[McpMssqlTest]" Schema="[dbo]" Table="[Users]">
+                  <ColumnGroup Usage="EQUALITY">
+                    <Column Name="[UserName]" ColumnId="2" />
+                  </ColumnGroup>
+                  <ColumnGroup Usage="INCLUDE">
+                    <Column Name="[UserId]" ColumnId="1" />
+                    <Column Name="[Email]" ColumnId="3" />
+                  </ColumnGroup>
+                </MissingIndex>
+              </MissingIndexGroup>
+            </MissingIndexes>
+            <MemoryGrantInfo SerialRequiredMemory="2048" SerialDesiredMemory="35000" RequiredMemory="46000" DesiredMemory="80260" RequestedMemory="80260" GrantWaitTime="0" GrantedMemory="80260" MaxUsedMemory="5120" MaxQueryMemory="386032" LastRequestedMemory="0" IsMemoryGrantFeedbackAdjusted="No: First Execution" />
+            <OptimizerStatsUsage>
+              <StatisticsInfo Database="[McpMssqlTest]" Schema="[dbo]" Table="[Users]" Statistics="[_WA_Sys_00000002_Users]" ModificationCount="0" SamplingPercent="4.51" LastUpdate="2026-03-01T03:57:22.53" />
+              <StatisticsInfo Database="[McpMssqlTest]" Schema="[dbo]" Table="[Orders]" Statistics="[PK__Orders__C3905BCF]" ModificationCount="0" SamplingPercent="100" LastUpdate="2026-03-01T03:57:22.60" />
+            </OptimizerStatsUsage>
+            <Warnings>
+              <PlanAffectingConvert ConvertIssue="Cardinality Estimate" Expression="CONVERT_IMPLICIT(nvarchar(200),[McpMssqlTest].[dbo].[Users].[UserName],0)" />
+            </Warnings>
+            <WaitStats>
+              <Wait WaitType="SOS_SCHEDULER_YIELD" WaitTimeMs="3142" WaitCount="178" />
+              <Wait WaitType="CXSYNC_PORT" WaitTimeMs="412" WaitCount="12" />
+              <Wait WaitType="HTBUILD_AGG" WaitTimeMs="165" WaitCount="21" />
+              <Wait WaitType="RESERVED_MEMORY_ALLOCATION_EXT" WaitTimeMs="8" WaitCount="310" />
+              <Wait WaitType="MEMORY_ALLOCATION_EXT" WaitTimeMs="5" WaitCount="720" />
+            </WaitStats>
+            <QueryTimeStats CpuTime="3890" ElapsedTime="412" />
+            <RelOp NodeId="0" PhysicalOp="Sort" LogicalOp="Sort" EstimateRows="3" EstimatedTotalSubtreeCost="12.458" EstimateCPU="0.002" EstimateIO="0" AvgRowSize="130" Parallel="false" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+              <OutputList>
+                <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="UserName" />
+              </OutputList>
+              <RunTimeInformation>
+                <RunTimeCountersPerThread Thread="0" ActualRows="1" ActualRowsRead="0" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="412" ActualCPUms="0" />
+              </RunTimeInformation>
+              <Sort SortOrder="Descending" />
+              <RelOp NodeId="1" PhysicalOp="Hash Match" LogicalOp="Aggregate" EstimateRows="3" EstimatedTotalSubtreeCost="12.456" EstimateCPU="0.003" EstimateIO="0" AvgRowSize="130" Parallel="true" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Batch">
+                <OutputList />
+                <RunTimeInformation>
+                  <RunTimeCountersPerThread Thread="0" ActualRows="0" ActualRowsRead="0" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Batch" ActualElapsedms="410" ActualCPUms="0" />
+                  <RunTimeCountersPerThread Thread="1" ActualRows="1" ActualRowsRead="0" Batches="0" ActualEndOfScans="0" ActualExecutions="1" ActualExecutionMode="Batch" ActualElapsedms="408" ActualCPUms="95" />
+                  <RunTimeCountersPerThread Thread="2" ActualRows="0" ActualRowsRead="0" Batches="0" ActualEndOfScans="0" ActualExecutions="1" ActualExecutionMode="Batch" ActualElapsedms="405" ActualCPUms="90" />
+                </RunTimeInformation>
+                <Hash>
+                  <DefinedValues />
+                </Hash>
+                <RelOp NodeId="2" PhysicalOp="Hash Match" LogicalOp="Inner Join" EstimateRows="500" EstimatedTotalSubtreeCost="12.453" EstimateCPU="0.15" EstimateIO="0" AvgRowSize="100" Parallel="true" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Batch">
+                  <OutputList />
+                  <RunTimeInformation>
+                    <RunTimeCountersPerThread Thread="0" ActualRows="0" ActualRowsRead="0" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Batch" ActualElapsedms="395" ActualCPUms="0" />
+                    <RunTimeCountersPerThread Thread="1" ActualRows="2" ActualRowsRead="0" Batches="0" ActualEndOfScans="0" ActualExecutions="1" ActualExecutionMode="Batch" ActualElapsedms="390" ActualCPUms="120" />
+                    <RunTimeCountersPerThread Thread="2" ActualRows="1" ActualRowsRead="0" Batches="0" ActualEndOfScans="0" ActualExecutions="1" ActualExecutionMode="Batch" ActualElapsedms="388" ActualCPUms="115" />
+                  </RunTimeInformation>
+                  <Warnings>
+                    <SpillToTempDb SpillLevel="1" SpilledThreadCount="2" />
+                  </Warnings>
+                  <Hash>
+                    <DefinedValues />
+                  </Hash>
+                  <RelOp NodeId="3" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="1" EstimatedTotalSubtreeCost="10.15" EstimateCPU="1.2" EstimateIO="8.5" AvgRowSize="222" EstimatedRowsRead="100000" Parallel="true" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                    <OutputList>
+                      <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="UserId" />
+                      <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="UserName" />
+                      <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="Email" />
+                    </OutputList>
+                    <RunTimeInformation>
+                      <RunTimeCountersPerThread Thread="0" ActualRows="0" ActualRowsRead="0" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="200" ActualCPUms="0" />
+                      <RunTimeCountersPerThread Thread="1" ActualRows="1" ActualRowsRead="3" Batches="0" ActualEndOfScans="0" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="198" ActualCPUms="80" />
+                      <RunTimeCountersPerThread Thread="2" ActualRows="0" ActualRowsRead="2" Batches="0" ActualEndOfScans="0" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="195" ActualCPUms="75" />
+                    </RunTimeInformation>
+                    <IndexScan Ordered="false" ScanDirection="FORWARD" ForcedIndex="false" ForceSeek="false" ForceScan="false" NoExpandHint="false" Storage="RowStore">
+                      <DefinedValues>
+                        <DefinedValue>
+                          <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="UserId" />
+                        </DefinedValue>
+                        <DefinedValue>
+                          <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="UserName" />
+                        </DefinedValue>
+                        <DefinedValue>
+                          <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="Email" />
+                        </DefinedValue>
+                      </DefinedValues>
+                      <Object Database="[McpMssqlTest]" Schema="[dbo]" Table="[Users]" Index="[PK__Users__1788CC4C]" IndexKind="Clustered" Storage="RowStore" />
+                      <Predicate>
+                        <ScalarOperator ScalarString="[McpMssqlTest].[dbo].[Users].[UserName]='Charlie'">
+                          <Identifier />
+                        </ScalarOperator>
+                      </Predicate>
+                    </IndexScan>
+                  </RelOp>
+                  <RelOp NodeId="4" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="7" EstimatedTotalSubtreeCost="2.153" EstimateCPU="0.003" EstimateIO="0.003125" AvgRowSize="30" Parallel="false" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                    <OutputList>
+                      <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Orders]" Alias="[o]" Column="OrderId" />
+                      <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Orders]" Alias="[o]" Column="UserId" />
+                      <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Orders]" Alias="[o]" Column="TotalAmount" />
+                    </OutputList>
+                    <RunTimeInformation>
+                      <RunTimeCountersPerThread Thread="0" ActualRows="7" ActualRowsRead="7" Batches="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row" ActualElapsedms="0" ActualCPUms="0" />
+                    </RunTimeInformation>
+                    <IndexScan Ordered="false" ScanDirection="FORWARD" ForcedIndex="false" ForceSeek="false" ForceScan="false" NoExpandHint="false" Storage="RowStore">
+                      <DefinedValues>
+                        <DefinedValue>
+                          <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Orders]" Alias="[o]" Column="OrderId" />
+                        </DefinedValue>
+                        <DefinedValue>
+                          <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Orders]" Alias="[o]" Column="UserId" />
+                        </DefinedValue>
+                        <DefinedValue>
+                          <ColumnReference Database="[McpMssqlTest]" Schema="[dbo]" Table="[Orders]" Alias="[o]" Column="TotalAmount" />
+                        </DefinedValue>
+                      </DefinedValues>
+                      <Object Database="[McpMssqlTest]" Schema="[dbo]" Table="[Orders]" Index="[PK__Orders__C3905BCF]" IndexKind="Clustered" Storage="RowStore" />
+                    </IndexScan>
+                  </RelOp>
+                </RelOp>
+              </RelOp>
+            </RelOp>
+          </QueryPlan>
+        </StmtSimple>
+      </Statements>
+    </Batch>
+  </BatchSequence>
+</ShowPlanXML>

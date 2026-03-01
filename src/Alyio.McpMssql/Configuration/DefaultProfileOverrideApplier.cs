@@ -42,6 +42,13 @@ internal static class DefaultProfileOverrideApplier
             configuration,
             DefaultProfileKeys.QueryCommandTimeoutSeconds,
             v => query.CommandTimeoutSeconds = v);
+
+        var analyze = profile.Analyze;
+
+        ApplyInt(
+            configuration,
+            DefaultProfileKeys.AnalyzeCommandTimeoutSeconds,
+            v => analyze.CommandTimeoutSeconds = v);
     }
 
     private static void ApplyInt(IConfiguration configuration, string key, Action<int> apply)

@@ -30,6 +30,11 @@ public sealed class McpMssqlProfileOptions
     public QueryOptions Query { get; set; } = new();
 
     /// <summary>
+    /// Execution options for query plan analysis.
+    /// </summary>
+    public AnalyzeOptions Analyze { get; set; } = new();
+
+    /// <summary>
     /// The well-known name of the default MCP MSSQL profile.
     /// </summary>
     internal const string DefaultProfileName = "default";

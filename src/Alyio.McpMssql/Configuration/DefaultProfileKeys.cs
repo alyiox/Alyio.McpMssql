@@ -35,4 +35,10 @@ internal static class DefaultProfileKeys
     /// </summary>
     public const string QueryCommandTimeoutSeconds = "MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS";
 
+    /// <summary>
+    /// Overrides the SQL command timeout (in seconds) for analyze
+    /// operations on the default profile.
+    /// </summary>
+    public const string AnalyzeCommandTimeoutSeconds = "MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS";
+
 }
