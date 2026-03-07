@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml)
 [![NuGet Version](https://img.shields.io/nuget/v/Alyio.McpMssql.svg)](https://www.nuget.org/packages/Alyio.McpMssql)
 
-A read-only [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for Microsoft SQL Server that provides metadata discovery, parameterized queries, and execution plan analysis with profile-based configuration and no DML/DDL.
+A read-only [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for Microsoft SQL Server that supports metadata discovery, parameterized queries, and query analysis, with profile-based configuration and strict no-DML/DDL enforcement.
 
 **Requirements:** .NET 10.0 SDK, SQL Server, and a connection string.
 
