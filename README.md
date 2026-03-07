@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alyiox/Alyio.McpMssql/actions/workflows/ci.yml)
 [![NuGet Version](https://img.shields.io/nuget/v/Alyio.McpMssql.svg)](https://www.nuget.org/packages/Alyio.McpMssql)
 
-A read-only [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for Microsoft SQL Server: metadata discovery, parameterized queries, and execution plan analysis over stdio. Profile-based config, no DML/DDL.
+A read-only [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for Microsoft SQL Server that provides metadata discovery, parameterized queries, and execution plan analysis with profile-based configuration and no DML/DDL.
 
 **Requirements:** .NET 10.0 SDK, SQL Server, and a connection string.
 
@@ -26,8 +26,7 @@ npx -y @modelcontextprotocol/inspector -e MCPMSSQL_CONNECTION_STRING="..." mcp-m
 
 ```bash
 # Option 3: Run from source (clone repo, then)
-dotnet run --project src/Alyio.McpMssql
-# Or with MCP Inspector: npx -y @modelcontextprotocol/inspector -e MCPMSSQL_CONNECTION_STRING="..." dotnet run --project src/Alyio.McpMssql
+npx -y @modelcontextprotocol/inspector -e MCPMSSQL_CONNECTION_STRING="..." dotnet run --project src/Alyio.McpMssql
 ```
 
 Use `--prerelease` for pre-release builds. When using the package: entrypoint `dotnet dnx Alyio.McpMssql`; when installed as a tool: command `mcp-mssql`.
@@ -139,6 +138,8 @@ Read-only (`SELECT` only); parameterized `@paramName`. Use environment variables
 
 Snippets for common MCP clients. Copy one and replace the connection string; ensure `dotnet` is on your PATH.
 
+Note: For security, store connection strings in environment variables or a secret manager (for example, user-secrets in development) instead of directly in config files.
+
 ### Cursor / Gemini
 
 ```json
@@ -165,7 +166,7 @@ args = ["dnx", "Alyio.McpMssql", "--prerelease", "--yes"]
 MCPMSSQL_CONNECTION_STRING = "Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;"
 ```
 
-### OpenCode
+### Open Code
 
 ```json
 {
@@ -183,7 +184,7 @@ MCPMSSQL_CONNECTION_STRING = "Server=127.0.0.1;User ID=sa;Password=<YourStrong@P
 }
 ```
 
-### GitHub Copilot (agent)
+### GitHub Copilot
 
 ```json
 {
