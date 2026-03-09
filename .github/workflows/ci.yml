@@ -12,9 +12,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-  packages: write
+permissions: {}
 
 env:
   DOTNET_VERSION: "10.0.x"
@@ -25,6 +23,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     services:
       sqlserver:
@@ -61,13 +61,15 @@ jobs:
       - name: Build
         run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
 
-      - name: Install sqlcmd (mssql-tools)
+      - name: Install sqlcmd (mssql-tools18)
         run: |
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          sudo add-apt-repository "$(curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list)"
+          source /etc/os-release
+          curl -fsSL "https://packages.microsoft.com/config/ubuntu/${VERSION_ID}/packages-microsoft-prod.deb" -o packages-microsoft-prod.deb
+          sudo dpkg -i packages-microsoft-prod.deb
+          rm packages-microsoft-prod.deb
           sudo apt-get update
-          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
-          echo "/opt/mssql-tools/bin" >> $GITHUB_PATH
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18 unixodbc-dev
+          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
       - name: Initialize test database
         run: |
@@ -82,11 +84,51 @@ jobs:
       - name: Test
         env:
           MCPMSSQL_CONNECTION_STRING: "Server=localhost,1433;Database=master;User Id=sa;Password=YourStrong@Passw0rd123;TrustServerCertificate=True;Encrypt=True;Initial Catalog=McpMssqlTest"
-        run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
+        run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal -- --coverage --coverage-output-format cobertura
+
+      - name: ReportGenerator
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.3
+        with:
+          reports: '**/coverage.cobertura.xml'
+          targetdir: 'coveragereport'
+          reporttypes: 'HtmlInline;TextSummary;MarkdownSummaryGithub'
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: CoverageReport
+          path: coveragereport
+
+      - name: Add coverage to job summary
+        run: cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
 
       - name: Pack NuGet package
         run: dotnet pack --configuration ${{ env.CONFIGURATION }} --no-build --output ./artifacts
 
-      - name: Publish to NuGet
+      - name: Upload NuGet package
         if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./artifacts/*.nupkg
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Download NuGet package
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./artifacts
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Publish to NuGet
         run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
