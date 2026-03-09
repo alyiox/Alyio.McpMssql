@@ -1,4 +1,5 @@
 // MIT License
+
 using System.IO.Pipelines;
 using Alyio.McpMssql.Internal;
 using Alyio.McpMssql.Tests.Infrastructure.DependencyInjection;
@@ -14,7 +15,7 @@ namespace Alyio.McpMssql.Tests.Infrastructure.Fixtures;
 /// <summary>
 /// A shared xUnit fixture that manages the lifecycle of an MCP Server and Client connected via in-memory pipes.
 /// </summary>
-public sealed class McpServerFixture : IAsyncLifetime, IAsyncDisposable
+public sealed class McpServerFixture : IAsyncLifetime
 {
     private readonly CancellationTokenSource _cts = new();
     private Task? _serverRunTask;
@@ -35,7 +36,7 @@ public sealed class McpServerFixture : IAsyncLifetime, IAsyncDisposable
     /// <summary>
     /// Initializes the in-memory pipes, server task, and client connection.
     /// </summary>
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         // 1. Setup bidirectional in-memory pipes
         var clientToServer = new Pipe();
@@ -93,7 +94,4 @@ public sealed class McpServerFixture : IAsyncLifetime, IAsyncDisposable
         if (_serviceProvider != null) await _serviceProvider.DisposeAsync();
         _cts.Dispose();
     }
-
-    /// <inheritdoc />
-    async Task IAsyncLifetime.DisposeAsync() => await DisposeAsync();
 }

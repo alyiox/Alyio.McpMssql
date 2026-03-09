@@ -11,6 +11,7 @@ public class PlanE2ETests(McpServerFixture fixture) : IClassFixture<McpServerFix
     private const string AnalyzeQueryTool = "analyze_query";
     private const string AnalyzableSql = "SELECT TOP 1 name, object_id FROM sys.objects WHERE type = 'U'";
     private readonly McpClient _client = fixture.Client;
+    private static CancellationToken CancellationToken => TestContext.Current.CancellationToken;
 
     [Fact]
     public async Task PlanResource_Template_Is_Discoverable()
@@ -24,7 +25,7 @@ public class PlanE2ETests(McpServerFixture fixture) : IClassFixture<McpServerFix
     {
         var planUri = await AnalyzeAndGetPlanUriAsync();
 
-        var resource = await _client.ReadResourceAsync(planUri);
+        var resource = await _client.ReadResourceAsync(planUri, cancellationToken: CancellationToken);
         var xml = resource.ReadAsText();
 
         Assert.Contains("ShowPlanXML", xml);
@@ -34,7 +35,7 @@ public class PlanE2ETests(McpServerFixture fixture) : IClassFixture<McpServerFix
     public async Task PlanResource_Unknown_Id_Throws()
     {
         var ex = await Assert.ThrowsAnyAsync<Exception>(async () =>
-            await _client.ReadResourceAsync("mssql://plans/nonexistent"));
+            await _client.ReadResourceAsync("mssql://plans/nonexistent", cancellationToken: CancellationToken));
 
         Assert.Contains("not found", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
@@ -42,7 +43,7 @@ public class PlanE2ETests(McpServerFixture fixture) : IClassFixture<McpServerFix
     private async Task<string> AnalyzeAndGetPlanUriAsync()
     {
         var args = new Dictionary<string, object?> { ["sql"] = AnalyzableSql };
-        var result = await _client.CallToolAsync(AnalyzeQueryTool, args);
+        var result = await _client.CallToolAsync(AnalyzeQueryTool, args, cancellationToken: CancellationToken);
 
         Assert.True(result.IsError is not true);
 

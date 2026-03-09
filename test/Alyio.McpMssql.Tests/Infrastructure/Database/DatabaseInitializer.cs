@@ -16,10 +16,11 @@ public static class DatabaseInitializer
     /// </summary>
     /// <param name="connectionString">SQL Server connection string.</param>
     /// <param name="resourceName">Fully qualified embedded resource name (e.g., "McpMssql.Tool.Tests.Scripts.schema.sql").</param>
-    public static async Task ExecuteEmbeddedScriptAsync(string connectionString, string resourceName)
+    /// <param name="cancellationToken">Optional cancellation token.</param>
+    public static async Task ExecuteEmbeddedScriptAsync(string connectionString, string resourceName, CancellationToken cancellationToken = default)
     {
         var script = LoadEmbeddedResource(resourceName);
-        await ExecuteScriptAsync(connectionString, script);
+        await ExecuteScriptAsync(connectionString, script, cancellationToken);
     }
 
     /// <summary>
@@ -27,12 +28,13 @@ public static class DatabaseInitializer
     /// </summary>
     /// <param name="connectionString">SQL Server connection string.</param>
     /// <param name="script">SQL script content.</param>
-    public static async Task ExecuteScriptAsync(string connectionString, string script)
+    /// <param name="cancellationToken">Optional cancellation token.</param>
+    public static async Task ExecuteScriptAsync(string connectionString, string script, CancellationToken cancellationToken = default)
     {
         var batches = SplitSqlBatches(script);
 
         await using var conn = new SqlConnection(connectionString);
-        await conn.OpenAsync();
+        await conn.OpenAsync(cancellationToken);
 
         foreach (var batch in batches)
         {
@@ -42,7 +44,7 @@ public static class DatabaseInitializer
             await using var cmd = conn.CreateCommand();
             cmd.CommandText = batch;
             cmd.CommandTimeout = 60; // Longer timeout for DDL operations
-            await cmd.ExecuteNonQueryAsync();
+            await cmd.ExecuteNonQueryAsync(cancellationToken);
         }
     }
 

@@ -10,11 +10,12 @@ namespace Alyio.McpMssql.Tests.Functional;
 public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFunctionalTest(fixture)
 {
     private readonly ICatalogService _service = fixture.Services.GetRequiredService<ICatalogService>();
+    private static CancellationToken CancellationToken => TestContext.Current.CancellationToken;
 
     [Fact]
     public async Task ListCatalogs_Returns_Test_Database()
     {
-        var result = await _service.ListCatalogsAsync();
+        var result = await _service.ListCatalogsAsync(cancellationToken: CancellationToken);
 
         Assert.NotNull(result);
         Assert.NotEmpty(result.Columns);
@@ -38,7 +39,7 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
     [Fact]
     public async Task ListSchemas_Returns_Dbo_Schema_For_Explicit_Catalog()
     {
-        var result = await _service.ListSchemasAsync(TestDatabaseName);
+        var result = await _service.ListSchemasAsync(TestDatabaseName, cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.Rows);
         result.Columns.AssertHasColumns("name");
@@ -51,7 +52,7 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
     [Fact]
     public async Task ListSchemas_Without_Catalog_Uses_Default_Database()
     {
-        var result = await _service.ListSchemasAsync();
+        var result = await _service.ListSchemasAsync(cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.Rows);
         result.Columns.AssertHasColumns("name");
@@ -70,7 +71,8 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
     {
         var result = await _service.ListRelationsAsync(
             catalog: TestDatabaseName,
-            schema: "dbo");
+            schema: "dbo",
+            cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.Rows);
 
@@ -92,7 +94,7 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
     [Fact]
     public async Task ListRelations_Without_Parameters_Uses_Default_Scope()
     {
-        var result = await _service.ListRelationsAsync();
+        var result = await _service.ListRelationsAsync(cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.Rows);
 
@@ -113,7 +115,8 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
     {
         var result = await _service.ListRoutinesAsync(
             catalog: TestDatabaseName,
-            schema: "dbo");
+            schema: "dbo",
+            cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.Rows);
 
@@ -138,7 +141,8 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
         var result = await _service.GetRoutineDefinitionAsync(
             name: "GetUserById",
             catalog: TestDatabaseName,
-            schema: "dbo");
+            schema: "dbo",
+            cancellationToken: CancellationToken);
 
         result.Columns.AssertHasColumns("definition");
         Assert.Single(result.Rows);
@@ -153,7 +157,8 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
         var result = await _service.GetRoutineDefinitionAsync(
             name: "NonExistentRoutine_XYZ",
             catalog: TestDatabaseName,
-            schema: "dbo");
+            schema: "dbo",
+            cancellationToken: CancellationToken);
 
         result.Columns.AssertHasColumns("definition");
         Assert.Empty(result.Rows);
@@ -163,10 +168,14 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
     public async Task ListRoutines_IncludeSystem_Returns_Superset()
     {
         var userOnly = await _service.ListRoutinesAsync(
-            catalog: TestDatabaseName, schema: "dbo");
+            catalog: TestDatabaseName, schema: "dbo",
+            cancellationToken: CancellationToken);
 
         var withSystem = await _service.ListRoutinesAsync(
-            catalog: TestDatabaseName, schema: "dbo", includeSystem: true);
+            catalog: TestDatabaseName,
+            schema: "dbo",
+            includeSystem: true,
+            cancellationToken: CancellationToken);
 
         Assert.True(withSystem.Rows.Count >= userOnly.Rows.Count);
     }
@@ -174,7 +183,7 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
     [Fact]
     public async Task ListRoutines_Without_Parameters_Uses_Default_Scope()
     {
-        var result = await _service.ListRoutinesAsync();
+        var result = await _service.ListRoutinesAsync(cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.Rows);
 
@@ -199,7 +208,8 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
             "Orders",
             catalog: TestDatabaseName,
             schema: "dbo",
-            includes: [ObjectInclude.Columns, ObjectInclude.Indexes]);
+            includes: [ObjectInclude.Columns, ObjectInclude.Indexes],
+            cancellationToken: CancellationToken);
 
         Assert.NotNull(result.Columns);
         Assert.NotEmpty(result.Columns.Rows);
@@ -225,7 +235,8 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
         var result = await _service.DescribeColumnsAsync(
             name: "Users",
             catalog: TestDatabaseName,
-            schema: "dbo");
+            schema: "dbo",
+            cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.Columns);
         Assert.NotEmpty(result.Rows);
@@ -254,7 +265,7 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
     [Fact]
     public async Task DescribeColumns_Without_Catalog_Or_Schema_Uses_Default_Resolution()
     {
-        var result = await _service.DescribeColumnsAsync("Users");
+        var result = await _service.DescribeColumnsAsync("Users", cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.Rows);
     }
@@ -269,7 +280,8 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
         var result = await _service.DescribeIndexesAsync(
             name: "Orders",
             catalog: TestDatabaseName,
-            schema: "dbo");
+            schema: "dbo",
+            cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.Columns);
         Assert.NotEmpty(result.Rows);
@@ -303,7 +315,7 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
     [Fact]
     public async Task DescribeIndexes_Without_Catalog_Or_Schema_Uses_Default_Resolution()
     {
-        var result = await _service.DescribeIndexesAsync("Orders");
+        var result = await _service.DescribeIndexesAsync("Orders", cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.Rows);
     }
@@ -318,7 +330,8 @@ public sealed class CatalogServiceTests(SqlServerFixture fixture) : SqlServerFun
         var result = await _service.DescribeConstraintsAsync(
             name: "Orders",
             catalog: TestDatabaseName,
-            schema: "dbo");
+            schema: "dbo",
+            cancellationToken: CancellationToken);
 
         Assert.NotNull(result.PrimaryKeys);
         Assert.NotNull(result.UniqueConstraints);

@@ -9,11 +9,12 @@ namespace Alyio.McpMssql.Tests.Functional;
 public sealed class ServerContextServiceTests(SqlServerFixture fixture) : SqlServerFunctionalTest(fixture)
 {
     private readonly IServerContextService _service = fixture.Services.GetRequiredService<IServerContextService>();
+    private static CancellationToken CancellationToken => TestContext.Current.CancellationToken;
 
     [Fact]
     public async Task GetServerProperties_Returns_Server_Metadata()
     {
-        ServerProperties props = await _service.GetPropertiesAsync();
+        ServerProperties props = await _service.GetPropertiesAsync(cancellationToken: CancellationToken);
 
         Assert.NotNull(props);
 
@@ -28,7 +29,7 @@ public sealed class ServerContextServiceTests(SqlServerFixture fixture) : SqlSer
     [Fact]
     public async Task GetServerProperties_Returns_Execution_Limits()
     {
-        var props = await _service.GetPropertiesAsync();
+        var props = await _service.GetPropertiesAsync(cancellationToken: CancellationToken);
 
         Assert.NotNull(props.Limits);
         Assert.NotNull(props.Limits.Query);
@@ -40,7 +41,7 @@ public sealed class ServerContextServiceTests(SqlServerFixture fixture) : SqlSer
     [Fact]
     public async Task EngineEdition_Name_Is_Consistent_With_EngineEdition()
     {
-        var props = await _service.GetPropertiesAsync();
+        var props = await _service.GetPropertiesAsync(cancellationToken: CancellationToken);
 
         Assert.True(props.EngineEdition > 0);
         Assert.False(string.IsNullOrWhiteSpace(props.EngineEditionName));

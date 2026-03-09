@@ -28,7 +28,7 @@ public sealed class SqlServerFixture : IAsyncLifetime
     /// Creates and initializes the test database by executing
     /// schema and seed scripts using the default profile's connection string.
     /// </summary>
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var profileService = Services.GetRequiredService<IProfileService>();
         var profile = profileService.Resolve();
@@ -43,6 +43,6 @@ public sealed class SqlServerFixture : IAsyncLifetime
             "Alyio.McpMssql.Tests.Infrastructure.Database.Scripts.seed.sql");
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }
 

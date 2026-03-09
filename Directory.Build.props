@@ -15,8 +15,7 @@
       <PropertyGroup>
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        <CollectCoverage>true</CollectCoverage>
-        <CoverletOutputFormat>opencover</CoverletOutputFormat>
+        <EnableNUnitRunner>true</EnableNUnitRunner>
       </PropertyGroup>
     </When>
   </Choose>

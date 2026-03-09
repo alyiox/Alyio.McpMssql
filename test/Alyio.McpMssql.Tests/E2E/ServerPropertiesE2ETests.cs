@@ -9,6 +9,7 @@ public sealed class ServerPropertiesE2ETests(McpServerFixture fixture)
     : IClassFixture<McpServerFixture>
 {
     private readonly McpClient _client = fixture.Client;
+    private static CancellationToken CancellationToken => TestContext.Current.CancellationToken;
 
     private const string ToolName = "get_server_properties";
 
@@ -34,7 +35,10 @@ public sealed class ServerPropertiesE2ETests(McpServerFixture fixture)
     [Fact]
     public async Task ServerProperties_Tool_Returns_Server_Metadata()
     {
-        var result = await _client.CallToolAsync(ToolName, new Dictionary<string, object?>());
+        var result = await _client.CallToolAsync(
+            ToolName,
+            new Dictionary<string, object?>(),
+            cancellationToken: CancellationToken);
         var root = result.ReadJsonRoot();
 
         Assert.True(root.TryGetPropertyIgnoreCase("product_version", out _));
@@ -46,7 +50,10 @@ public sealed class ServerPropertiesE2ETests(McpServerFixture fixture)
     [Fact]
     public async Task ServerProperties_Tool_Returns_Execution_Limits()
     {
-        var result = await _client.CallToolAsync(ToolName, new Dictionary<string, object?>());
+        var result = await _client.CallToolAsync(
+            ToolName,
+            new Dictionary<string, object?>(),
+            cancellationToken: CancellationToken);
         var root = result.ReadJsonRoot();
 
         Assert.True(root.TryGetPropertyIgnoreCase("limits", out var limits));
@@ -63,7 +70,7 @@ public sealed class ServerPropertiesE2ETests(McpServerFixture fixture)
     [InlineData("mssql://server-properties?profile=default")]
     public async Task ServerProperties_Resource_Returns_Server_Metadata(string uri)
     {
-        var result = await _client.ReadResourceAsync(uri);
+        var result = await _client.ReadResourceAsync(uri, cancellationToken: CancellationToken);
         var root = result.ReadJsonRoot();
 
         Assert.True(root.TryGetPropertyIgnoreCase("product_version", out _));

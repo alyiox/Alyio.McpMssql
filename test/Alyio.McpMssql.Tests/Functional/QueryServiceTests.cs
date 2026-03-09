@@ -10,6 +10,7 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
 {
     private readonly IQueryService _query = fixture.Services.GetRequiredService<IQueryService>();
     private readonly IPlanStore _planStore = fixture.Services.GetRequiredService<IPlanStore>();
+    private static CancellationToken CancellationToken => TestContext.Current.CancellationToken;
 
     // ── RunQueryAsync ──────────────────────────────────────────────
 
@@ -18,7 +19,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
     {
         QueryResult result = await _query.RunQueryAsync(
             "select UserId, UserName from dbo.Users order by UserId",
-            catalog: TestDatabaseName);
+            catalog: TestDatabaseName,
+            cancellationToken: CancellationToken);
 
         result.Columns.AssertHasColumns(
             "UserId",
@@ -38,7 +40,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
             parameters: new Dictionary<string, object>
             {
                 ["id"] = 3,
-            });
+            },
+            cancellationToken: CancellationToken);
 
         Assert.Single(result.Rows);
         Assert.Equal("Charlie", result.Rows[0][0]);
@@ -59,7 +62,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
             parameters: new Dictionary<string, object>
             {
                 ["name"] = "Charlie",
-            });
+            },
+            cancellationToken: CancellationToken);
 
         Assert.Single(result.Rows);
         Assert.Equal("Charlie", result.Rows[0][0]);
@@ -77,7 +81,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
                 ["id_0"] = 1,
                 ["id_1"] = 3,
                 ["id_2"] = 5,
-            });
+            },
+            cancellationToken: CancellationToken);
 
         Assert.Equal(3, result.Rows.Count);
         Assert.Equal("Alice", result.Rows[0][0]);
@@ -95,7 +100,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
             {
                 ["name_0"] = "Bob",
                 ["name_1"] = "Diana",
-            });
+            },
+            cancellationToken: CancellationToken);
 
         Assert.Equal(2, result.Rows.Count);
         Assert.Equal("Bob", result.Rows[0][1]);
@@ -111,7 +117,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
             parameters: new Dictionary<string, object>
             {
                 ["id_0"] = 2,
-            });
+            },
+            cancellationToken: CancellationToken);
 
         Assert.Single(result.Rows);
         Assert.Equal("Bob", result.Rows[0][0]);
@@ -121,7 +128,7 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
     public async Task RunQuery_Non_Select_Is_Rejected()
     {
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            _query.RunQueryAsync("delete from dbo.Users"));
+            _query.RunQueryAsync("delete from dbo.Users", cancellationToken: CancellationToken));
     }
 
     // ── AnalyzeQueryAsync ──────────────────────────────────────────
@@ -131,7 +138,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
     {
         var result = await _query.AnalyzeQueryAsync(
             "SELECT UserId, UserName FROM dbo.Users",
-            catalog: TestDatabaseName);
+            catalog: TestDatabaseName,
+            cancellationToken: CancellationToken);
 
         Assert.True(result.Statement.EstimatedCost > 0);
         Assert.NotNull(result.Statement.OptimizationLevel);
@@ -145,7 +153,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
     {
         var result = await _query.AnalyzeQueryAsync(
             "SELECT UserId FROM dbo.Users",
-            catalog: TestDatabaseName);
+            catalog: TestDatabaseName,
+            cancellationToken: CancellationToken);
 
         Assert.StartsWith("mssql://plans/", result.PlanUri);
 
@@ -160,7 +169,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
     {
         var result = await _query.AnalyzeQueryAsync(
             "SELECT UserId, UserName FROM dbo.Users ORDER BY UserId",
-            catalog: TestDatabaseName);
+            catalog: TestDatabaseName,
+            cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.TopOperators);
         var top = result.TopOperators[0];
@@ -178,7 +188,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
             FROM dbo.Users u
             JOIN dbo.Orders o ON o.UserId = u.UserId
             """,
-            catalog: TestDatabaseName);
+            catalog: TestDatabaseName,
+            cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.TopOperators);
         Assert.True(result.Statement.EstimatedCost > 0);
@@ -190,7 +201,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
         var result = await _query.AnalyzeQueryAsync(
             "SELECT UserName FROM dbo.Users WHERE UserId = @id",
             catalog: TestDatabaseName,
-            parameters: new Dictionary<string, object> { ["id"] = 1 });
+            parameters: new Dictionary<string, object> { ["id"] = 1 },
+            cancellationToken: CancellationToken);
 
         Assert.NotEmpty(result.TopOperators);
         Assert.True(result.Statement.EstimatedCost > 0);
@@ -202,7 +214,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
         var result = await _query.AnalyzeQueryAsync(
             "SELECT UserId, UserName FROM dbo.Users ORDER BY UserId",
             catalog: TestDatabaseName,
-            estimated: true);
+            estimated: true,
+            cancellationToken: CancellationToken);
 
         Assert.True(result.Statement.EstimatedCost > 0);
         Assert.NotNull(result.Statement.OptimizationLevel);
@@ -224,7 +237,8 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
         var result = await _query.AnalyzeQueryAsync(
             "SELECT UserId FROM dbo.Users",
             catalog: TestDatabaseName,
-            estimated: true);
+            estimated: true,
+            cancellationToken: CancellationToken);
 
         Assert.StartsWith("mssql://plans/", result.PlanUri);
 
@@ -240,6 +254,7 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             _query.AnalyzeQueryAsync(
                 "DELETE FROM dbo.Users",
-                catalog: TestDatabaseName));
+                catalog: TestDatabaseName,
+                cancellationToken: CancellationToken));
     }
 }
