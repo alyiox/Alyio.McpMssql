@@ -89,7 +89,7 @@ jobs:
       - name: ReportGenerator
         uses: danielpalme/ReportGenerator-GitHub-Action@5.5.3
         with:
-          reports: '**/coverage.cobertura.xml'
+          reports: '**/*.cobertura.xml'
           targetdir: 'coveragereport'
           reporttypes: 'HtmlInline;TextSummary;MarkdownSummaryGithub'
 
