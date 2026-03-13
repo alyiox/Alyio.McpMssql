@@ -116,6 +116,9 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: nuget
+      url: https://www.nuget.org/packages/Alyio.McpMssql/${{ github.ref_name }}
     permissions:
       packages: write
     steps:
