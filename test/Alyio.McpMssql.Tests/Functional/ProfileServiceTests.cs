@@ -9,17 +9,22 @@ namespace Alyio.McpMssql.Tests.Functional;
 
 public sealed class ProfileServiceTests
 {
-    private static IProfileService BuildProfileService((string Key, string Value)[] envVars)
+    private static IProfileService BuildProfileService(params (string Key, string Value)[][] configurationSources)
     {
-        var keyValues = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
-        foreach (var (key, value) in envVars)
+        var configurationBuilder = new ConfigurationBuilder();
+
+        foreach (var source in configurationSources)
         {
-            keyValues.Add(key.Replace("__", ConfigurationPath.KeyDelimiter), value);
+            var keyValues = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+            foreach (var (key, value) in source)
+            {
+                keyValues.Add(key.Replace("__", ConfigurationPath.KeyDelimiter), value);
+            }
+
+            configurationBuilder.AddInMemoryCollection(keyValues);
         }
 
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(keyValues)
-            .Build();
+        IConfiguration configuration = configurationBuilder.Build();
 
         var services = new ServiceCollection();
         services.AddMcpMssqlOptions(configuration);
@@ -191,6 +196,54 @@ public sealed class ProfileServiceTests
 
         var profile = profileService.Resolve(null);
         Assert.Contains("UppercaseSection", profile.ConnectionString);
+    }
+
+    [Fact]
+    public void Resolve_Default_And_Named_From_Config_Section()
+    {
+        var userConfig = new[]
+        {
+            ("McpMssql:Profiles:Default:ConnectionString", "Server=.;Database=UserDefault;TrustServerCertificate=True;"),
+            ("McpMssql:Profiles:Default:Description", "Default profile from user config"),
+            ("McpMssql:Profiles:Warehouse:ConnectionString", "Server=warehouse;Database=WarehouseUser;TrustServerCertificate=True;"),
+            ("McpMssql:Profiles:Warehouse:Description", "Warehouse profile from user config"),
+        };
+
+        var profileService = BuildProfileService(userConfig);
+
+        var defaultProfile = profileService.Resolve(null);
+        var warehouseProfile = profileService.Resolve("warehouse");
+        var profiles = profileService.GetProfiles();
+
+        Assert.Contains("UserDefault", defaultProfile.ConnectionString);
+        Assert.Contains("WarehouseUser", warehouseProfile.ConnectionString);
+        Assert.Contains(
+            profiles,
+            p => p.Name.Equals("default", StringComparison.OrdinalIgnoreCase)
+                && p.Description == "Default profile from user config");
+        Assert.Contains(
+            profiles,
+            p => p.Name.Equals("warehouse", StringComparison.OrdinalIgnoreCase)
+                && p.Description == "Warehouse profile from user config");
+    }
+
+    [Fact]
+    public void Resolve_Default_Hierarchical_Env_Overrides_User_Config()
+    {
+        var userConfig = new[]
+        {
+            ("McpMssql:Profiles:Default:ConnectionString", "Server=.;Database=FromUserConfig;TrustServerCertificate=True;"),
+        };
+        var envVars = new[]
+        {
+            ("MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING", "Server=.;Database=FromEnv;TrustServerCertificate=True;"),
+        };
+
+        var profileService = BuildProfileService(userConfig, envVars);
+
+        var profile = profileService.Resolve(null);
+
+        Assert.Contains("FromEnv", profile.ConnectionString);
     }
 
     [Fact]

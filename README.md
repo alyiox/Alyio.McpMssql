@@ -33,7 +33,19 @@ Use `--prerelease` for pre-release builds. When using the package: entrypoint `d
 
 ## Configuration
 
-All settings use the **MCPMSSQL** prefix: flat environment variables (e.g. `MCPMSSQL_CONNECTION_STRING`) for a single connection, or hierarchical env vars (e.g. `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`) for profile-based config. The same structure under key `MCPMSSQL` in `appsettings.json` is also supported.
+All settings use the **MCPMSSQL** prefix: flat environment variables (e.g. `MCPMSSQL_CONNECTION_STRING`) for a single connection, or hierarchical env vars (e.g. `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`) for profile-based config. The same structure under key `MCPMSSQL` is also supported in a user-scoped `appsettings.json` file:
+
+- Unix-like: `~/.config/mcpmssql/appsettings.json`
+- Windows: `%USERPROFILE%\.config\mcpmssql\appsettings.json`
+
+Configuration precedence is:
+
+1. `appsettings.json`
+2. `appsettings.{Environment}.json`
+3. user-scoped `appsettings.json`
+4. user-secrets in `Development`
+5. hierarchical environment variables such as `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`
+6. flat legacy environment variables such as `MCPMSSQL_CONNECTION_STRING` for the `default` profile
 
 **Single server / one connection:** Set the following as environment variables.
 
@@ -54,7 +66,7 @@ export MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS="60"
 export MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS="300"
 ```
 
-**Multiple servers or connections:** Use environment variables or the same structure in `appsettings.json`.
+**Multiple servers or connections:** Use environment variables or the same structure in the user-scoped `appsettings.json` file.
 
 - Use environment variables with the **MCPMSSQL** prefix, then `__` for each level (e.g. `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`).
 - For each profile, set `MCPMSSQL__PROFILES__<name>__CONNECTIONSTRING`, and optionally add `__DESCRIPTION` and `__QUERY`.
@@ -82,6 +94,32 @@ export MCPMSSQL_DESCRIPTION="Primary connection"
 export MCPMSSQL_QUERY_MAX_ROWS="5000"
 export MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS="60"
 export MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS="300"
+```
+
+Example (user-scoped `appsettings.json`):
+
+```json
+{
+  "McpMssql": {
+    "Profiles": {
+      "default": {
+        "ConnectionString": "Server=...;User ID=...;Password=...;",
+        "Description": "Primary connection",
+        "Query": {
+          "MaxRows": 5000,
+          "CommandTimeoutSeconds": 60
+        },
+        "Analyze": {
+          "CommandTimeoutSeconds": 300
+        }
+      },
+      "warehouse": {
+        "ConnectionString": "Server=warehouse.example.com;...",
+        "Description": "Warehouse read-only"
+      }
+    }
+  }
+}
 ```
 
 **Local development:** Set the connection string, then run with that environment:
