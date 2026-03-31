@@ -33,19 +33,10 @@ Use `--prerelease` for pre-release builds. When using the package: entrypoint `d
 
 ## Configuration
 
-All settings use the **MCPMSSQL** prefix: flat environment variables (e.g. `MCPMSSQL_CONNECTION_STRING`) for a single connection, or hierarchical env vars (e.g. `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`) for profile-based config. The same structure under key `MCPMSSQL` is also supported in a user-scoped `appsettings.json` file:
+All settings use the **MCPMSSQL** prefix. **Flat** environment variables (e.g. `MCPMSSQL_CONNECTION_STRING`) are the straightforward way to configure the **default** profile when you have a single connection. **Hierarchical** env vars (e.g. `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`) spell out the same profile tree explicitly and are the natural choice when you define multiple named profiles. The same structure under key `MCPMSSQL` is also supported in a user-scoped `appsettings.json` file:
 
 - Unix-like: `~/.config/mcpmssql/appsettings.json`
 - Windows: `%USERPROFILE%\.config\mcpmssql\appsettings.json`
-
-Configuration precedence is:
-
-1. `appsettings.json`
-2. `appsettings.{Environment}.json`
-3. user-scoped `appsettings.json`
-4. user-secrets in `Development`
-5. hierarchical environment variables such as `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`
-6. flat legacy environment variables such as `MCPMSSQL_CONNECTION_STRING` for the `default` profile
 
 **Single server / one connection:** Set the following as environment variables.
 
@@ -70,7 +61,7 @@ export MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS="300"
 
 - Use environment variables with the **MCPMSSQL** prefix, then `__` for each level (e.g. `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`).
 - For each profile, set `MCPMSSQL__PROFILES__<name>__CONNECTIONSTRING`, and optionally add `__DESCRIPTION` and `__QUERY`.
-- The default profile is the one named `default`. Define it with `MCPMSSQL__PROFILES__DEFAULT__...` or use the single-connection variables (`MCPMSSQL_CONNECTION_STRING`, etc.) to create or override the default profile when set.
+- The default profile is the one named `default`. Define it with `MCPMSSQL__PROFILES__DEFAULT__...`, or use flat variables (`MCPMSSQL_CONNECTION_STRING`, etc.) for the same default profile in a single-connection setup.
 
 Example (environment variables):
 
@@ -88,7 +79,7 @@ export MCPMSSQL__PROFILES__WAREHOUSE__QUERY__MAXROWS="10000"
 export MCPMSSQL__PROFILES__WAREHOUSE__QUERY__COMMANDTIMEOUTSECONDS="120"
 export MCPMSSQL__PROFILES__WAREHOUSE__ANALYZE__COMMANDTIMEOUTSECONDS="600"
 
-# Single-connection (flat) keys create or override the default profile:
+# Same default profile via flat variables (single connection):
 export MCPMSSQL_CONNECTION_STRING="Server=...;User ID=...;Password=...;"
 export MCPMSSQL_DESCRIPTION="Primary connection"
 export MCPMSSQL_QUERY_MAX_ROWS="5000"
