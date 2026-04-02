@@ -17,7 +17,7 @@ public static class ObjectTools
     /// <summary>
     /// List catalog metadata.
     /// </summary>
-    [McpServerTool]
+    [McpServerTool(UseStructuredContent = true)]
     [Description(
         "[MSSQL] List catalog metadata. kind=catalog: databases; schema: schemas in a catalog; " +
         "relation: tables/views; routine: procedures/functions (system routines excluded by default). " +
@@ -51,7 +51,7 @@ public static class ObjectTools
     /// <summary>
     /// Get metadata for one relation or routine.
     /// </summary>
-    [McpServerTool]
+    [McpServerTool(UseStructuredContent = true)]
     [Description(
         "[MSSQL] Get metadata for one relation or routine. " +
         "Use list_objects to resolve names. If includes is null or empty, returns empty detail payloads.")]

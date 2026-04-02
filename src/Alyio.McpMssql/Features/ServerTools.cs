@@ -16,7 +16,7 @@ public static class ServerTools
     /// <summary>
     /// List configured profiles.
     /// </summary>
-    [McpServerTool]
+    [McpServerTool(UseStructuredContent = true)]
     [Description(
         "[MSSQL] List configured connection profiles. " +
         "Call before other tools when you must pick a non-default profile.")]
@@ -29,7 +29,7 @@ public static class ServerTools
     /// <summary>
     /// Get server properties and execution limits.
     /// </summary>
-    [McpServerTool]
+    [McpServerTool(UseStructuredContent = true)]
     [Description(
         "[MSSQL] Get server properties and execution limits for a profile " +
         "(timeouts, row caps, and other guardrails).")]

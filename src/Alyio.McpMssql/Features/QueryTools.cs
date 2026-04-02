@@ -17,7 +17,7 @@ public static class QueryTools
     /// <summary>
     /// Execute read-only T-SQL SELECT.
     /// </summary>
-    [McpServerTool]
+    [McpServerTool(UseStructuredContent = true)]
     [Description(
         "[MSSQL] Execute Read-only T-SQL SELECT and return tabular results. " +
         "Results are bounded by server-enforced limits; only SELECT is allowed (no DML/DDL). " +
@@ -42,7 +42,7 @@ public static class QueryTools
     /// <summary>
     /// Analyze a read-only T-SQL SELECT execution plan.
     /// </summary>
-    [McpServerTool]
+    [McpServerTool(UseStructuredContent = true)]
     [Description(
         "[MSSQL] Analyze execution plan for a read-only SELECT. " +
         "Returns a compact JSON summary (cost, operators, cardinality, warnings, indexes, waits, stats). " +
