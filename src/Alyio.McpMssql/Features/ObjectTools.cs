@@ -18,16 +18,20 @@ public static class ObjectTools
     /// List catalog metadata.
     /// </summary>
     [McpServerTool]
-    [Description("[MSSQL] List catalog metadata (catalogs, schemas, relations, routines).")]
+    [Description(
+        "[MSSQL] List catalog metadata. kind=catalog: databases; schema: schemas in a catalog; " +
+        "relation: tables/views; routine: procedures/functions (system routines excluded by default). " +
+        "catalog omitted → active catalog (ignored for kind=catalog). " +
+        "schema: for relation omit → all schemas; for routine omit → caller default schema; ignored for catalog or schema kinds.")]
     public static async Task<TabularResult> ListObjectsAsync(
         ICatalogService catalogService,
-        [Description("Kind: catalog | schema | relation | routine.")]
+        [Description("catalog | schema | relation | routine.")]
         ObjectKind kind,
-        [Description("Optional. Profile name. Src: profiles.")]
+        [Description("If omitted or empty, uses the default profile. Src: profiles.")]
         string? profile = null,
-        [Description("Optional. Catalog (database) name. Src: catalogs.")]
+        [Description("If omitted, uses the active catalog (not used when kind=catalog). Src: catalogs.")]
         string? catalog = null,
-        [Description("Optional. Schema name. Src: schemas.")]
+        [Description("Omission depends on kind; see tool description. Src: schemas.")]
         string? schema = null,
         CancellationToken cancellationToken = default)
     {
@@ -48,20 +52,22 @@ public static class ObjectTools
     /// Get metadata for one relation or routine.
     /// </summary>
     [McpServerTool]
-    [Description("[MSSQL] Get metadata for one relation or routine (columns, indexes, constraints, definition).")]
+    [Description(
+        "[MSSQL] Get metadata for one relation or routine. " +
+        "Use list_objects to resolve names. If includes is null or empty, returns empty detail payloads.")]
     public static async Task<ObjectResult> GetObjectAsync(
         ICatalogService catalogService,
-        [Description("Kind: relation | routine.")]
+        [Description("relation | routine.")]
         ObjectKind kind,
-        [Description("Relation or routine name. Src: relations or routines.")]
+        [Description("Unqualified or schema-qualified name; use schema param when needed. Src: relations or routines.")]
         string name,
-        [Description("Optional. Profile name. Src: profiles.")]
+        [Description("If omitted or empty, uses the default profile. Src: profiles.")]
         string? profile = null,
-        [Description("Optional. Catalog (database) name. Src: catalogs.")]
+        [Description("If omitted, uses the active catalog. Src: catalogs.")]
         string? catalog = null,
-        [Description("Optional. Schema name. Src: schemas.")]
+        [Description("If omitted, uses default schema resolution for the object. Src: schemas.")]
         string? schema = null,
-        [Description("Optional. Includes: columns, indexes, constraints (relation), definition (routine).")]
+        [Description("columns, indexes, constraints (relations only), definition (routines only).")]
         IReadOnlyList<ObjectInclude>? includes = null,
         CancellationToken cancellationToken = default)
     {

@@ -17,7 +17,9 @@ public static class ServerTools
     /// List configured profiles.
     /// </summary>
     [McpServerTool]
-    [Description("[MSSQL] List configured profiles for this MCP server.")]
+    [Description(
+        "[MSSQL] List configured connection profiles. " +
+        "Call before other tools when you must pick a non-default profile.")]
     public static IReadOnlyList<Profile> ListProfiles(
         IProfileService profileService)
     {
@@ -28,10 +30,12 @@ public static class ServerTools
     /// Get server properties and execution limits.
     /// </summary>
     [McpServerTool]
-    [Description("[MSSQL] Get server properties and execution limits.")]
+    [Description(
+        "[MSSQL] Get server properties and execution limits for a profile " +
+        "(timeouts, row caps, and other guardrails).")]
     public static async Task<ServerProperties> GetServerPropertiesAsync(
         IServerContextService serverContextService,
-        [Description("Optional. Profile name. Src: profiles.")]
+        [Description("If omitted or empty, uses the default profile. Src: profiles.")]
         string? profile = null,
         CancellationToken cancellationToken = default)
     {

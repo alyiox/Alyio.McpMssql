@@ -20,16 +20,19 @@ public static class ObjectResources
         Name = "objects",
         UriTemplate = "mssql://objects/{kind}{?profile,catalog,schema}",
         MimeType = "application/json")]
-    [Description("[MSSQL] List catalog metadata. Path {kind}: catalog | schema | relation | routine. Query params: profile (Src: profiles), catalog (Src: catalogs), schema (Src: schemas) — all optional.")]
+    [Description(
+        "[MSSQL] List catalog metadata. Path {kind}: catalog | schema | relation | routine. " +
+        "Query: profile (Src: profiles) defaults when omitted; catalog (Src: catalogs) → active catalog when omitted, ignored for kind=catalog; " +
+        "schema (Src: schemas) omit → all schemas for relation, caller default for routine, ignored for catalog/schema.")]
     public static async Task<string> ListAsync(
         ICatalogService catalogService,
-        [Description("Kind: catalog | schema | relation | routine.")]
+        [Description("catalog | schema | relation | routine.")]
         string kind,
-        [Description("Optional. Profile name. Src: profiles.")]
+        [Description("If omitted or empty, uses the default profile. Src: profiles.")]
         string? profile = null,
-        [Description("Optional. Catalog (database) name. Src: catalogs.")]
+        [Description("If omitted, uses the active catalog (not used when kind=catalog). Src: catalogs.")]
         string? catalog = null,
-        [Description("Optional. Schema name. Src: schemas.")]
+        [Description("Omit → all schemas for relation, caller default for routine; ignored for catalog/schema. Src: schemas.")]
         string? schema = null,
         CancellationToken cancellationToken = default)
     {
@@ -59,20 +62,23 @@ public static class ObjectResources
         Name = "object",
         UriTemplate = "mssql://objects/{kind}/{name}{?profile,catalog,schema,includes}",
         MimeType = "application/json")]
-    [Description("[MSSQL] Get metadata for one relation or routine. Path {kind}: relation | routine. Path {name}: object name. Query params: profile (Src: profiles), catalog (Src: catalogs), schema (Src: schemas) — all optional. includes (required, comma-separated): columns, indexes, constraints (relation) or definition (routine).")]
+    [Description(
+        "[MSSQL] Get metadata for one relation or routine. Path {kind}: relation | routine; {name}: object name. " +
+        "Query includes (required): comma-separated columns, indexes, constraints (relations), definition (routines). " +
+        "Profile/catalog/schema omission matches get_object tool.")]
     public static async Task<string> GetAsync(
         ICatalogService catalogService,
-        [Description("Kind: relation | routine.")]
+        [Description("relation | routine.")]
         string kind,
-        [Description("Relation or routine name. Src: relations or routines.")]
+        [Description("Object name; use schema query param when needed. Src: relations or routines.")]
         string name,
-        [Description("Optional. Profile name. Src: profiles.")]
+        [Description("If omitted or empty, uses the default profile. Src: profiles.")]
         string? profile = null,
-        [Description("Optional. Catalog (database) name. Src: catalogs.")]
+        [Description("If omitted, uses the active catalog. Src: catalogs.")]
         string? catalog = null,
-        [Description("Optional. Schema name. Src: schemas.")]
+        [Description("If omitted, uses default schema resolution. Src: schemas.")]
         string? schema = null,
-        [Description("Required. Comma-separated includes: columns, indexes, constraints (relation), definition (routine).")]
+        [Description("Required. Comma-separated: columns, indexes, constraints (relations), definition (routines).")]
         string? includes = null,
         CancellationToken cancellationToken = default)
     {

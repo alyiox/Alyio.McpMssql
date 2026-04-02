@@ -13,20 +13,21 @@ Set `MCPMSSQL_CONNECTION_STRING` and run the server in one of these ways:
 
 ```bash
 # Option 1: Run from NuGet package (e.g. with MCP Inspector)
-npx -y @modelcontextprotocol/inspector \
-  -e MCPMSSQL_CONNECTION_STRING="Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;" \
-  dotnet dnx Alyio.McpMssql --prerelease
+export MCPMSSQL_CONNECTION_STRING="Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;"
+npx -y @modelcontextprotocol/inspector dotnet dnx Alyio.McpMssql --prerelease
 ```
 
 ```bash
 # Option 2: Install and run as a global tool
 dotnet tool install --global Alyio.McpMssql --prerelease
-npx -y @modelcontextprotocol/inspector -e MCPMSSQL_CONNECTION_STRING="..." mcp-mssql
+export MCPMSSQL_CONNECTION_STRING="Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;"
+npx -y @modelcontextprotocol/inspector mcp-mssql
 ```
 
 ```bash
 # Option 3: Run from source (clone repo, then)
-npx -y @modelcontextprotocol/inspector -e MCPMSSQL_CONNECTION_STRING="..." dotnet run --project src/Alyio.McpMssql
+export MCPMSSQL_CONNECTION_STRING="Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;"
+npx -y @modelcontextprotocol/inspector dotnet run --project src/Alyio.McpMssql
 ```
 
 Use `--prerelease` for pre-release builds. When using the package: entrypoint `dotnet dnx Alyio.McpMssql`; when installed as a tool: command `mcp-mssql`.
@@ -42,7 +43,7 @@ All settings use the **MCPMSSQL** prefix. **Flat** environment variables (e.g. `
 
 ```bash
 # Connection string (required).
-export MCPMSSQL_CONNECTION_STRING="Server=...;User ID=...;Password=...;"
+export MCPMSSQL_CONNECTION_STRING="Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;"
 
 # Optional description for the default profile (tooling/AI discovery).
 export MCPMSSQL_DESCRIPTION="Primary connection"
@@ -137,25 +138,25 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 
 | Tool | Description | Key params |
 |---|---|---|
-| **`list_profiles`** | List configured profiles. | — |
-| **`get_server_properties`** | Get server properties and execution limits. | `profile` |
-| **`list_objects`** | List catalog metadata (catalogs, schemas, relations, routines). | `kind`, `profile`, `catalog`, `schema` |
-| **`get_object`** | Get metadata for one relation or routine (columns, indexes, constraints, definition). | `kind`, `name`, `profile`, `catalog`, `schema`, `includes` |
-| **`run_query`** | Execute read-only T-SQL SELECT. | `sql`, `profile`, `catalog`, `parameters` |
-| **`analyze_query`** | Analyze execution plan for a read-only SELECT. Returns a compact JSON summary of cost, top operators, cardinality issues, warnings, missing indexes, wait stats, and statistics. Full XML plan available via the returned `plan_uri`. | `sql`, `profile`, `catalog`, `parameters`, `estimated` |
+| **`list_profiles`** | List configured connection profiles. Call first when picking a non-default profile. | — |
+| **`get_server_properties`** | Get server properties and execution limits (timeouts, row caps, guardrails). | `profile` |
+| **`list_objects`** | List catalog metadata. `kind=catalog`: databases; `schema`: schemas; `relation`: tables/views; `routine`: procedures/functions. `catalog` omitted → active catalog (ignored for `kind=catalog`). `schema` omission depends on kind. | `kind`, `profile`, `catalog`, `schema` |
+| **`get_object`** | Get metadata for one relation or routine. Use `list_objects` to resolve names. Returns empty detail payloads if `includes` is null. | `kind`, `name`, `profile`, `catalog`, `schema`, `includes` |
+| **`run_query`** | Execute read-only T-SQL SELECT; only SELECT allowed (no DML/DDL). Results bounded by server-enforced limits. Prefer `analyze_query` for plan tuning. | `sql`, `profile`, `catalog`, `parameters` |
+| **`analyze_query`** | Analyze execution plan for a read-only SELECT. Returns compact JSON summary (cost, operators, cardinality, warnings, indexes, waits, stats). Fetch full XML from `plan_uri`; does not return result rows. | `sql`, `profile`, `catalog`, `parameters`, `estimated` |
 
 - **`kind`** — `catalog`, `schema`, `relation`, or `routine`. For `get_object`, only `relation` or `routine`.
-- **`includes`** — Array of detail sections: `columns`, `indexes`, `constraints` (relation only), `definition` (routine only).
+- **`includes`** — Array of detail sections: `columns`, `indexes`, `constraints` (relations only), `definition` (routines only).
 
 **Resources**
 
 | URI template | Description |
 |---|---|
-| `mssql://profiles` | List configured profiles. |
-| `mssql://server-properties?{profile}` | Get server properties and execution limits. |
-| `mssql://objects?{kind,profile,catalog,schema}` | List catalog metadata. |
-| `mssql://objects/{kind}/{name}{?profile,catalog,schema,includes}` | Get metadata for one relation or routine. |
-| `mssql://plans/{id}` | Retrieve full XML execution plan by ID (returned by `analyze_query`). |
+| `mssql://profiles` | List configured connection profiles. Same data as `list_profiles`. |
+| `mssql://server-properties?{profile}` | Get server properties and execution limits. Same data as `get_server_properties`. |
+| `mssql://objects?{kind,profile,catalog,schema}` | List catalog metadata. Schema omission behavior matches `list_objects`. |
+| `mssql://objects/{kind}/{name}{?profile,catalog,schema,includes}` | Get metadata for one relation or routine. `includes` is required. |
+| `mssql://plans/{id}` | Retrieve full XML execution plan by ID from `analyze_query`; entries expire. |
 
 Resources mirror their corresponding tools and return JSON (except `mssql://plans/{id}` which returns XML).
 

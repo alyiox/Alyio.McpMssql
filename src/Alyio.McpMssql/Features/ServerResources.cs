@@ -19,7 +19,9 @@ public static class ServerResources
         Name = "profiles",
         UriTemplate = "mssql://profiles",
         MimeType = "application/json")]
-    [Description("[MSSQL] List configured profiles for this MCP server.")]
+    [Description(
+        "[MSSQL] List configured connection profiles. " +
+        "Same data as list_profiles; use when the client prefers resources over tools.")]
     public static async Task<string> ListProfilesAsync(
         IProfileService profileService,
         CancellationToken cancellationToken = default)
@@ -36,10 +38,12 @@ public static class ServerResources
         Name = "server-properties",
         UriTemplate = "mssql://server-properties{?profile}",
         MimeType = "application/json")]
-    [Description("[MSSQL] Get server properties and execution limits.")]
+    [Description(
+        "[MSSQL] Get server properties and execution limits. " +
+        "Same data as get_server_properties.")]
     public static async Task<string> GetServerPropertiesAsync(
         IServerContextService serverContextService,
-        [Description("Optional. Profile name. Src: profiles.")]
+        [Description("If omitted or empty, uses the default profile. Src: profiles.")]
         string? profile = null,
         CancellationToken cancellationToken = default)
     {

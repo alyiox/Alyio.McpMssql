@@ -20,17 +20,17 @@ public static class QueryTools
     [McpServerTool]
     [Description(
         "[MSSQL] Execute Read-only T-SQL SELECT and return tabular results. " +
-        "Results are bounded by server-enforced limits. Only SELECT is allowed. " +
-        "Use TOP or OFFSET-FETCH in the query for pagination.")]
+        "Results are bounded by server-enforced limits; only SELECT is allowed (no DML/DDL). " +
+        "Use TOP or OFFSET-FETCH for pagination. Prefer analyze_query when tuning plans.")]
     public static Task<QueryResult> RunQueryAsync(
         IQueryService queryService,
-        [Description("Read-only T-SQL SELECT statement. Use @paramName syntax for parameters. For IN/NOT IN, use numbered params (e.g. @id_0, @id_1).")]
+        [Description("Read-only T-SQL SELECT. Bind @paramName placeholders; for IN lists use numbered names (e.g. @id_0, @id_1).")]
         string sql,
-        [Description("Optional. Profile name. Src: profiles.")]
+        [Description("If omitted or empty, uses the default profile. Src: profiles.")]
         string? profile = null,
-        [Description("Optional. Catalog (database) name. Src: catalogs.")]
+        [Description("If omitted, uses the active catalog on the connection. Src: catalogs.")]
         string? catalog = null,
-        [Description("Optional parameter values keyed by name (without '@').")]
+        [Description("Values for SQL parameters; keys are names without '@' (e.g. id → @id).")]
         IReadOnlyDictionary<string, object>? parameters = null,
         CancellationToken cancellationToken = default)
     {
@@ -45,20 +45,19 @@ public static class QueryTools
     [McpServerTool]
     [Description(
         "[MSSQL] Analyze execution plan for a read-only SELECT. " +
-        "Returns a compact JSON summary of cost, top operators, cardinality issues, " +
-        "warnings, missing indexes, wait stats, and statistics. " +
-        "Full XML plan available via the returned `plan_uri`.")]
+        "Returns a compact JSON summary (cost, operators, cardinality, warnings, indexes, waits, stats). " +
+        "Fetch full XML from plan_uri; does not return raw result rows.")]
     public static Task<AnalyzeResult> AnalyzeQueryAsync(
         IQueryService queryService,
-        [Description("Read-only T-SQL SELECT statement to analyze. Only SELECT is allowed.")]
+        [Description("Read-only T-SQL SELECT to analyze; only SELECT is allowed.")]
         string sql,
-        [Description("Optional. Profile name. Src: profiles.")]
+        [Description("If omitted or empty, uses the default profile. Src: profiles.")]
         string? profile = null,
-        [Description("Optional. Catalog (database) name. Src: catalogs.")]
+        [Description("If omitted, uses the active catalog on the connection. Src: catalogs.")]
         string? catalog = null,
-        [Description("Optional parameter values keyed by name (without '@').")]
+        [Description("Values for SQL parameters; keys are names without '@'.")]
         IReadOnlyDictionary<string, object>? parameters = null,
-        [Description("Optional. When true, returns the estimated plan without executing the query. Default: false (actual plan with runtime statistics).")]
+        [Description("When true, returns estimated plan without executing. Default false: actual plan with runtime stats.")]
         bool estimated = false,
         CancellationToken cancellationToken = default)
     {

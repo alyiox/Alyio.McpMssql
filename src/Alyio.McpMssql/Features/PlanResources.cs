@@ -19,10 +19,12 @@ public static class PlanResources
         Name = "plan",
         UriTemplate = "mssql://plans/{id}",
         MimeType = "application/xml")]
-    [Description("[MSSQL] Retrieve full XML execution plan by ID. Src: analyze_query.")]
+    [Description(
+        "[MSSQL] Retrieve full XML execution plan by ID. " +
+        "Use the id from analyze_query (plan_uri); entries expire and may return not found.")]
     public static async Task<string> GetPlanAsync(
         IPlanStore planStore,
-        [Description("Plan identifier returned by analyze_query.")]
+        [Description("Opaque id from analyze_query (plan_uri path segment). Src: analyze_query.")]
         string id,
         CancellationToken cancellationToken = default)
     {
