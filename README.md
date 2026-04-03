@@ -214,6 +214,22 @@ MCPMSSQL_CONNECTION_STRING = "Server=127.0.0.1;User ID=sa;Password=<YourStrong@P
 }
 ```
 
+### Claude Code
+
+```json
+{
+  "mcpServers": {
+    "mssql": {
+      "command": "dotnet",
+      "args": ["dnx", "Alyio.McpMssql", "--prerelease", "--yes"],
+      "env": {
+        "MCPMSSQL_CONNECTION_STRING": "Server=127.0.0.1;User ID=sa;Password=<YourStrong@Passw0rd>;Encrypt=True;TrustServerCertificate=True;"
+      }
+    }
+  }
+}
+```
+
 ### GitHub Copilot
 
 ```json
