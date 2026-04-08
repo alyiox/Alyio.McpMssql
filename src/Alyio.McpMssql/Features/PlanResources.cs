@@ -28,12 +28,12 @@ public static class PlanResources
         string id,
         CancellationToken cancellationToken = default)
     {
-        return await McpExecutor.RunAsTextAsync(ct =>
+        return await McpExecutor.RunAsTextAsync(async ct =>
         {
-            var xml = planStore.TryGet(id)
+            var xml = await planStore.TryGetAsync(id, ct).ConfigureAwait(false)
                 ?? throw new InvalidOperationException($"Plan '{id}' not found or has expired.");
 
-            return Task.FromResult(xml);
+            return xml;
         }, cancellationToken).ConfigureAwait(false);
     }
 }

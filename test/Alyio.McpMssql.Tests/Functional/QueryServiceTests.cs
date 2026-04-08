@@ -159,7 +159,7 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
         Assert.StartsWith("mssql://plans/", result.PlanUri);
 
         var id = result.PlanUri["mssql://plans/".Length..];
-        var xml = _planStore.TryGet(id);
+        var xml = await _planStore.TryGetAsync(id, CancellationToken);
         Assert.NotNull(xml);
         Assert.Contains("ShowPlanXML", xml);
     }
@@ -243,7 +243,7 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
         Assert.StartsWith("mssql://plans/", result.PlanUri);
 
         var id = result.PlanUri["mssql://plans/".Length..];
-        var xml = _planStore.TryGet(id);
+        var xml = await _planStore.TryGetAsync(id, CancellationToken);
         Assert.NotNull(xml);
         Assert.Contains("ShowPlanXML", xml);
     }

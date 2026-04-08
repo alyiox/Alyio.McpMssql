@@ -71,7 +71,7 @@ internal sealed class QueryService(
         var doc = XDocument.Parse(xmlPlan);
         var result = PlanParser.Parse(doc);
 
-        var id = planStore.Save(xmlPlan);
+        var id = await planStore.SaveAsync(xmlPlan, cancellationToken).ConfigureAwait(false);
 
         return new AnalyzeResult
         {
