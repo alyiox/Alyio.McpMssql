@@ -36,8 +36,8 @@ Use `--prerelease` for pre-release builds. When using the package: entrypoint `d
 
 All settings use the **MCPMSSQL** prefix. **Flat** environment variables (e.g. `MCPMSSQL_CONNECTION_STRING`) are the straightforward way to configure the **default** profile when you have a single connection. **Hierarchical** env vars (e.g. `MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING`) spell out the same profile tree explicitly and are the natural choice when you define multiple named profiles. The same structure under key `MCPMSSQL` is also supported in a user-scoped `appsettings.json` file:
 
-- Unix-like: `~/.config/mcpmssql/appsettings.json`
-- Windows: `%USERPROFILE%\.config\mcpmssql\appsettings.json`
+- Unix-like: `~/.config/mcp-mssql/appsettings.json`
+- Windows: `%USERPROFILE%\.config\mcp-mssql\appsettings.json`
 
 **Single server / one connection:** Set the following as environment variables.
 
@@ -129,6 +129,31 @@ npx -y @modelcontextprotocol/inspector -e DOTNET_ENVIRONMENT=Development dotnet 
 ```
 
 **Azure SQL / Microsoft Entra ID:** This MCP server uses [Microsoft.Data.SqlClient](https://www.nuget.org/packages/Microsoft.Data.SqlClient), which supports Microsoft Entra (Azure AD) authentication. Set the `Authentication` property in the connection string to a supported mode (e.g. `Active Directory Default`, `Active Directory Managed Identity`, or `Active Directory Interactive`) when connecting to Azure SQL. See [Connect to Azure SQL with Microsoft Entra authentication and SqlClient](https://learn.microsoft.com/en-us/sql/connect/ado-net/sql/azure-active-directory-authentication) for all modes and details.
+
+## Breaking changes
+
+Versioned breaking changes for this package and global tool. Review before upgrading.
+
+### 1.0.0-beta.2
+
+#### User-scoped `appsettings.json` directory renamed
+
+**Before:** Configuration file lived next to the old folder name:
+
+- Unix-like: `~/.config/mcpmssql/appsettings.json`
+- Windows: `%USERPROFILE%\.config\mcpmssql\appsettings.json`
+
+**After:** Use the directory that matches the global tool command name `mcp-mssql`:
+
+- Unix-like: `~/.config/mcp-mssql/appsettings.json`
+- Windows: `%USERPROFILE%\.config\mcp-mssql\appsettings.json`
+
+**Migration:** Move `appsettings.json` from `.config/mcpmssql/` to
+`.config/mcp-mssql/` (create the folder if needed). The JSON shape and keys are
+unchanged; only the path changes.
+
+**Rationale:** Aligns the on-disk config location with the shipped tool identity
+and documented paths, and removes ambiguous dual-path loading.
 
 ## Tools and resources
 

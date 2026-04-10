@@ -10,7 +10,7 @@ var builder = Host.CreateApplicationBuilder(args);
 var userConfigPath = Path.Combine(
     Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
     ".config",
-    "mcpmssql",
+    "mcp-mssql",
     "appsettings.json");
 
 // IMPORTANT: MCP stdio transport uses stdout for protocol messages.
