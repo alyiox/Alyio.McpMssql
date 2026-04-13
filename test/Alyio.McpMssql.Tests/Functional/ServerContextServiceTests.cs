@@ -36,6 +36,9 @@ public sealed class ServerContextServiceTests(SqlServerFixture fixture) : SqlSer
         Assert.True(props.Limits.Query.MaxRows.Value > 0);
         Assert.True(props.Limits.Query.HardRowLimit.Value > 0);
         Assert.True(props.Limits.Query.CommandTimeoutSeconds.Value > 0);
+        Assert.True(props.Limits.Query.SnapshotMaxRows.Value > 0);
+        Assert.True(props.Limits.Query.HardSnapshotRowLimit.Value > 0);
+        Assert.True(props.Limits.Query.SnapshotCommandTimeoutSeconds.Value > 0);
     }
 
     [Fact]

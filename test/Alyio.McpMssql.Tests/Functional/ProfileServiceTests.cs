@@ -99,6 +99,23 @@ public sealed class ProfileServiceTests
     }
 
     [Fact]
+    public void Resolve_Default_From_Flat_Keys_Includes_Snapshot_Options()
+    {
+        var envVars = new[]
+        {
+            ("MCPMSSQL_CONNECTION_STRING", "Server=.;TrustServerCertificate=True;"),
+            ("MCPMSSQL_QUERY_SNAPSHOT_MAX_ROWS", "5000"),
+            ("MCPMSSQL_QUERY_SNAPSHOT_COMMAND_TIMEOUT_SECONDS", "60"),
+        };
+        var profileService = BuildProfileService(envVars);
+
+        var profile = profileService.Resolve(null);
+
+        Assert.Equal(5000, profile.Query.SnapshotMaxRows);
+        Assert.Equal(60, profile.Query.SnapshotCommandTimeoutSeconds);
+    }
+
+    [Fact]
     public void Resolve_Default_From_Flat_And_Named_Profile_From_Section()
     {
         var envVars = new[]

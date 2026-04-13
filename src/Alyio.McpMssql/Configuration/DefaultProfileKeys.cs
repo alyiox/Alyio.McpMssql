@@ -36,6 +36,18 @@ internal static class DefaultProfileKeys
     public const string QueryCommandTimeoutSeconds = "MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS";
 
     /// <summary>
+    /// Overrides the maximum number of rows captured for snapshot
+    /// queries on the default profile.
+    /// </summary>
+    public const string QuerySnapshotMaxRows = "MCPMSSQL_QUERY_SNAPSHOT_MAX_ROWS";
+
+    /// <summary>
+    /// Overrides the SQL command timeout (in seconds) for snapshot
+    /// queries on the default profile.
+    /// </summary>
+    public const string QuerySnapshotCommandTimeoutSeconds = "MCPMSSQL_QUERY_SNAPSHOT_COMMAND_TIMEOUT_SECONDS";
+
+    /// <summary>
     /// Overrides the SQL command timeout (in seconds) for analyze
     /// operations on the default profile.
     /// </summary>

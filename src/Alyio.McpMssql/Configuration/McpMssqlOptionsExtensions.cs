@@ -1,7 +1,6 @@
 // MIT License
 
 using Alyio.McpMssql.Configuration;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
 #pragma warning disable IDE0130 // Intentional: extension methods for IServiceCollection
@@ -74,7 +73,6 @@ public static class McpMssqlOptionsExtensions
             }
 
             ClampQueryOptions(profile.Query);
-            NormalizeConnectionString(profile);
         }
     }
 
@@ -93,17 +91,17 @@ public static class McpMssqlOptionsExtensions
             query.CommandTimeoutSeconds,
             min: 1,
             max: QueryOptions.HardCommandTimeoutSeconds);
+
+        query.SnapshotMaxRows = Math.Clamp(
+            query.SnapshotMaxRows,
+            min: 1,
+            max: QueryOptions.HardSnapshotRowLimit);
+
+        query.SnapshotCommandTimeoutSeconds = Math.Clamp(
+            query.SnapshotCommandTimeoutSeconds,
+            min: 1,
+            max: QueryOptions.HardSnapshotCommandTimeoutSeconds);
     }
 
-    private static void NormalizeConnectionString(
-        McpMssqlProfileOptions profile)
-    {
-        var builder = new SqlConnectionStringBuilder(profile.ConnectionString!)
-        {
-            CommandTimeout = profile.Query.CommandTimeoutSeconds
-        };
-
-        profile.ConnectionString = builder.ConnectionString;
-    }
 }
 

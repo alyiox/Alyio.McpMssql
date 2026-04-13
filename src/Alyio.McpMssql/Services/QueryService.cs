@@ -9,13 +9,15 @@ namespace Alyio.McpMssql.Services;
 
 internal sealed class QueryService(
     IProfileService profileService,
-    IPlanStore planStore) : IQueryService
+    IPlanStore planStore,
+    ISnapshotStore snapshotStore) : IQueryService
 {
     public async Task<QueryResult> RunQueryAsync(
         string sql,
         string? catalog = null,
         IReadOnlyDictionary<string, object>? parameters = null,
         string? profile = null,
+        bool snapshot = false,
         CancellationToken cancellationToken = default)
     {
         SqlReadOnlyValidator.Validate(sql);
@@ -30,15 +32,52 @@ internal sealed class QueryService(
         }
 
         var sqlParameters = SqlParameterHelper.Build(parameters);
-        var rowLimit = resolved.Query.MaxRows;
 
-        var result = await conn.ExecuteAsQueryResultAsync(
-            sql,
-            sqlParameters,
-            rowLimit,
-            cancellationToken).ConfigureAwait(false);
+        if (snapshot)
+        {
+            var rowLimit = resolved.Query.SnapshotMaxRows;
+            var timeoutSeconds = resolved.Query.SnapshotCommandTimeoutSeconds;
 
-        return result;
+            var raw = await conn.ExecuteSelectAsync(
+                sql,
+                sqlParameters,
+                rowLimit,
+                timeoutSeconds,
+                cancellationToken).ConfigureAwait(false);
+
+            var csv = CsvSerializer.Serialize(raw.Columns, raw.Rows);
+            var id = await snapshotStore.SaveAsync(csv, cancellationToken).ConfigureAwait(false);
+
+            return new QueryResult
+            {
+                RowCount = raw.Rows.Count,
+                Truncated = raw.Truncated,
+                RowLimit = raw.RowLimit,
+                SnapshotUri = $"mssql://snapshots/{id}",
+            };
+        }
+        else
+        {
+            var rowLimit = resolved.Query.MaxRows;
+            var timeoutSeconds = resolved.Query.CommandTimeoutSeconds;
+
+            var raw = await conn.ExecuteSelectAsync(
+                sql,
+                sqlParameters,
+                rowLimit,
+                timeoutSeconds,
+                cancellationToken).ConfigureAwait(false);
+
+            var csv = CsvSerializer.Serialize(raw.Columns, raw.Rows);
+
+            return new QueryResult
+            {
+                Data = csv,
+                RowCount = raw.Rows.Count,
+                Truncated = raw.Truncated,
+                RowLimit = raw.RowLimit,
+            };
+        }
     }
 
     public async Task<AnalyzeResult> AnalyzeQueryAsync(

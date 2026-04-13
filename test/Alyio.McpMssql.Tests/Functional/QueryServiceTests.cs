@@ -22,13 +22,14 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
             catalog: TestDatabaseName,
             cancellationToken: CancellationToken);
 
-        result.Columns.AssertHasColumns(
-            "UserId",
-            "UserName");
+        Assert.NotNull(result.Data);
+        TabularAssertions.ParseCsvHeaders(result.Data)
+            .AssertHasColumns("UserId", "UserName");
 
-        Assert.Equal(5, result.Rows.Count);
-        Assert.Equal("Alice", result.Rows[0][1]);
-        Assert.Equal("Eve", result.Rows[^1][1]);
+        Assert.Equal(5, result.RowCount);
+        var rows = TabularAssertions.ParseCsvDataRows(result.Data);
+        Assert.Equal("Alice", rows[0][1]);
+        Assert.Equal("Eve", rows[^1][1]);
     }
 
     [Fact]
@@ -43,8 +44,10 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
             },
             cancellationToken: CancellationToken);
 
-        Assert.Single(result.Rows);
-        Assert.Equal("Charlie", result.Rows[0][0]);
+        Assert.Equal(1, result.RowCount);
+        Assert.NotNull(result.Data);
+        var rows = TabularAssertions.ParseCsvDataRows(result.Data);
+        Assert.Equal("Charlie", rows[0][0]);
     }
 
     [Fact]
@@ -65,9 +68,11 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
             },
             cancellationToken: CancellationToken);
 
-        Assert.Single(result.Rows);
-        Assert.Equal("Charlie", result.Rows[0][0]);
-        Assert.Equal(3, result.Rows[0][1]);
+        Assert.Equal(1, result.RowCount);
+        Assert.NotNull(result.Data);
+        var rows = TabularAssertions.ParseCsvDataRows(result.Data);
+        Assert.Equal("Charlie", rows[0][0]);
+        Assert.Equal("3", rows[0][1]);
     }
 
     [Fact]
@@ -84,10 +89,12 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
             },
             cancellationToken: CancellationToken);
 
-        Assert.Equal(3, result.Rows.Count);
-        Assert.Equal("Alice", result.Rows[0][0]);
-        Assert.Equal("Charlie", result.Rows[1][0]);
-        Assert.Equal("Eve", result.Rows[2][0]);
+        Assert.Equal(3, result.RowCount);
+        Assert.NotNull(result.Data);
+        var rows = TabularAssertions.ParseCsvDataRows(result.Data);
+        Assert.Equal("Alice", rows[0][0]);
+        Assert.Equal("Charlie", rows[1][0]);
+        Assert.Equal("Eve", rows[2][0]);
     }
 
     [Fact]
@@ -103,9 +110,11 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
             },
             cancellationToken: CancellationToken);
 
-        Assert.Equal(2, result.Rows.Count);
-        Assert.Equal("Bob", result.Rows[0][1]);
-        Assert.Equal("Diana", result.Rows[1][1]);
+        Assert.Equal(2, result.RowCount);
+        Assert.NotNull(result.Data);
+        var rows = TabularAssertions.ParseCsvDataRows(result.Data);
+        Assert.Equal("Bob", rows[0][1]);
+        Assert.Equal("Diana", rows[1][1]);
     }
 
     [Fact]
@@ -120,8 +129,10 @@ public sealed class QueryServiceTests(SqlServerFixture fixture) : SqlServerFunct
             },
             cancellationToken: CancellationToken);
 
-        Assert.Single(result.Rows);
-        Assert.Equal("Bob", result.Rows[0][0]);
+        Assert.Equal(1, result.RowCount);
+        Assert.NotNull(result.Data);
+        var rows = TabularAssertions.ParseCsvDataRows(result.Data);
+        Assert.Equal("Bob", rows[0][0]);
     }
 
     [Fact]

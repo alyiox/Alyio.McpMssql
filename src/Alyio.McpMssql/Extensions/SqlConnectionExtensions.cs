@@ -2,6 +2,7 @@
 
 using System.Data;
 using Alyio.McpMssql.Models;
+using Microsoft.Data.SqlClient;
 
 #pragma warning disable IDE0130 // Intentional: extension methods for SqlConnection
 namespace Microsoft.Data.SqlClient;
@@ -63,18 +64,20 @@ internal static class SqlConnectionExtensions
     }
 
     /// <summary>
-    /// Executes a query and returns a tabular result consisting of
-    /// column metadata and row values.
-    /// Used by the SELECT query engine and similar read-only operations.
+    /// Executes a SELECT query and returns the raw column and row data.
+    /// Used by the query engine; callers are responsible for format conversion.
     /// </summary>
-    public static async Task<QueryResult> ExecuteAsQueryResultAsync(
+    public static async Task<SelectResult> ExecuteSelectAsync(
         this SqlConnection connection,
         string sql,
         IReadOnlyList<SqlParameter>? parameters,
         int rowLimit,
+        int commandTimeoutSeconds,
         CancellationToken cancellationToken)
     {
         using var cmd = connection.CreateCommand(sql, parameters);
+        cmd.CommandTimeout = commandTimeoutSeconds;
+
         using var reader = await cmd.ExecuteReaderAsync(cancellationToken)
             .ConfigureAwait(false);
 
@@ -83,13 +86,7 @@ internal static class SqlConnectionExtensions
             .ReadRowsAsync(rowLimit, cancellationToken)
             .ConfigureAwait(false);
 
-        return new QueryResult
-        {
-            Columns = columns,
-            Rows = rows,
-            Truncated = truncated,
-            RowLimit = rowLimit
-        };
+        return new SelectResult(columns, rows, truncated, rowLimit);
     }
 
     /// <summary>

@@ -571,11 +571,18 @@
       "alyio.mcpmssql": {
         "type": "Project",
         "dependencies": {
+          "CsvHelper": "[33.1.0, )",
           "Microsoft.Data.SqlClient": "[7.0.0, )",
           "Microsoft.Extensions.Hosting": "[10.0.5, )",
           "Microsoft.Extensions.Options.DataAnnotations": "[10.0.5, )",
           "ModelContextProtocol": "[1.2.0, )"
         }
+      },
+      "CsvHelper": {
+        "type": "CentralTransitive",
+        "requested": "[33.1.0, )",
+        "resolved": "33.1.0",
+        "contentHash": "kqfTOZGrn7NarNeXgjh86JcpTHUoeQDMB8t9NVa/ZtlSYiV1rxfRnQ49WaJsob4AiGrbK0XDzpyKkBwai4F8eg=="
       },
       "Microsoft.Data.SqlClient": {
         "type": "CentralTransitive",

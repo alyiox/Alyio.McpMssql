@@ -21,12 +21,17 @@ public interface IQueryService
     /// <param name="profile">
     /// Optional profile name. If null or empty, the default profile is used.
     /// </param>
+    /// <param name="snapshot">
+    /// When <c>true</c>, persists the full result as a CSV snapshot resource
+    /// and returns only its URI. When <c>false</c> (default), returns rows inline.
+    /// </param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     Task<QueryResult> RunQueryAsync(
         string sql,
         string? catalog = null,
         IReadOnlyDictionary<string, object>? parameters = null,
         string? profile = null,
+        bool snapshot = false,
         CancellationToken cancellationToken = default);
 
     /// <summary>

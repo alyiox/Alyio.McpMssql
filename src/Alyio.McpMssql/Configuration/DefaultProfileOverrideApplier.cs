@@ -43,6 +43,16 @@ internal static class DefaultProfileOverrideApplier
             DefaultProfileKeys.QueryCommandTimeoutSeconds,
             v => query.CommandTimeoutSeconds = v);
 
+        ApplyInt(
+            configuration,
+            DefaultProfileKeys.QuerySnapshotMaxRows,
+            v => query.SnapshotMaxRows = v);
+
+        ApplyInt(
+            configuration,
+            DefaultProfileKeys.QuerySnapshotCommandTimeoutSeconds,
+            v => query.SnapshotCommandTimeoutSeconds = v);
+
         var analyze = profile.Analyze;
 
         ApplyInt(

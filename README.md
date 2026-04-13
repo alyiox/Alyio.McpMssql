@@ -48,11 +48,17 @@ export MCPMSSQL_CONNECTION_STRING="Server=127.0.0.1;User ID=sa;Password=<YourStr
 # Optional description for the default profile (tooling/AI discovery).
 export MCPMSSQL_DESCRIPTION="Primary connection"
 
-# Optional max rows per query (default `5000`).
-export MCPMSSQL_QUERY_MAX_ROWS="5000"
+# Optional max rows per interactive query (default `500`; hard ceiling `1000`).
+export MCPMSSQL_QUERY_MAX_ROWS="500"
 
 # Optional query timeout in seconds (default `30`).
 export MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS="60"
+
+# Optional max rows for snapshot queries (default `10000`; hard ceiling `50000`).
+export MCPMSSQL_QUERY_SNAPSHOT_MAX_ROWS="10000"
+
+# Optional snapshot query timeout in seconds (default `120`).
+export MCPMSSQL_QUERY_SNAPSHOT_COMMAND_TIMEOUT_SECONDS="120"
 
 # Optional analyze timeout in seconds (default `300`).
 export MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS="300"
@@ -70,21 +76,25 @@ Example (environment variables):
 # Default profile
 export MCPMSSQL__PROFILES__DEFAULT__CONNECTIONSTRING="Server=...;User ID=...;Password=...;"
 export MCPMSSQL__PROFILES__DEFAULT__DESCRIPTION="Primary connection"
-export MCPMSSQL__PROFILES__DEFAULT__QUERY__MAXROWS="5000"
+export MCPMSSQL__PROFILES__DEFAULT__QUERY__MAXROWS="500"
 export MCPMSSQL__PROFILES__DEFAULT__QUERY__COMMANDTIMEOUTSECONDS="60"
+export MCPMSSQL__PROFILES__DEFAULT__QUERY__SNAPSHOTMAXROWS="10000"
+export MCPMSSQL__PROFILES__DEFAULT__QUERY__SNAPSHOTCOMMANDTIMEOUTSECONDS="120"
 export MCPMSSQL__PROFILES__DEFAULT__ANALYZE__COMMANDTIMEOUTSECONDS="300"
 
 # Named profile
 export MCPMSSQL__PROFILES__WAREHOUSE__CONNECTIONSTRING="Server=warehouse.example.com;..."
-export MCPMSSQL__PROFILES__WAREHOUSE__QUERY__MAXROWS="10000"
+export MCPMSSQL__PROFILES__WAREHOUSE__QUERY__MAXROWS="1000"
 export MCPMSSQL__PROFILES__WAREHOUSE__QUERY__COMMANDTIMEOUTSECONDS="120"
 export MCPMSSQL__PROFILES__WAREHOUSE__ANALYZE__COMMANDTIMEOUTSECONDS="600"
 
 # Same default profile via flat variables (single connection):
 export MCPMSSQL_CONNECTION_STRING="Server=...;User ID=...;Password=...;"
 export MCPMSSQL_DESCRIPTION="Primary connection"
-export MCPMSSQL_QUERY_MAX_ROWS="5000"
+export MCPMSSQL_QUERY_MAX_ROWS="500"
 export MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS="60"
+export MCPMSSQL_QUERY_SNAPSHOT_MAX_ROWS="10000"
+export MCPMSSQL_QUERY_SNAPSHOT_COMMAND_TIMEOUT_SECONDS="120"
 export MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS="300"
 ```
 
@@ -98,8 +108,10 @@ Example (user-scoped `appsettings.json`):
         "ConnectionString": "Server=...;User ID=...;Password=...;",
         "Description": "Primary connection",
         "Query": {
-          "MaxRows": 5000,
-          "CommandTimeoutSeconds": 60
+          "MaxRows": 500,
+          "CommandTimeoutSeconds": 60,
+          "SnapshotMaxRows": 10000,
+          "SnapshotCommandTimeoutSeconds": 120
         },
         "Analyze": {
           "CommandTimeoutSeconds": 300
@@ -167,7 +179,7 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 | **`get_server_properties`** | Get server properties and execution limits (timeouts, row caps, guardrails). | `profile` |
 | **`list_objects`** | List catalog metadata. `kind=catalog`: databases; `schema`: schemas; `relation`: tables/views; `routine`: procedures/functions. `catalog` omitted → active catalog (ignored for `kind=catalog`). `schema` omission depends on kind. | `kind`, `profile`, `catalog`, `schema` |
 | **`get_object`** | Get metadata for one relation or routine. Use `list_objects` to resolve names. Returns empty detail payloads if `includes` is null. | `kind`, `name`, `profile`, `catalog`, `schema`, `includes` |
-| **`run_query`** | Execute read-only T-SQL SELECT; only SELECT allowed (no DML/DDL). Results bounded by server-enforced limits. Prefer `analyze_query` for plan tuning. | `sql`, `profile`, `catalog`, `parameters` |
+| **`run_query`** | Execute read-only T-SQL SELECT; only SELECT allowed (no DML/DDL). Returns results as CSV in the `data` field (inline) or a snapshot resource URI when `snapshot=true`. Inline limit: 500 rows (hard ceiling 1000). Snapshot limit: 10 000 rows. Prefer `analyze_query` for plan tuning. | `sql`, `profile`, `catalog`, `parameters`, `snapshot` |
 | **`analyze_query`** | Analyze execution plan for a read-only SELECT. Returns compact JSON summary (cost, operators, cardinality, warnings, indexes, waits, stats). Fetch full XML from `plan_uri`; does not return result rows. | `sql`, `profile`, `catalog`, `parameters`, `estimated` |
 
 - **`kind`** — `catalog`, `schema`, `relation`, or `routine`. For `get_object`, only `relation` or `routine`.
@@ -181,9 +193,10 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 | `mssql://server-properties?{profile}` | Get server properties and execution limits. Same data as `get_server_properties`. |
 | `mssql://objects?{kind,profile,catalog,schema}` | List catalog metadata. Schema omission behavior matches `list_objects`. |
 | `mssql://objects/{kind}/{name}{?profile,catalog,schema,includes}` | Get metadata for one relation or routine. `includes` is required. |
-| `mssql://plans/{id}` | Retrieve full XML execution plan by ID from `analyze_query`; entries expire. |
+| `mssql://plans/{id}` | Retrieve full XML execution plan by ID from `analyze_query`; entries expire after 7 days. |
+| `mssql://snapshots/{id}` | Retrieve full query result as CSV by ID from `run_query` (snapshot=true); entries expire after 1 day. |
 
-Resources mirror their corresponding tools and return JSON (except `mssql://plans/{id}` which returns XML).
+Resources mirror their corresponding tools and return JSON (except `mssql://plans/{id}` which returns XML and `mssql://snapshots/{id}` which returns CSV).
 
 ## Security
 

@@ -21,7 +21,9 @@ public static class QueryTools
     [Description(
         "[MSSQL] Execute Read-only T-SQL SELECT and return tabular results. " +
         "Results are bounded by server-enforced limits; only SELECT is allowed (no DML/DDL). " +
-        "Use TOP or OFFSET-FETCH for pagination. Prefer analyze_query when tuning plans.")]
+        "Use TOP or OFFSET-FETCH for pagination. " +
+        "Use snapshot=true for large/reporting queries — returns a resource URI instead of inline rows. " +
+        "Prefer analyze_query when tuning plans.")]
     public static Task<QueryResult> RunQueryAsync(
         IQueryService queryService,
         [Description("Read-only T-SQL SELECT. Bind @paramName placeholders; for IN lists use numbered names (e.g. @id_0, @id_1).")]
@@ -32,10 +34,15 @@ public static class QueryTools
         string? catalog = null,
         [Description("Values for SQL parameters; keys are names without '@' (e.g. id → @id).")]
         IReadOnlyDictionary<string, object>? parameters = null,
+        [Description(
+            "When true, persists the full result as a CSV snapshot resource and returns its URI " +
+            "instead of inline data. Use for large or reporting queries to avoid flooding the " +
+            "context window. Default false.")]
+        bool snapshot = false,
         CancellationToken cancellationToken = default)
     {
         return McpExecutor.RunAsync(
-            ct => queryService.RunQueryAsync(sql, catalog, parameters, profile, ct),
+            ct => queryService.RunQueryAsync(sql, catalog, parameters, profile, snapshot, ct),
             cancellationToken);
     }
 

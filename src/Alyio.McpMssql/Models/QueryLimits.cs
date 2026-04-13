@@ -23,4 +23,19 @@ public sealed class QueryLimits
     /// in seconds.
     /// </summary>
     public required OptionDescriptor<int> CommandTimeoutSeconds { get; init; }
+
+    /// <summary>
+    /// Maximum number of rows captured for a snapshot query.
+    /// </summary>
+    public required OptionDescriptor<int> SnapshotMaxRows { get; init; }
+
+    /// <summary>
+    /// Absolute, non-configurable hard limit for snapshot query row counts.
+    /// </summary>
+    public required OptionDescriptor<int> HardSnapshotRowLimit { get; init; }
+
+    /// <summary>
+    /// Maximum execution time for a snapshot query, in seconds.
+    /// </summary>
+    public required OptionDescriptor<int> SnapshotCommandTimeoutSeconds { get; init; }
 }

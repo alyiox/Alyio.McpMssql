@@ -43,6 +43,33 @@ internal sealed class ExecutionContextService(IProfileService profileService) : 
                         "Maximum execution time allowed for an interactive query before it is terminated.",
                     IsOverridable = false,
                     Scope = "query",
+                },
+
+                SnapshotMaxRows = new OptionDescriptor<int>
+                {
+                    Value = resolved.Query.SnapshotMaxRows,
+                    Description =
+                        "Row cap applied to snapshot queries (snapshot=true). Use for large or reporting queries.",
+                    IsOverridable = true,
+                    Scope = "query",
+                },
+
+                HardSnapshotRowLimit = new OptionDescriptor<int>
+                {
+                    Value = QueryOptions.HardSnapshotRowLimit,
+                    Description =
+                        "Absolute row ceiling for snapshot queries; SnapshotMaxRows is clamped to this value.",
+                    IsOverridable = false,
+                    Scope = "query",
+                },
+
+                SnapshotCommandTimeoutSeconds = new OptionDescriptor<int>
+                {
+                    Value = resolved.Query.SnapshotCommandTimeoutSeconds,
+                    Description =
+                        "Maximum execution time allowed for a snapshot query before it is terminated.",
+                    IsOverridable = true,
+                    Scope = "query",
                 }
             }
         };

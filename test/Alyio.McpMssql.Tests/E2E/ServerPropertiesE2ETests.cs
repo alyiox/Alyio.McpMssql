@@ -61,6 +61,9 @@ public sealed class ServerPropertiesE2ETests(McpServerFixture fixture)
         Assert.True(query.TryGetPropertyIgnoreCase("max_rows", out _));
         Assert.True(query.TryGetPropertyIgnoreCase("hard_row_limit", out _));
         Assert.True(query.TryGetPropertyIgnoreCase("command_timeout_seconds", out _));
+        Assert.True(query.TryGetPropertyIgnoreCase("snapshot_max_rows", out _));
+        Assert.True(query.TryGetPropertyIgnoreCase("hard_snapshot_row_limit", out _));
+        Assert.True(query.TryGetPropertyIgnoreCase("snapshot_command_timeout_seconds", out _));
     }
 
     // ── Resource ──

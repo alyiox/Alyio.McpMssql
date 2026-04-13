@@ -49,11 +49,23 @@ internal static class ResultJsonExtensions
         return (table.GetProperty("columns"), table.GetProperty("rows"));
     }
 
-    public static (bool truncated, int rowLimit) ReadMeta(this JsonElement root)
+    public static (bool truncated, int rowLimit, int rowCount) ReadMeta(this JsonElement root)
     {
         return (
             root.GetProperty("truncated").GetBoolean(),
-            root.GetProperty("rowLimit").GetInt32()
+            root.GetProperty("row_limit").GetInt32(),
+            root.GetProperty("row_count").GetInt32()
+        );
+    }
+
+    /// <summary>
+    /// Reads the CSV data and row count from a <c>run_query</c> result.
+    /// </summary>
+    public static (string csv, int rowCount) ReadQueryData(this JsonElement root)
+    {
+        return (
+            root.GetProperty("data").GetString() ?? string.Empty,
+            root.GetProperty("row_count").GetInt32()
         );
     }
 

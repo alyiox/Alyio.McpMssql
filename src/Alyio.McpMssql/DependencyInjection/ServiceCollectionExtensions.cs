@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IServerContextService, ServerContextService>();
         services.AddSingleton<ICatalogService, CatalogService>();
         services.AddSingleton<IPlanStore, PlanStore>();
+        services.AddSingleton<ISnapshotStore, SnapshotStore>();
         services.AddSingleton<IQueryService, QueryService>();
         services.AddSingleton<IExecutionContextService, ExecutionContextService>();
         services.AddSingleton<IProfileService, ProfileService>();

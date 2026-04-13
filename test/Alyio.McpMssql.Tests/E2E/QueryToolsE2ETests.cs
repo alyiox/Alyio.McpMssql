@@ -28,13 +28,15 @@ public class QueryToolsE2ETests(McpServerFixture fixture) : IClassFixture<McpSer
         var result = await CallRunQueryAsync("SELECT 1 AS Value");
 
         var root = result.ReadJsonRoot();
-        var (columns, rows) = root.ReadColumnRows();
+        var (csv, rowCount) = root.ReadQueryData();
+        var headers = TabularAssertions.ParseCsvHeaders(csv);
+        var rows = TabularAssertions.ParseCsvDataRows(csv);
 
-        Assert.Equal(1, columns.GetArrayLength());
-        Assert.Equal("Value", columns[0].GetString());
-
-        Assert.Equal(1, rows.GetArrayLength());
-        Assert.True(rows[0][0].ValueKind is JsonValueKind.Number);
+        var header = Assert.Single(headers);
+        Assert.Equal("Value", header);
+        Assert.Equal(1, rowCount);
+        Assert.Single(rows);
+        Assert.Equal("1", rows[0][0]);
     }
 
     [Fact]
@@ -48,10 +50,12 @@ public class QueryToolsE2ETests(McpServerFixture fixture) : IClassFixture<McpSer
             });
 
         var root = result.ReadJsonRoot();
-        var (_, rows) = root.ReadColumnRows();
+        var (csv, rowCount) = root.ReadQueryData();
+        var rows = TabularAssertions.ParseCsvDataRows(csv);
 
-        Assert.Equal(1, rows.GetArrayLength());
-        Assert.Equal(42, rows[0][0].GetInt32());
+        Assert.Equal(1, rowCount);
+        Assert.Single(rows);
+        Assert.Equal("42", rows[0][0]);
     }
 
     [Fact]
@@ -62,10 +66,12 @@ public class QueryToolsE2ETests(McpServerFixture fixture) : IClassFixture<McpSer
             catalog: "master");
 
         var root = result.ReadJsonRoot();
-        var (_, rows) = root.ReadColumnRows();
+        var (csv, rowCount) = root.ReadQueryData();
+        var rows = TabularAssertions.ParseCsvDataRows(csv);
 
-        Assert.Equal(1, rows.GetArrayLength());
-        Assert.False(string.IsNullOrWhiteSpace(rows[0][0].GetString()));
+        Assert.Equal(1, rowCount);
+        Assert.Single(rows);
+        Assert.False(string.IsNullOrWhiteSpace(rows[0][0]));
     }
 
     [Fact]
