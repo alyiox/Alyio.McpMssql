@@ -47,6 +47,26 @@ characters in generated commit messages.
 
 ---
 
+## Attribution
+
+All commits must include an `Assisted-by` trailer line:
+
+```
+Assisted-by: AGENT_NAME:MODEL_VERSION [TOOL1] [TOOL2]
+```
+
+* **AGENT_NAME** — the AI tool or framework used (e.g. `Claude`, `Cursor`, `Copilot`)
+* **MODEL_VERSION** — the specific model version (e.g. `claude-opus-4-6`)
+* **[TOOL1] [TOOL2]** — optional, space-separated list of specialized analysis tools used in the change (e.g. `coccinelle`, `sparse`, `smatch`, `clang-tidy`)
+* Do **not** list everyday tools like `git`, `gcc`, `make`, or editors
+
+Example:
+
+```
+Assisted-by: Claude:claude-opus-4-6 coccinelle sparse
+```
+---
+
 ## Code style
 
 Follow existing project conventions.
