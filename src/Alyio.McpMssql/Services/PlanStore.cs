@@ -6,11 +6,11 @@ namespace Alyio.McpMssql.Services;
 
 /// <summary>
 /// Execution plan store backed by <see cref="ContentStore"/>.
-/// Plans are cached under <c>~/.cache/mcpmssql/plans/</c> with a 7-day TTL.
+/// Plans are cached under <c>~/.cache/mcp-mssql/plans/</c> with a 7-day TTL.
 /// </summary>
 internal sealed class PlanStore : ContentStore, IPlanStore
 {
-    private const string CacheRelativePath = ".cache/mcpmssql/plans";
+    private const string CacheRelativePath = ".cache/mcp-mssql/plans";
     private const string FileExtension = ".sqlplan.xml";
     private static readonly TimeSpan s_ttl = TimeSpan.FromDays(7);
 
