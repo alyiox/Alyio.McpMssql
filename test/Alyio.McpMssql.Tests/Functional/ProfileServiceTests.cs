@@ -89,13 +89,13 @@ public sealed class ProfileServiceTests
         var envVars = new[]
         {
             ("MCPMSSQL_CONNECTION_STRING", "Server=.;TrustServerCertificate=True;"),
-            ("MCPMSSQL_QUERY_MAX_ROWS", "2000"),
+            ("MCPMSSQL_QUERY_MAX_ROWS", "750"),
         };
         var profileService = BuildProfileService(envVars);
 
         var profile = profileService.Resolve(null);
 
-        Assert.Equal(2000, profile.Query.MaxRows);
+        Assert.Equal(750, profile.Query.MaxRows);
     }
 
     [Fact]
