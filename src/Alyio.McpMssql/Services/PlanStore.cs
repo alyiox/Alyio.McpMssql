@@ -12,10 +12,10 @@ internal sealed class PlanStore : ContentStore, IPlanStore
 {
     private const string CacheRelativePath = ".cache/mcp-mssql/plans";
     private const string FileExtension = ".sqlplan.xml";
-    private static readonly TimeSpan s_ttl = TimeSpan.FromDays(7);
+    internal static readonly TimeSpan Ttl = TimeSpan.FromDays(7);
 
     public PlanStore(ILogger<PlanStore> logger)
-        : base(CacheRelativePath, FileExtension, s_ttl, logger)
+        : base(CacheRelativePath, FileExtension, Ttl, logger)
     {
     }
 
@@ -23,7 +23,7 @@ internal sealed class PlanStore : ContentStore, IPlanStore
     /// Internal constructor for testing with an explicit directory path.
     /// </summary>
     internal PlanStore(string plansDirectory, ILogger<PlanStore> logger)
-        : base(plansDirectory, FileExtension, s_ttl, logger, default)
+        : base(plansDirectory, FileExtension, Ttl, logger, default)
     {
     }
 }

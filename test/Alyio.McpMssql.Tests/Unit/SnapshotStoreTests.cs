@@ -76,7 +76,7 @@ public class SnapshotStoreTests : IDisposable
     {
         var id = await _store.SaveAsync(SampleCsv, CancellationToken);
         var snapshotPath = Path.Combine(_snapshotsDirectory, $"{id}{SnapshotFileExtension}");
-        File.SetLastWriteTimeUtc(snapshotPath, DateTime.UtcNow.AddDays(-2));
+        File.SetLastWriteTimeUtc(snapshotPath, DateTime.UtcNow - SnapshotStore.Ttl - TimeSpan.FromDays(1));
 
         var reloaded = new SnapshotStore(_snapshotsDirectory, NullLogger<SnapshotStore>.Instance);
         var result = await reloaded.TryGetAsync(id, CancellationToken);
@@ -110,7 +110,7 @@ public class SnapshotStoreTests : IDisposable
         var snapshotPath = Path.Combine(_snapshotsDirectory, $"{id}{SnapshotFileExtension}");
         Directory.CreateDirectory(_snapshotsDirectory);
         await File.WriteAllTextAsync(snapshotPath, SampleCsv, CancellationToken);
-        File.SetLastWriteTimeUtc(snapshotPath, DateTime.UtcNow.AddDays(-2));
+        File.SetLastWriteTimeUtc(snapshotPath, DateTime.UtcNow - SnapshotStore.Ttl - TimeSpan.FromDays(1));
 
         var reloaded = new SnapshotStore(_snapshotsDirectory, NullLogger<SnapshotStore>.Instance);
 

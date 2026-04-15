@@ -76,7 +76,7 @@ public class PlanStoreTests : IDisposable
     {
         var id = await _store.SaveAsync(SampleXml, CancellationToken);
         var planPath = Path.Combine(_plansDirectory, $"{id}{PlanFileExtension}");
-        File.SetLastWriteTimeUtc(planPath, DateTime.UtcNow.AddDays(-8));
+        File.SetLastWriteTimeUtc(planPath, DateTime.UtcNow - PlanStore.Ttl - TimeSpan.FromDays(1));
 
         var reloaded = new PlanStore(_plansDirectory, NullLogger<PlanStore>.Instance);
         var result = await reloaded.TryGetAsync(id, CancellationToken);
@@ -110,7 +110,7 @@ public class PlanStoreTests : IDisposable
         var planPath = Path.Combine(_plansDirectory, $"{id}{PlanFileExtension}");
         Directory.CreateDirectory(_plansDirectory);
         await File.WriteAllTextAsync(planPath, SampleXml, CancellationToken);
-        File.SetLastWriteTimeUtc(planPath, DateTime.UtcNow.AddDays(-8));
+        File.SetLastWriteTimeUtc(planPath, DateTime.UtcNow - PlanStore.Ttl - TimeSpan.FromDays(1));
 
         var reloaded = new PlanStore(_plansDirectory, NullLogger<PlanStore>.Instance);
 

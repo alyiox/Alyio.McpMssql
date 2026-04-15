@@ -12,10 +12,10 @@ internal sealed class SnapshotStore : ContentStore, ISnapshotStore
 {
     private const string CacheRelativePath = ".cache/mcp-mssql/snapshots";
     private const string FileExtension = ".snapshot.csv";
-    private static readonly TimeSpan s_ttl = TimeSpan.FromDays(7);
+    internal static readonly TimeSpan Ttl = TimeSpan.FromDays(7);
 
     public SnapshotStore(ILogger<SnapshotStore> logger)
-        : base(CacheRelativePath, FileExtension, s_ttl, logger)
+        : base(CacheRelativePath, FileExtension, Ttl, logger)
     {
     }
 
@@ -23,7 +23,7 @@ internal sealed class SnapshotStore : ContentStore, ISnapshotStore
     /// Internal constructor for testing with an explicit directory path.
     /// </summary>
     internal SnapshotStore(string snapshotsDirectory, ILogger<SnapshotStore> logger)
-        : base(snapshotsDirectory, FileExtension, s_ttl, logger, default)
+        : base(snapshotsDirectory, FileExtension, Ttl, logger, default)
     {
     }
 }
