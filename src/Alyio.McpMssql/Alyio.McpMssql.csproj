@@ -10,8 +10,8 @@
     <UserSecretsId>3852cfb6-6088-4198-9394-a7c0cb1f19a0</UserSecretsId>
     <Authors>Jon X</Authors>
     <Company>Jon X</Company>
-    <RepositoryUrl>https://github.com/alyiox/Alyio.McpMssql</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/alyiox/Alyio.McpMssql</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/alyiox/mcp-mssql</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/alyiox/mcp-mssql</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>mcp;sqlserver;mssql;tool;protocol</PackageTags>
     <Copyright>Copyright (c) 2026 Jon X</Copyright>
