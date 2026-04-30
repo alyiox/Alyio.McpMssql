@@ -12,6 +12,7 @@
         "--verbosity",
         "minimal"
       ],
+      "filteringRule": "staged",
       "include": [
         "**/*.cs",
         "**/*.csproj",
@@ -31,6 +32,7 @@
         "--configuration",
         "Release"
       ],
+      "filteringRule": "staged",
       "include": [
         "**/*.cs",
         "**/*.csproj",
