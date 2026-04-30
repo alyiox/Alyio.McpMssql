@@ -1,0 +1,83 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.alyiox/mcp-mssql",
+  "title": "Microsoft SQL Server",
+  "description": "Read-only MCP for Microsoft SQL Server: metadata discovery, parameterized SELECT, plans.",
+  "websiteUrl": "https://github.com/alyiox/mcp-mssql",
+  "repository": {
+    "url": "https://github.com/alyiox/mcp-mssql",
+    "source": "github",
+    "subfolder": "src/Alyio.McpMssql"
+  },
+  "version": "1.0.0-beta.4",
+  "packages": [
+    {
+      "registryType": "nuget",
+      "registryBaseUrl": "https://api.nuget.org/v3/index.json",
+      "identifier": "Alyio.McpMssql",
+      "version": "1.0.0-beta.4",
+      "runtimeHint": "dnx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "MCPMSSQL_CONNECTION_STRING",
+          "description": "Default profile SQL Server connection string (often contains secrets). Optional if profiles are only in user appsettings.",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "MCPMSSQL_DESCRIPTION",
+          "description": "Optional human-readable description for the default profile.",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "MCPMSSQL_QUERY_MAX_ROWS",
+          "description": "Max rows per interactive query (default 500; ceiling 1000).",
+          "isRequired": false,
+          "format": "number",
+          "isSecret": false
+        },
+        {
+          "name": "MCPMSSQL_QUERY_COMMAND_TIMEOUT_SECONDS",
+          "description": "Interactive query command timeout in seconds (default 30).",
+          "isRequired": false,
+          "format": "number",
+          "isSecret": false
+        },
+        {
+          "name": "MCPMSSQL_QUERY_SNAPSHOT_MAX_ROWS",
+          "description": "Max rows for snapshot queries (default 10000; ceiling 50000).",
+          "isRequired": false,
+          "format": "number",
+          "isSecret": false
+        },
+        {
+          "name": "MCPMSSQL_QUERY_SNAPSHOT_COMMAND_TIMEOUT_SECONDS",
+          "description": "Snapshot query timeout in seconds (default 120).",
+          "isRequired": false,
+          "format": "number",
+          "isSecret": false
+        },
+        {
+          "name": "MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS",
+          "description": "Execution plan analysis timeout in seconds (default 300).",
+          "isRequired": false,
+          "format": "number",
+          "isSecret": false
+        },
+        {
+          "name": "DOTNET_ENVIRONMENT",
+          "description": "Set to Development to load dotnet user-secrets (local dev).",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}

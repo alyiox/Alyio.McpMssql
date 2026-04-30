@@ -1,5 +1,7 @@
 # MCP SQL Server Tool
 
+<!-- mcp-name: io.github.alyiox/mcp-mssql -->
+
 [![Build Status](https://github.com/alyiox/mcp-mssql/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alyiox/mcp-mssql/actions/workflows/ci.yml)
 [![NuGet Version](https://img.shields.io/nuget/v/Alyio.McpMssql.svg)](https://www.nuget.org/packages/Alyio.McpMssql)
 

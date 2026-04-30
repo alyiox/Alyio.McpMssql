@@ -120,18 +120,33 @@ jobs:
       name: nuget
       url: https://www.nuget.org/packages/Alyio.McpMssql/${{ github.ref_name }}
     permissions:
-      packages: write
+      contents: read
+      id-token: write
     steps:
-      - name: Download NuGet package
-        uses: actions/download-artifact@v7
-        with:
-          name: nuget-packages
-          path: ./artifacts
+      - name: Checkout
+        uses: actions/checkout@v6
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Download NuGet package
+        uses: actions/download-artifact@v7
+        with:
+          name: nuget-packages
+          path: ./artifacts
+
       - name: Publish to NuGet
         run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      # MCP Registry (see https://modelcontextprotocol.io/registry/github-actions)
+      - name: Install MCP Registry publisher
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+
+      - name: Authenticate to MCP Registry
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish server to MCP Registry
+        run: ./mcp-publisher publish
