@@ -140,6 +140,30 @@ jobs:
       - name: Publish to NuGet
         run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
+      - name: Wait for NuGet package indexing
+        env:
+          PACKAGE_ID: Alyio.McpMssql
+          PACKAGE_VERSION: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          package_id="$(echo "$PACKAGE_ID" | tr '[:upper:]' '[:lower:]')"
+          url="https://api.nuget.org/v3-flatcontainer/${package_id}/index.json"
+
+          for attempt in {1..60}; do
+            echo "Checking NuGet for ${PACKAGE_ID} ${PACKAGE_VERSION} (${attempt}/60)..."
+
+            if curl -fsSL "$url" | python3 -c 'import json, os, sys; versions = json.load(sys.stdin).get("versions", []); sys.exit(0 if os.environ["PACKAGE_VERSION"].lower() in versions else 1)'; then
+              echo "NuGet package is indexed."
+              exit 0
+            fi
+
+            sleep 10
+          done
+
+          echo "Timed out waiting for NuGet package indexing."
+          exit 1
+
       # MCP Registry (see https://modelcontextprotocol.io/registry/github-actions)
       - name: Install MCP Registry publisher
         run: |
