@@ -9,13 +9,13 @@
     "source": "github",
     "subfolder": "src/Alyio.McpMssql"
   },
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0",
   "packages": [
     {
       "registryType": "nuget",
       "registryBaseUrl": "https://api.nuget.org/v3/index.json",
       "identifier": "Alyio.McpMssql",
-      "version": "1.0.0-beta.4",
+      "version": "1.0.0",
       "runtimeHint": "dnx",
       "transport": {
         "type": "stdio"
