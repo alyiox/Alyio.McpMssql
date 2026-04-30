@@ -1,4 +1,4 @@
-name: CI
+name: ci
 
 on:
   push:
@@ -102,10 +102,10 @@ jobs:
       - name: Add coverage to job summary
         run: cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
 
-      - name: Pack NuGet package
+      - name: Pack NuGet package for release
         run: dotnet pack --configuration ${{ env.CONFIGURATION }} --no-build --output ./artifacts
 
-      - name: Upload NuGet package
+      - name: Upload release package artifact
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v6
         with:
@@ -113,6 +113,7 @@ jobs:
           path: ./artifacts/*.nupkg
 
   publish:
+    name: Publish release
     if: startsWith(github.ref, 'refs/tags/')
     needs: build
     runs-on: ubuntu-latest
@@ -123,24 +124,24 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - name: Checkout
+      - name: Checkout release source
         uses: actions/checkout@v6
 
-      - name: Setup .NET
+      - name: Setup .NET for release
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Download NuGet package
+      - name: Download release package artifact
         uses: actions/download-artifact@v7
         with:
           name: nuget-packages
           path: ./artifacts
 
-      - name: Publish to NuGet
+      - name: Publish release package to NuGet
         run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
-      - name: Wait for NuGet package indexing
+      - name: Wait for NuGet release indexing
         env:
           PACKAGE_ID: Alyio.McpMssql
           PACKAGE_VERSION: ${{ github.ref_name }}
@@ -165,12 +166,12 @@ jobs:
           exit 1
 
       # MCP Registry (see https://modelcontextprotocol.io/registry/github-actions)
-      - name: Install MCP Registry publisher
+      - name: Install MCP Registry release publisher
         run: |
           curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
 
-      - name: Authenticate to MCP Registry
+      - name: Authenticate MCP Registry release publisher
         run: ./mcp-publisher login github-oidc
 
-      - name: Publish server to MCP Registry
+      - name: Publish release to MCP Registry
         run: ./mcp-publisher publish
