@@ -5,7 +5,7 @@
 [![Build Status](https://github.com/alyiox/mcp-mssql/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alyiox/mcp-mssql/actions/workflows/ci.yml)
 [![NuGet Version](https://img.shields.io/nuget/v/Alyio.McpMssql.svg)](https://www.nuget.org/packages/Alyio.McpMssql)
 
-A read-only [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for Microsoft SQL Server that supports metadata discovery, parameterized queries, and query analysis, with profile-based configuration and strict no-DML/DDL enforcement.
+A read-only-by-default [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for Microsoft SQL Server that supports metadata discovery, parameterized queries, and query analysis, with profile-based configuration. The query tools enforce SELECT-only (no DML/DDL); an optional `run_command` tool can execute arbitrary write T-SQL, but only on profiles that explicitly opt in via `AllowWrite` (locked off by default).
 
 **Requirements:** .NET 8.0 or later runtime (the tool targets `net8.0` and `net10.0`), SQL Server, and a connection string. Building from source requires the .NET 10.0 SDK.
 
@@ -61,6 +61,13 @@ export MCPMSSQL_QUERY_SNAPSHOT_COMMAND_TIMEOUT_SECONDS="120"
 
 # Optional analyze timeout in seconds (default `300`).
 export MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS="300"
+
+# Optional: enable write commands (DDL/DML) via run_command (default `false`).
+# Soft guard only — prefer a db_datareader login for a hard read-only guarantee.
+export MCPMSSQL_ALLOW_WRITE="false"
+
+# Optional write command timeout in seconds (default `60`; hard ceiling `600`).
+export MCPMSSQL_WRITE_COMMAND_TIMEOUT_SECONDS="60"
 ```
 
 **Multiple connections:** Use the user-scoped `appsettings.json` file (recommended). Env vars also work via .NET host conventions (`MCPMSSQL__PROFILES__<NAME>__CONNECTIONSTRING`, etc.).
@@ -90,6 +97,14 @@ Example (`appsettings.json`):
       "warehouse": {
         "ConnectionString": "Server=warehouse.example.com;...",
         "Description": "Warehouse read-only"
+      },
+      "migrations": {
+        "ConnectionString": "Server=...;User ID=...;Password=...;",
+        "Description": "Write-enabled profile for schema changes",
+        "AllowWrite": true,
+        "Write": {
+          "CommandTimeoutSeconds": 60
+        }
       }
     }
   }
@@ -119,6 +134,7 @@ All tools accept an optional `profile`; when omitted, the default profile is use
 | **`get_object`** | Get metadata for one relation or routine. Use `list_objects` to resolve names. Returns empty detail payloads if `includes` is null. | `kind`, `name`, `profile`, `catalog`, `schema`, `includes` |
 | **`run_query`** | Execute read-only T-SQL SELECT; only SELECT allowed (no DML/DDL). Returns results as CSV in the `data` field (inline) or a snapshot resource URI when `snapshot=true`. Inline limit: 500 rows (hard ceiling 1000). Snapshot limit: 10 000 rows. Prefer `analyze_query` for plan tuning. | `sql`, `profile`, `catalog`, `parameters`, `snapshot` |
 | **`analyze_query`** | Analyze execution plan for a read-only SELECT. Returns compact JSON summary (cost, operators, cardinality, warnings, indexes, waits, stats). Fetch full XML from `plan_uri`; does not return result rows. | `sql`, `profile`, `catalog`, `parameters`, `estimated` |
+| **`run_command`** | Execute write T-SQL (DDL/DML). Rejected unless the target `profile` sets `AllowWrite=true` (off by default). Caller manages transactions. Returns `rows_affected` (−1 for DDL) and server `messages`. Marked destructive; intended for human-supervised use. | `sql`, `profile`, `catalog`, `parameters` |
 
 - **`kind`** — `catalog`, `schema`, `relation`, or `routine`. For `get_object`, only `relation` or `routine`.
 - **`includes`** — Array of detail sections: `columns`, `indexes`, `constraints` (relations only), `definition` (routines only).
@@ -138,7 +154,11 @@ Resources mirror their corresponding tools and return JSON (except `mssql://plan
 
 ## Security
 
-Read-only (`SELECT` only); parameterized `@paramName`. Use environment variables or user-secrets for connection strings—never commit secrets.
+The query tools (`run_query`, `analyze_query`) are read-only (`SELECT` only) and use parameterized `@paramName` binding. Use environment variables or user-secrets for connection strings—never commit secrets.
+
+**Writes are opt-in.** The `run_command` tool executes arbitrary T-SQL. It is rejected unless the target profile sets `AllowWrite=true`, which defaults to `false`, so existing deployments stay read-only with no change. The tool is always advertised and rejects at call time on locked profiles.
+
+`AllowWrite` is a soft, application-level guard, **not** a security boundary — it constrains this server, not the database. For a genuine read-only guarantee, connect with a login restricted to `db_datareader`, and keep write-enabled profiles pointed at credentials scoped to only what they need. `run_command` is marked `destructive` via MCP tool annotations so hosts can gate it behind confirmation, but honor those annotations at the host's discretion.
 
 ## MCP host examples
 

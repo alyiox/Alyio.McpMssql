@@ -59,6 +59,19 @@ internal static class DefaultProfileOverrideApplier
             configuration,
             DefaultProfileKeys.AnalyzeCommandTimeoutSeconds,
             v => analyze.CommandTimeoutSeconds = v);
+
+        var allowWrite = GetBool(configuration, DefaultProfileKeys.AllowWrite);
+        if (allowWrite is not null)
+        {
+            profile.AllowWrite = allowWrite.Value;
+        }
+
+        var write = profile.Write;
+
+        ApplyInt(
+            configuration,
+            DefaultProfileKeys.WriteCommandTimeoutSeconds,
+            v => write.CommandTimeoutSeconds = v);
     }
 
     private static void ApplyInt(IConfiguration configuration, string key, Action<int> apply)
@@ -68,6 +81,19 @@ internal static class DefaultProfileOverrideApplier
         {
             apply(value.Value);
         }
+    }
+
+    private static bool? GetBool(IConfiguration configuration, string key)
+    {
+        string? value = configuration[key];
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        return bool.TryParse(value.Trim(), out var parsed)
+            ? parsed
+            : null;
     }
 
     private static string? GetString(IConfiguration configuration, string key)

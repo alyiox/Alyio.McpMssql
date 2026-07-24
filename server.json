@@ -9,13 +9,13 @@
     "source": "github",
     "subfolder": "src/Alyio.McpMssql"
   },
-  "version": "1.1.0",
+  "version": "1.2.0",
   "packages": [
     {
       "registryType": "nuget",
       "registryBaseUrl": "https://api.nuget.org/v3/index.json",
       "identifier": "Alyio.McpMssql",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "runtimeHint": "dnx",
       "transport": {
         "type": "stdio"
@@ -66,6 +66,20 @@
         {
           "name": "MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS",
           "description": "Execution plan analysis timeout in seconds (default 300).",
+          "isRequired": false,
+          "format": "number",
+          "isSecret": false
+        },
+        {
+          "name": "MCPMSSQL_ALLOW_WRITE",
+          "description": "Enable write commands (DDL/DML) via run_command on the default profile (default false). Soft guard only — prefer a db_datareader login for a hard read-only guarantee.",
+          "isRequired": false,
+          "format": "boolean",
+          "isSecret": false
+        },
+        {
+          "name": "MCPMSSQL_WRITE_COMMAND_TIMEOUT_SECONDS",
+          "description": "Write command timeout in seconds (default 60; ceiling 600).",
           "isRequired": false,
           "format": "number",
           "isSecret": false

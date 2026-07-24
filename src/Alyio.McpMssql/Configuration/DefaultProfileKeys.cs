@@ -53,4 +53,16 @@ internal static class DefaultProfileKeys
     /// </summary>
     public const string AnalyzeCommandTimeoutSeconds = "MCPMSSQL_ANALYZE_COMMAND_TIMEOUT_SECONDS";
 
+    /// <summary>
+    /// Enables write commands (DDL/DML) on the default profile.
+    /// Accepts standard boolean values (e.g. <c>true</c>/<c>false</c>).
+    /// </summary>
+    public const string AllowWrite = "MCPMSSQL_ALLOW_WRITE";
+
+    /// <summary>
+    /// Overrides the SQL command timeout (in seconds) for write
+    /// commands on the default profile.
+    /// </summary>
+    public const string WriteCommandTimeoutSeconds = "MCPMSSQL_WRITE_COMMAND_TIMEOUT_SECONDS";
+
 }

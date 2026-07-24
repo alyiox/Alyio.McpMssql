@@ -73,6 +73,7 @@ public static class McpMssqlOptionsExtensions
             }
 
             ClampQueryOptions(profile.Query);
+            ClampWriteOptions(profile.Write);
         }
     }
 
@@ -101,6 +102,14 @@ public static class McpMssqlOptionsExtensions
             query.SnapshotCommandTimeoutSeconds,
             min: 1,
             max: QueryOptions.HardSnapshotCommandTimeoutSeconds);
+    }
+
+    private static void ClampWriteOptions(WriteOptions write)
+    {
+        write.CommandTimeoutSeconds = Math.Clamp(
+            write.CommandTimeoutSeconds,
+            min: 1,
+            max: WriteOptions.HardCommandTimeoutSeconds);
     }
 
 }
