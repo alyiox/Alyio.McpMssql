@@ -17,7 +17,7 @@ public static class WriteTools
     /// <summary>
     /// Execute an arbitrary write T-SQL command (DDL/DML).
     /// </summary>
-    [McpServerTool(UseStructuredContent = true, Destructive = true, ReadOnly = false)]
+    [McpServerTool(UseStructuredContent = true, Destructive = true, ReadOnly = false, Idempotent = false, OpenWorld = false)]
     [Description(
         "[MSSQL] Execute write T-SQL (DDL/DML). " +
         "Requires a write-enabled profile; rejected on read-only profiles (the default). " +
