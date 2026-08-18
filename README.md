@@ -4,6 +4,7 @@
 
 [![Build Status](https://github.com/alyiox/mcp-mssql/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alyiox/mcp-mssql/actions/workflows/ci.yml)
 [![NuGet Version](https://img.shields.io/nuget/v/Alyio.McpMssql.svg)](https://www.nuget.org/packages/Alyio.McpMssql)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 A read-only-by-default [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for Microsoft SQL Server that supports metadata discovery, parameterized queries, and query analysis, with profile-based configuration. The query tools enforce SELECT-only (no DML/DDL); an optional `run_command` tool can execute arbitrary write T-SQL, but only on profiles that explicitly opt in via `AllowWrite` (locked off by default).
 
