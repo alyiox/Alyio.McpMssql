@@ -285,6 +285,12 @@ CI does the same, iterating over `TARGET_FRAMEWORKS` sequentially.
 
 Data API Builder (DAB) is a full REST/GraphQL API with CRUD and auth. This project is a small, read-only MCP server for agents: stdio, parameterized SELECT only, minimal surface. Choose this for agent workflows and low operational overhead; choose DAB for CRUD, REST/GraphQL, and rich policies.
 
+## Roadmap
+
+**MCP Tasks extension ([SEP-2663](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2663)).** Snapshot queries and execution-plan analysis run under long timeouts (120 s and 300 s by default), which is the shape the [Tasks extension](https://modelcontextprotocol.io/extensions/tasks/overview) exists for: the server returns a durable task handle instead of blocking, and the client polls `tasks/get` until the work reaches a terminal state.
+
+The fit is good; adoption is the blocker. Tasks is an opt-in extension (`io.modelcontextprotocol/tasks`) that a server may only use when the client declares support in its per-request capabilities, and no client currently lists it in the [extension support matrix](https://modelcontextprotocol.io/extensions/client-matrix). Deferred until clients ship support.
+
 ## Contributing
 
 Open issues or PRs; follow existing style and add tests where appropriate.
