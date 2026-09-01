@@ -7,7 +7,7 @@
     <PackageType>McpServer</PackageType>
     <ToolCommandName>mcp-mssql</ToolCommandName>
     <Description>Read-only-by-default Model Context Protocol (MCP) server for Microsoft SQL Server. Metadata discovery, parameterized SELECT-only queries, and execution-plan analysis for diagnosing slow queries. Profile-based configuration serves multiple connections from one server; write T-SQL is locked off behind a per-profile opt-in. Runs as a .NET tool over stdio via dnx.</Description>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <UserSecretsId>3852cfb6-6088-4198-9394-a7c0cb1f19a0</UserSecretsId>
     <Authors>Jon X</Authors>
     <Company>Jon X</Company>
