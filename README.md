@@ -6,7 +6,9 @@
 [![NuGet Version](https://img.shields.io/nuget/v/Alyio.McpMssql.svg)](https://www.nuget.org/packages/Alyio.McpMssql)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A read-only-by-default [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for Microsoft SQL Server that supports metadata discovery, parameterized queries, and query analysis, with profile-based configuration. The query tools enforce SELECT-only (no DML/DDL); an optional `run_command` tool can execute arbitrary write T-SQL, but only on profiles that explicitly opt in via `AllowWrite` (locked off by default).
+A read-only-by-default [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for Microsoft SQL Server. Beyond schema discovery and parameterized SELECT queries, it exposes **execution-plan analysis**: `analyze_query` returns cost, operators, cardinality estimates, warnings, and index suggestions, so an agent can work out *why* a query is slow instead of only running it. Profile-based configuration serves multiple connections from a single server.
+
+The query tools enforce SELECT-only (no DML/DDL); an optional `run_command` tool can execute arbitrary write T-SQL, but only on profiles that explicitly opt in via `AllowWrite` (locked off by default).
 
 **Requirements:** .NET 8.0 or later runtime (the tool targets `net8.0` and `net10.0`), SQL Server, and a connection string. Building from source requires the .NET 10.0 SDK.
 
