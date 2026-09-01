@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <PackAsTool>true</PackAsTool>
+    <PackageType>McpServer</PackageType>
     <ToolCommandName>mcp-mssql</ToolCommandName>
     <Description>Read-only Model Context Protocol (MCP) server for Microsoft SQL Server: metadata discovery, parameterized queries, and query analysis, with profile-based configuration and strict no-DML/DDL enforcement.</Description>
     <Version>1.2.0</Version>
@@ -28,6 +29,10 @@
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <!-- Embed the MCP registry manifest so nuget.org and MCP clients can
+         discover the server and prompt for its inputs. Packed from the
+         repo-root manifest so there is a single source of truth. -->
+    <None Include="..\..\server.json" Pack="true" PackagePath=".mcp" />
   </ItemGroup>
 
   <ItemGroup>
