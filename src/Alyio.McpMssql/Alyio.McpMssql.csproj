@@ -6,7 +6,7 @@
     <PackAsTool>true</PackAsTool>
     <PackageType>McpServer</PackageType>
     <ToolCommandName>mcp-mssql</ToolCommandName>
-    <Description>Read-only Model Context Protocol (MCP) server for Microsoft SQL Server: metadata discovery, parameterized queries, and query analysis, with profile-based configuration and strict no-DML/DDL enforcement.</Description>
+    <Description>Read-only-by-default Model Context Protocol (MCP) server for Microsoft SQL Server. Metadata discovery, parameterized SELECT-only queries, and execution-plan analysis for diagnosing slow queries. Profile-based configuration serves multiple connections from one server; write T-SQL is locked off behind a per-profile opt-in. Runs as a .NET tool over stdio via dnx.</Description>
     <Version>1.2.0</Version>
     <UserSecretsId>3852cfb6-6088-4198-9394-a7c0cb1f19a0</UserSecretsId>
     <Authors>Jon X</Authors>
@@ -14,7 +14,7 @@
     <RepositoryUrl>https://github.com/alyiox/mcp-mssql</RepositoryUrl>
     <PackageProjectUrl>https://github.com/alyiox/mcp-mssql</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>mcp;sqlserver;mssql;tool;protocol</PackageTags>
+    <PackageTags>mcp;mcp-server;model-context-protocol;sqlserver;mssql;sql-server;azure-sql;database;sql;execution-plan;query-optimization;dnx;ai;llm</PackageTags>
     <Copyright>Copyright (c) 2026 Jon X</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
